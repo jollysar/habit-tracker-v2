@@ -1,0 +1,72 @@
+import { useEffect, type MouseEvent } from "react";
+import { AlertTriangle, Trash2, X } from "lucide-react";
+import type { TodayHabit } from "../../domain/habits/models";
+import { Button } from "./ui/Button";
+
+interface DeleteHabitDialogProps {
+  readonly habit?: TodayHabit;
+  readonly onCancel: () => void;
+  readonly onConfirm: () => void;
+}
+
+export function DeleteHabitDialog({ habit, onCancel, onConfirm }: DeleteHabitDialogProps) {
+  useEffect(() => {
+    if (!habit) return;
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onCancel();
+    };
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [habit, onCancel]);
+
+  if (!habit) return null;
+
+  const handleBackdrop = (event: MouseEvent<HTMLDivElement>) => {
+    if (event.target === event.currentTarget) onCancel();
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-[60] grid place-items-center bg-ink-950/50 p-4 backdrop-blur-[2px]"
+      role="presentation"
+      onMouseDown={handleBackdrop}
+    >
+      <section
+        className="w-full max-w-md rounded-2xl border border-line bg-surface p-5 shadow-2xl sm:p-6"
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="delete-habit-title"
+        aria-describedby="delete-habit-description"
+      >
+        <div className="flex items-start justify-between gap-4">
+          <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400">
+            <AlertTriangle size={19} aria-hidden="true" />
+          </span>
+          <Button variant="ghost" size="icon" onClick={onCancel} aria-label="Close delete warning">
+            <X size={18} aria-hidden="true" />
+          </Button>
+        </div>
+        <h2 id="delete-habit-title" className="mt-4 text-xl font-bold tracking-[-0.03em]">
+          Delete “{habit.name}”?
+        </h2>
+        <p id="delete-habit-description" className="mt-2 text-sm leading-6 text-ink-600">
+          This removes the habit. If you want to track it again later, you’ll have to set the habit up again from the start.
+        </p>
+        <p className="mt-3 rounded-xl border border-red-100 bg-red-50 px-3 py-2.5 text-xs leading-5 text-red-700 dark:border-red-900/50 dark:bg-red-950/25 dark:text-red-300">
+          Existing completion history is retained locally for accurate analytics,
+          but the habit will be removed from your active lists.
+        </p>
+        <div className="mt-6 flex justify-end gap-3">
+          <Button variant="secondary" onClick={onCancel}>Cancel</Button>
+          <button
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-red-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-red-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+            onClick={onConfirm}
+          >
+            <Trash2 size={16} aria-hidden="true" />
+            Delete habit
+          </button>
+        </div>
+      </section>
+    </div>
+  );
+}

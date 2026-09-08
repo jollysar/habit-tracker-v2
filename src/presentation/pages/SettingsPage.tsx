@@ -1,0 +1,350 @@
+import { useState } from "react";
+import {
+  AlertTriangle,
+  CalendarRange,
+  Check,
+  Database,
+  Download,
+  FileJson,
+  FileSpreadsheet,
+  HardDriveDownload,
+  Laptop,
+  LockKeyhole,
+  Moon,
+  Palette,
+  RotateCcw,
+  ShieldCheck,
+  Sun,
+  X,
+} from "lucide-react";
+import type { AppTone, ThemePreference, Weekday } from "../../domain/habits/models";
+import { cn } from "../../lib/cn";
+import { Button } from "../components/ui/Button";
+import { Card } from "../components/ui/Card";
+
+type WeekStart = Extract<Weekday, "mon" | "sun">;
+
+interface SettingsPageProps {
+  readonly themePreference: ThemePreference;
+  readonly appTone: AppTone;
+  readonly weekStartsOn: WeekStart;
+  readonly habitCount: number;
+  readonly completionCount: number;
+  readonly scheduleCount: number;
+  readonly onThemeChange: (theme: ThemePreference) => void;
+  readonly onAppToneChange: (tone: AppTone) => void;
+  readonly onWeekStartsOnChange: (weekday: WeekStart) => void;
+  readonly onExport: (format: "json" | "csv") => Promise<string | null>;
+  readonly onBackup: () => Promise<string | null>;
+  readonly onRestore: () => Promise<string | null>;
+}
+
+interface OperationStatus {
+  readonly tone: "success" | "error";
+  readonly message: string;
+}
+
+function pathName(path: string): string {
+  return path.split(/[\\/]/).pop() ?? path;
+}
+
+export function SettingsPage({
+  themePreference,
+  appTone,
+  weekStartsOn,
+  habitCount,
+  completionCount,
+  scheduleCount,
+  onThemeChange,
+  onAppToneChange,
+  onWeekStartsOnChange,
+  onExport,
+  onBackup,
+  onRestore,
+}: SettingsPageProps) {
+  const [busyAction, setBusyAction] = useState<string>();
+  const [status, setStatus] = useState<OperationStatus>();
+  const [confirmRestore, setConfirmRestore] = useState(false);
+
+  const run = async (label: string, operation: () => Promise<string | null>) => {
+    setBusyAction(label);
+    setStatus(undefined);
+    try {
+      const result = await operation();
+      if (result) {
+        setStatus({
+          tone: "success",
+          message: label === "Restore"
+            ? result
+            : `${label} saved as ${pathName(result)}.`,
+        });
+      }
+    } catch (error) {
+      setStatus({
+        tone: "error",
+        message: error instanceof Error
+          ? error.message
+          : typeof error === "string"
+            ? error
+            : `${label} failed. Please try again.`,
+      });
+    } finally {
+      setBusyAction(undefined);
+    }
+  };
+
+  const themeOptions: ReadonlyArray<{
+    id: ThemePreference;
+    label: string;
+    description: string;
+    icon: typeof Laptop;
+  }> = [
+    { id: "system", label: "System", description: "Follow macOS", icon: Laptop },
+    { id: "light", label: "Light", description: "Always light", icon: Sun },
+    { id: "dark", label: "Dark", description: "Always dark", icon: Moon },
+  ];
+  const toneOptions: ReadonlyArray<{
+    id: AppTone;
+    label: string;
+    swatch: string;
+  }> = [
+    { id: "blue", label: "Blue", swatch: "#3b82f6" },
+    { id: "purple", label: "Purple", swatch: "#8b5cf6" },
+    { id: "green", label: "Green", swatch: "#22a06b" },
+    { id: "yellow", label: "Yellow", swatch: "#e3a008" },
+    { id: "orange", label: "Orange", swatch: "#f97316" },
+    { id: "coral", label: "Coral", swatch: "#f0645a" },
+  ];
+
+  return (
+    <div className="mx-auto max-w-[1200px] px-5 py-7 sm:px-8 sm:py-9 xl:px-12">
+      <header>
+        <p className="mb-2 text-sm font-medium text-ink-400">Make it yours</p>
+        <h1 className="text-3xl font-bold tracking-[-0.045em] sm:text-4xl">Settings</h1>
+        <p className="mt-2 text-sm text-ink-600">Appearance, calendar preferences, and control of your local data.</p>
+      </header>
+
+      {status && (
+        <div
+          className={cn(
+            "mt-6 flex items-start gap-3 rounded-xl border px-4 py-3 text-sm",
+            status.tone === "success"
+              ? "border-leaf-100 bg-leaf-50 text-leaf-700"
+              : "border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300",
+          )}
+          role="status"
+        >
+          {status.tone === "success" ? <Check className="mt-0.5 shrink-0" size={16} /> : <AlertTriangle className="mt-0.5 shrink-0" size={16} />}
+          <span className="min-w-0 break-words">{status.message}</span>
+          <button className="ml-auto shrink-0" type="button" onClick={() => setStatus(undefined)} aria-label="Dismiss status"><X size={16} /></button>
+        </div>
+      )}
+
+      <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="space-y-6">
+          <Card className="p-5 sm:p-6">
+            <div className="flex items-start gap-3">
+              <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-leaf-50 text-leaf-700"><Sun size={17} /></span>
+              <div>
+                <h2 className="font-bold tracking-[-0.02em]">Appearance</h2>
+                <p className="mt-1 text-xs leading-5 text-ink-400">Choose the brightness and accent colour of the app.</p>
+              </div>
+            </div>
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+              {themeOptions.map((option) => {
+                const Icon = option.icon;
+                const selected = themePreference === option.id;
+                return (
+                  <button
+                    key={option.id}
+                    className={cn(
+                      "flex items-center gap-3 rounded-xl border p-4 text-left transition",
+                      selected ? "border-leaf-500 bg-leaf-50 ring-2 ring-leaf-100" : "border-line hover:bg-leaf-50/50",
+                    )}
+                    type="button"
+                    aria-pressed={selected}
+                    onClick={() => onThemeChange(option.id)}
+                  >
+                    <Icon size={17} className={selected ? "text-leaf-700" : "text-ink-400"} />
+                    <span>
+                      <span className="block text-sm font-semibold">{option.label}</span>
+                      <span className="mt-0.5 block text-[10px] text-ink-400">{option.description}</span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+            <div className="my-5 border-t border-line" />
+            <fieldset>
+              <legend className="flex items-center gap-2 text-xs font-semibold text-ink-600">
+                <Palette size={14} aria-hidden="true" />
+                Accent colour
+              </legend>
+              <p className="mt-1 text-[11px] leading-5 text-ink-400">Choose the colour used for highlights, progress and selected controls.</p>
+              <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {toneOptions.map((option) => {
+                  const selected = appTone === option.id;
+                  return (
+                    <button
+                      key={option.id}
+                      className={cn(
+                        "flex items-center gap-2 rounded-lg border px-3 py-2.5 text-left text-xs font-semibold transition",
+                        selected
+                          ? "border-leaf-500 bg-leaf-50 ring-2 ring-leaf-100"
+                          : "border-line hover:bg-leaf-50/50",
+                      )}
+                      type="button"
+                      aria-pressed={selected}
+                      onClick={() => onAppToneChange(option.id)}
+                    >
+                      <span className="size-3 rounded-full" style={{ backgroundColor: option.swatch }} aria-hidden="true" />
+                      {option.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </fieldset>
+          </Card>
+
+          <Card className="p-5 sm:p-6">
+            <div className="flex items-start gap-3">
+              <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/30 dark:text-blue-400"><CalendarRange size={17} /></span>
+              <div>
+                <h2 className="font-bold tracking-[-0.02em]">Calendar</h2>
+                <p className="mt-1 text-xs leading-5 text-ink-400">This changes week boundaries everywhere, including streaks and analytics.</p>
+              </div>
+            </div>
+            <fieldset className="mt-5">
+              <legend className="text-xs font-semibold text-ink-600">First day of the week</legend>
+              <div className="mt-2 grid grid-cols-2 gap-3">
+                {(["mon", "sun"] as const).map((day) => {
+                  const selected = weekStartsOn === day;
+                  return (
+                    <button
+                      key={day}
+                      className={cn(
+                        "rounded-xl border px-4 py-3 text-sm font-semibold transition",
+                        selected ? "border-leaf-500 bg-leaf-50 text-leaf-700 ring-2 ring-leaf-100" : "border-line text-ink-600 hover:bg-leaf-50/50",
+                      )}
+                      type="button"
+                      aria-pressed={selected}
+                      onClick={() => onWeekStartsOnChange(day)}
+                    >
+                      {day === "mon" ? "Monday" : "Sunday"}
+                    </button>
+                  );
+                })}
+              </div>
+            </fieldset>
+          </Card>
+
+          <Card className="overflow-hidden">
+            <div className="border-b border-line px-5 py-5 sm:px-6">
+              <div className="flex items-start gap-3">
+                <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-leaf-50 text-leaf-700"><Download size={17} /></span>
+                <div>
+                  <h2 className="font-bold tracking-[-0.02em]">Export your data</h2>
+                  <p className="mt-1 text-xs leading-5 text-ink-400">Exports never alter your database or completion history.</p>
+                </div>
+              </div>
+            </div>
+            <div className="divide-y divide-line">
+              <div className="flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                <div className="flex items-center gap-3">
+                  <FileJson className="text-ink-400" size={19} />
+                  <div><p className="text-sm font-semibold">JSON archive</p><p className="mt-0.5 text-[11px] text-ink-400">Complete, structured and portable</p></div>
+                </div>
+                <Button variant="secondary" disabled={Boolean(busyAction)} onClick={() => void run("JSON export", () => onExport("json"))}>
+                  {busyAction === "JSON export" ? "Saving…" : "Export JSON"}
+                </Button>
+              </div>
+              <div className="flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                <div className="flex items-center gap-3">
+                  <FileSpreadsheet className="text-ink-400" size={19} />
+                  <div><p className="text-sm font-semibold">CSV history</p><p className="mt-0.5 text-[11px] text-ink-400">Completion rows for spreadsheets</p></div>
+                </div>
+                <Button variant="secondary" disabled={Boolean(busyAction)} onClick={() => void run("CSV export", () => onExport("csv"))}>
+                  {busyAction === "CSV export" ? "Saving…" : "Export CSV"}
+                </Button>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="overflow-hidden">
+            <div className="border-b border-line px-5 py-5 sm:px-6">
+              <div className="flex items-start gap-3">
+                <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400"><Database size={17} /></span>
+                <div>
+                  <h2 className="font-bold tracking-[-0.02em]">Backup and restore</h2>
+                  <p className="mt-1 text-xs leading-5 text-ink-400">Create an exact SQLite backup or stage a validated restore.</p>
+                </div>
+              </div>
+            </div>
+            <div className="grid gap-4 p-5 sm:grid-cols-2 sm:p-6">
+              <div className="rounded-xl border border-line p-4">
+                <HardDriveDownload className="text-leaf-700" size={20} />
+                <p className="mt-3 text-sm font-semibold">Database backup</p>
+                <p className="mt-1 min-h-10 text-xs leading-5 text-ink-400">Save a restorable copy of every habit, schedule and check-in.</p>
+                <Button className="mt-4 w-full" variant="secondary" disabled={Boolean(busyAction)} onClick={() => void run("Backup", onBackup)}>
+                  {busyAction === "Backup" ? "Backing up…" : "Create backup"}
+                </Button>
+              </div>
+              <div className="rounded-xl border border-line p-4">
+                <RotateCcw className="text-ink-600" size={20} />
+                <p className="mt-3 text-sm font-semibold">Restore backup</p>
+                <p className="mt-1 min-h-10 text-xs leading-5 text-ink-400">Validate a database and apply it safely on the next restart.</p>
+                <Button className="mt-4 w-full" variant="secondary" disabled={Boolean(busyAction)} onClick={() => setConfirmRestore(true)}>
+                  Choose backup…
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        <aside className="space-y-6">
+          <Card className="p-5">
+            <div className="flex items-center gap-2 text-leaf-700"><ShieldCheck size={17} /><p className="text-xs font-bold uppercase tracking-[0.14em]">Local by design</p></div>
+            <p className="mt-4 text-sm font-semibold leading-6">Your habit data stays on this Mac.</p>
+            <ul className="mt-3 space-y-2 text-xs leading-5 text-ink-400">
+              <li className="flex gap-2"><LockKeyhole className="mt-0.5 shrink-0" size={13} />No account or cloud database</li>
+              <li className="flex gap-2"><LockKeyhole className="mt-0.5 shrink-0" size={13} />No internet required for tracking</li>
+              <li className="flex gap-2"><LockKeyhole className="mt-0.5 shrink-0" size={13} />Exports happen only when you request them</li>
+            </ul>
+          </Card>
+
+          <Card className="p-5">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-ink-400">Local database</p>
+            <dl className="mt-4 space-y-3 text-sm">
+              <div className="flex justify-between gap-4"><dt className="text-ink-600">Habits</dt><dd className="font-bold">{habitCount}</dd></div>
+              <div className="flex justify-between gap-4"><dt className="text-ink-600">Schedule versions</dt><dd className="font-bold">{scheduleCount}</dd></div>
+              <div className="flex justify-between gap-4"><dt className="text-ink-600">Check-ins</dt><dd className="font-bold">{completionCount}</dd></div>
+            </dl>
+          </Card>
+
+          <Card className="border-leaf-100 bg-leaf-50 p-5 shadow-none">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-leaf-700">Backup safety</p>
+            <p className="mt-3 text-xs leading-5 text-ink-600">Before a restore is applied, Habit Tracker preserves the current database as a pre-restore safety copy.</p>
+          </Card>
+        </aside>
+      </div>
+
+      {confirmRestore && (
+        <div className="fixed inset-0 z-[70] grid place-items-center bg-ink-950/50 p-4 backdrop-blur-[2px]" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && setConfirmRestore(false)}>
+          <section className="w-full max-w-md rounded-2xl border border-line bg-surface p-6 shadow-2xl" role="alertdialog" aria-modal="true" aria-labelledby="restore-title">
+            <span className="grid size-10 place-items-center rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400"><AlertTriangle size={19} /></span>
+            <h2 id="restore-title" className="mt-4 text-xl font-bold tracking-[-0.03em]">Restore from a backup?</h2>
+            <p className="mt-2 text-sm leading-6 text-ink-600">The selected database will be validated and staged. Nothing changes until you restart Habit Tracker.</p>
+            <p className="mt-3 rounded-xl border border-line bg-canvas px-3 py-2.5 text-xs leading-5 text-ink-600">Your current database is preserved automatically before the staged backup is applied.</p>
+            <div className="mt-6 flex justify-end gap-3">
+              <Button variant="secondary" onClick={() => setConfirmRestore(false)}>Cancel</Button>
+              <Button onClick={() => {
+                setConfirmRestore(false);
+                void run("Restore", onRestore);
+              }}>Choose backup</Button>
+            </div>
+          </section>
+        </div>
+      )}
+    </div>
+  );
+}
