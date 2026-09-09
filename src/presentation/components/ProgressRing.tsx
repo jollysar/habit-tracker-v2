@@ -9,7 +9,15 @@ export function ProgressRing({ percentage, compact = false }: ProgressRingProps)
   const offset = circumference - (percentage / 100) * circumference;
 
   return (
-    <div className={`relative grid shrink-0 place-items-center ${compact ? "size-24" : "size-28"}`} aria-label={`${percentage}% complete`}>
+    <div
+      className={`relative grid shrink-0 place-items-center ${compact ? "size-24" : "size-28"}`}
+      role="progressbar"
+      aria-label="Completion progress"
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={percentage}
+      aria-valuetext={`${percentage}% complete`}
+    >
       <svg className="absolute inset-0 -rotate-90" viewBox="0 0 100 100" aria-hidden="true">
         <circle cx="50" cy="50" r={radius} fill="none" stroke="var(--color-line)" strokeWidth="7" />
         <circle

@@ -19,6 +19,7 @@ interface HabitRowProps {
 export function HabitRow({ habit, isEditing, onToggle, onEdit, onSkip, onReset, onDelete, onLogProgress }: HabitRowProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const isComplete = habit.status === "completed";
   const isSkipped = habit.status === "skipped";
   const hasProgress = habit.targetValue !== undefined;
@@ -28,11 +29,19 @@ export function HabitRow({ habit, isEditing, onToggle, onEdit, onSkip, onReset, 
 
   useEffect(() => {
     if (!menuOpen) return;
+    const menuItems = () => Array.from(
+      menuRef.current?.querySelectorAll<HTMLElement>("[role='menuitem']") ?? [],
+    );
+    window.requestAnimationFrame(() => menuItems()[0]?.focus({ preventScroll: true }));
     const handlePointerDown = (event: PointerEvent) => {
       if (!menuRef.current?.contains(event.target as Node)) setMenuOpen(false);
     };
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setMenuOpen(false);
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setMenuOpen(false);
+        menuButtonRef.current?.focus({ preventScroll: true });
+      }
     };
     window.addEventListener("pointerdown", handlePointerDown);
     window.addEventListener("keydown", handleEscape);
@@ -45,22 +54,26 @@ export function HabitRow({ habit, isEditing, onToggle, onEdit, onSkip, onReset, 
   return (
     <div className="group flex items-center gap-3 border-t border-line px-4 py-3.5 first:border-t-0 sm:px-5">
       <button
-        className={cn(
-          "habit-check grid size-7 shrink-0 place-items-center rounded-full border transition-all duration-150 ease-out active:scale-90",
-          isComplete
-            ? "border-leaf-500 bg-leaf-500 text-white"
-            : isSkipped
-              ? "border-ink-400 bg-line text-ink-600"
-            : "border-ink-400 bg-surface text-transparent hover:border-leaf-500 hover:text-leaf-500",
-        )}
+        className="flex min-w-0 flex-1 items-center gap-3 text-left"
         onClick={onToggle}
         aria-label={isComplete ? `Mark ${habit.name} incomplete` : `Complete ${habit.name}`}
+        aria-pressed={isComplete}
       >
-        {isSkipped ? <Minus size={15} strokeWidth={2.4} aria-hidden="true" /> : <Check size={15} strokeWidth={2.8} aria-hidden="true" />}
-      </button>
-
-      <button className="min-w-0 flex-1 text-left" onClick={onToggle}>
-        <div className="flex items-center gap-2">
+        <span
+          className={cn(
+            "habit-check grid size-7 shrink-0 place-items-center rounded-full border transition-all duration-150 ease-out active:scale-90",
+            isComplete
+              ? "border-leaf-500 bg-leaf-500 text-white"
+              : isSkipped
+                ? "border-ink-400 bg-line text-ink-600"
+              : "border-ink-400 bg-surface text-transparent group-hover:border-leaf-500 group-hover:text-leaf-500",
+          )}
+          aria-hidden="true"
+        >
+          {isSkipped ? <Minus size={15} strokeWidth={2.4} /> : <Check size={15} strokeWidth={2.8} />}
+        </span>
+        <span className="min-w-0 flex-1">
+        <span className="flex items-center gap-2">
           <span className={cn("truncate text-sm font-semibold", (isComplete || isSkipped) && "text-ink-600", isComplete && "line-through decoration-line")}>
             {habit.name}
           </span>
@@ -71,18 +84,26 @@ export function HabitRow({ habit, isEditing, onToggle, onEdit, onSkip, onReset, 
               {habit.streak}
             </span>
           )}
-        </div>
-        {habit.description && <p className="mt-0.5 truncate text-xs text-ink-400">{habit.description}</p>}
+        </span>
+        {habit.description && <span className="mt-0.5 block truncate text-xs text-ink-400">{habit.description}</span>}
         {hasProgress && !isComplete && !isSkipped && (
-          <div className="mt-2 flex max-w-sm items-center gap-2">
-            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-line">
-              <div className="h-full rounded-full bg-leaf-500" style={{ width: `${progress}%` }} />
-            </div>
+          <span className="mt-2 flex max-w-sm items-center gap-2">
+            <span
+              className="h-1.5 flex-1 overflow-hidden rounded-full bg-line"
+              role="progressbar"
+              aria-label={`${habit.name} progress`}
+              aria-valuemin={0}
+              aria-valuemax={habit.targetValue}
+              aria-valuenow={habit.value ?? 0}
+            >
+              <span className="block h-full rounded-full bg-leaf-500" style={{ width: `${progress}%` }} />
+            </span>
             <span className="min-w-20 text-right text-[11px] font-medium text-ink-400">
               {habit.value ?? 0} / {habit.targetValue} {habit.targetUnit}
             </span>
-          </div>
+          </span>
         )}
+        </span>
       </button>
 
       {hasProgress && isComplete && (
@@ -98,17 +119,38 @@ export function HabitRow({ habit, isEditing, onToggle, onEdit, onSkip, onReset, 
       )}
       <div className="relative" ref={menuRef}>
         <Button
+          ref={menuButtonRef}
           className="opacity-60 group-hover:opacity-100"
           variant="ghost"
           size="icon"
           aria-label={`More options for ${habit.name}`}
           aria-expanded={menuOpen}
+          aria-haspopup="menu"
+          aria-controls={menuOpen ? `habit-menu-${habit.id}` : undefined}
           onClick={() => setMenuOpen((current) => !current)}
         >
           <MoreHorizontal size={18} aria-hidden="true" />
         </Button>
         {menuOpen && (
-          <div className="menu-popover absolute right-0 top-10 z-30 w-48 rounded-lg border border-line bg-surface p-1.5 shadow-xl" role="menu">
+          <div
+            id={`habit-menu-${habit.id}`}
+            className="menu-popover absolute right-0 top-10 z-30 w-48 rounded-lg border border-line bg-surface p-1.5 shadow-xl"
+            role="menu"
+            aria-label={`Actions for ${habit.name}`}
+            onKeyDown={(event) => {
+              const items = Array.from(event.currentTarget.querySelectorAll<HTMLElement>("[role='menuitem']"));
+              const currentIndex = items.indexOf(document.activeElement as HTMLElement);
+              let nextIndex: number | undefined;
+              if (event.key === "ArrowDown") nextIndex = (currentIndex + 1) % items.length;
+              if (event.key === "ArrowUp") nextIndex = (currentIndex - 1 + items.length) % items.length;
+              if (event.key === "Home") nextIndex = 0;
+              if (event.key === "End") nextIndex = items.length - 1;
+              if (nextIndex !== undefined) {
+                event.preventDefault();
+                items[nextIndex]?.focus();
+              }
+            }}
+          >
             <button className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-ink-800 hover:bg-leaf-50" role="menuitem" onClick={() => { setMenuOpen(false); onEdit(); }}>
               <Pencil size={14} aria-hidden="true" />
               Edit details

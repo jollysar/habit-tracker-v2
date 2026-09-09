@@ -34,6 +34,7 @@ import { AnimatedPlant } from "../components/AnimatedPlant";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { cn } from "../../lib/cn";
+import { handleRovingTabKey } from "../hooks/rovingTabs";
 
 interface WeekPageProps {
   readonly habits: readonly ManagedHabit[];
@@ -54,6 +55,7 @@ interface WeekPageProps {
 }
 
 export type WeekHabitView = "daily" | "weekly";
+const weekHabitViews: readonly WeekHabitView[] = ["daily", "weekly"];
 
 function CellIcon({ cell }: { readonly cell: WeekHabitCell }) {
   if (cell.status === "completed") return <Check size={17} strokeWidth={2.7} />;
@@ -154,6 +156,13 @@ export function WeekPage({
             type="button"
             role="tab"
             aria-selected={habitView === view}
+            tabIndex={habitView === view ? 0 : -1}
+            onKeyDown={(event) => handleRovingTabKey(
+              event,
+              weekHabitViews,
+              habitView,
+              onHabitViewChange,
+            )}
             onClick={() => onHabitViewChange(view)}
           >
             {view === "daily" ? "Daily habits" : "Weekly habits"}

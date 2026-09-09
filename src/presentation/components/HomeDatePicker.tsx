@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { addDaysToLocalDateKey } from "../../application/dates/localDate";
 import type { Weekday } from "../../domain/habits/models";
 import { cn } from "../../lib/cn";
 
@@ -33,6 +34,7 @@ export function HomeDatePicker({
   onClose,
 }: HomeDatePickerProps) {
   const [visibleMonth, setVisibleMonth] = useState(() => monthStart(selectedDate));
+  const [focusedDate, setFocusedDate] = useState(selectedDate);
   const pickerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -51,6 +53,19 @@ export function HomeDatePicker({
     };
   }, [onClose]);
 
+  useEffect(() => {
+    const trigger = document.querySelector<HTMLElement>("[data-home-date-trigger]");
+    const focusFrame = window.requestAnimationFrame(() => {
+      pickerRef.current
+        ?.querySelector<HTMLButtonElement>(`[data-calendar-date='${selectedDate}']`)
+        ?.focus({ preventScroll: true });
+    });
+    return () => {
+      window.cancelAnimationFrame(focusFrame);
+      window.requestAnimationFrame(() => trigger?.focus({ preventScroll: true }));
+    };
+  }, [selectedDate]);
+
   const monthDate = new Date(`${visibleMonth}T12:00:00`);
   const monthLabel = monthDate.toLocaleDateString(undefined, { month: "long", year: "numeric" });
   const daysInMonth = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0).getDate();
@@ -67,35 +82,52 @@ export function HomeDatePicker({
     [daysInMonth, leadingDays],
   );
   const nextMonth = moveMonth(visibleMonth, 1);
+  const focusDate = (value: string) => {
+    if (value > maxDate) return;
+    setFocusedDate(value);
+    setVisibleMonth(monthStart(value));
+    window.requestAnimationFrame(() => {
+      pickerRef.current
+        ?.querySelector<HTMLButtonElement>(`[data-calendar-date='${value}']`)
+        ?.focus({ preventScroll: true });
+    });
+  };
+  const showMonth = (amount: number) => {
+    const targetMonth = moveMonth(visibleMonth, amount);
+    if (targetMonth > monthStart(maxDate)) return;
+    focusDate(targetMonth === monthStart(maxDate) ? maxDate : targetMonth);
+  };
 
   return (
     <div
       ref={pickerRef}
+      id="home-date-picker"
       className="absolute left-0 top-full z-50 mt-2 w-72 rounded-2xl border border-line bg-surface p-4 shadow-2xl"
       role="dialog"
       aria-label="Choose a date"
     >
       <div className="flex items-center justify-between">
-        <button className="grid size-8 place-items-center rounded-lg text-ink-600 hover:bg-leaf-50" type="button" onClick={() => setVisibleMonth(moveMonth(visibleMonth, -1))} aria-label="Previous month">
+        <button className="grid size-8 place-items-center rounded-lg text-ink-600 hover:bg-leaf-50" type="button" onClick={() => showMonth(-1)} aria-label="Previous month">
           <ChevronLeft size={17} aria-hidden="true" />
         </button>
         <strong className="text-sm tracking-[-0.01em]">{monthLabel}</strong>
-        <button className="grid size-8 place-items-center rounded-lg text-ink-600 hover:bg-leaf-50 disabled:opacity-30" type="button" onClick={() => setVisibleMonth(nextMonth)} disabled={nextMonth > monthStart(maxDate)} aria-label="Next month">
+        <button className="grid size-8 place-items-center rounded-lg text-ink-600 hover:bg-leaf-50 disabled:opacity-30" type="button" onClick={() => showMonth(1)} disabled={nextMonth > monthStart(maxDate)} aria-label="Next month">
           <ChevronRight size={17} aria-hidden="true" />
         </button>
       </div>
-      <div className="mt-3 grid grid-cols-7 gap-1 text-center">
+      <div className="mt-3 grid grid-cols-7 gap-1 text-center" role="grid" aria-label={monthLabel}>
         {dayLabels.map((label, index) => (
-          <span key={`${label}-${index}`} className="py-1 text-[10px] font-bold text-ink-400">{label}</span>
+          <span key={`${label}-${index}`} className="py-1 text-[10px] font-bold text-ink-400" role="columnheader">{label}</span>
         ))}
         {cells.map((day, index) => {
-          if (!day) return <span key={`blank-${index}`} />;
+          if (!day) return <span key={`blank-${index}`} role="gridcell" />;
           const value = dateKey(monthDate.getFullYear(), monthDate.getMonth(), day);
           const isSelected = value === selectedDate;
           const isToday = value === maxDate;
           return (
+            <span key={value} role="gridcell">
             <button
-              key={value}
+              data-calendar-date={value}
               className={cn(
                 "grid size-8 place-items-center justify-self-center rounded-full text-xs font-semibold transition",
                 isSelected ? "bg-leaf-500 text-white" : "text-ink-800 hover:bg-leaf-50",
@@ -104,11 +136,27 @@ export function HomeDatePicker({
               type="button"
               disabled={value > maxDate}
               onClick={() => onSelect(value)}
+              onFocus={() => setFocusedDate(value)}
+              onKeyDown={(event) => {
+                let nextDate: string | undefined;
+                if (event.key === undefined) return;
+                if (event.key === "ArrowLeft") nextDate = addDaysToLocalDateKey(value, -1);
+                if (event.key === "ArrowRight") nextDate = addDaysToLocalDateKey(value, 1);
+                if (event.key === "ArrowUp") nextDate = addDaysToLocalDateKey(value, -7);
+                if (event.key === "ArrowDown") nextDate = addDaysToLocalDateKey(value, 7);
+                if (event.key === "PageUp") nextDate = moveMonth(value, -1);
+                if (event.key === "PageDown") nextDate = moveMonth(value, 1);
+                if (!nextDate) return;
+                event.preventDefault();
+                focusDate(nextDate);
+              }}
+              tabIndex={value === focusedDate ? 0 : -1}
               aria-label={new Date(`${value}T12:00:00`).toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
               aria-current={isToday ? "date" : undefined}
             >
               {day}
             </button>
+            </span>
           );
         })}
       </div>

@@ -109,7 +109,7 @@ export function HabitsPage({
             {activeHabits.length} active habit{activeHabits.length === 1 ? "" : "s"} · organise what you track.
           </p>
         </div>
-        <Button className="self-start sm:self-auto" onClick={onAddHabit}>
+        <Button className="self-start sm:self-auto" onClick={onAddHabit} aria-keyshortcuts="Meta+N Control+N">
           <Plus size={17} strokeWidth={2.5} aria-hidden="true" />
           Add habit
         </Button>

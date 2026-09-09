@@ -2,6 +2,7 @@ import { useEffect, useState, type MouseEvent } from "react";
 import { CalendarCheck, Check, CircleMinus, RotateCcw, X, XCircle } from "lucide-react";
 import type { CompletionStatus, ManagedHabit } from "../../domain/habits/models";
 import { Button } from "./ui/Button";
+import { useDialogFocus } from "../hooks/useDialogFocus";
 
 export interface HistoryCorrection {
   readonly habit: ManagedHabit;
@@ -31,19 +32,11 @@ export function HistoryCorrectionDialog({
   onSave,
 }: HistoryCorrectionDialogProps) {
   const [value, setValue] = useState("0");
+  const dialogRef = useDialogFocus<HTMLElement>(Boolean(correction), onCancel);
 
   useEffect(() => {
     setValue(String(correction?.value ?? correction?.habit.targetValue ?? 0));
   }, [correction]);
-
-  useEffect(() => {
-    if (!correction) return;
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onCancel();
-    };
-    window.addEventListener("keydown", handleEscape);
-    return () => window.removeEventListener("keydown", handleEscape);
-  }, [correction, onCancel]);
 
   if (!correction) return null;
   const { habit, date } = correction;
@@ -66,10 +59,12 @@ export function HistoryCorrectionDialog({
       onMouseDown={handleBackdrop}
     >
       <section
+        ref={dialogRef}
         className="w-full max-w-md rounded-2xl border border-line bg-surface p-5 shadow-2xl sm:p-6"
         role="dialog"
         aria-modal="true"
         aria-labelledby="history-correction-title"
+        tabIndex={-1}
       >
         <div className="flex items-start justify-between gap-4">
           <span className="grid size-10 place-items-center rounded-xl bg-leaf-50 text-leaf-700">
@@ -104,6 +99,7 @@ export function HistoryCorrectionDialog({
 
         <div className="mt-5 grid grid-cols-2 gap-2">
           <button
+            data-dialog-autofocus
             className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-ink-950 px-3 text-sm font-semibold text-surface transition-all duration-150 ease-out hover:bg-ink-800 active:scale-[0.98]"
             type="button"
             onClick={saveCompleted}

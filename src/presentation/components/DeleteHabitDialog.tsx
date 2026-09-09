@@ -1,7 +1,8 @@
-import { useEffect, type MouseEvent } from "react";
+import type { MouseEvent } from "react";
 import { AlertTriangle, Trash2, X } from "lucide-react";
 import type { TodayHabit } from "../../domain/habits/models";
 import { Button } from "./ui/Button";
+import { useDialogFocus } from "../hooks/useDialogFocus";
 
 interface DeleteHabitDialogProps {
   readonly habit?: TodayHabit;
@@ -10,14 +11,7 @@ interface DeleteHabitDialogProps {
 }
 
 export function DeleteHabitDialog({ habit, onCancel, onConfirm }: DeleteHabitDialogProps) {
-  useEffect(() => {
-    if (!habit) return;
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onCancel();
-    };
-    window.addEventListener("keydown", handleEscape);
-    return () => window.removeEventListener("keydown", handleEscape);
-  }, [habit, onCancel]);
+  const dialogRef = useDialogFocus<HTMLElement>(Boolean(habit), onCancel);
 
   if (!habit) return null;
 
@@ -32,11 +26,13 @@ export function DeleteHabitDialog({ habit, onCancel, onConfirm }: DeleteHabitDia
       onMouseDown={handleBackdrop}
     >
       <section
+        ref={dialogRef}
         className="w-full max-w-md rounded-2xl border border-line bg-surface p-5 shadow-2xl sm:p-6"
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="delete-habit-title"
         aria-describedby="delete-habit-description"
+        tabIndex={-1}
       >
         <div className="flex items-start justify-between gap-4">
           <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400">
@@ -57,7 +53,7 @@ export function DeleteHabitDialog({ habit, onCancel, onConfirm }: DeleteHabitDia
           but the habit will be removed from your active lists.
         </p>
         <div className="mt-6 flex justify-end gap-3">
-          <Button variant="secondary" onClick={onCancel}>Cancel</Button>
+          <Button variant="secondary" onClick={onCancel} data-dialog-autofocus>Cancel</Button>
           <button
             className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-red-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-red-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
             onClick={onConfirm}

@@ -8,6 +8,7 @@ import {
   FileJson,
   FileSpreadsheet,
   HardDriveDownload,
+  Keyboard,
   Laptop,
   LockKeyhole,
   Moon,
@@ -21,6 +22,7 @@ import type { AppTone, ThemePreference, Weekday } from "../../domain/habits/mode
 import { cn } from "../../lib/cn";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
+import { useDialogFocus } from "../hooks/useDialogFocus";
 
 type WeekStart = Extract<Weekday, "mon" | "sun">;
 
@@ -65,6 +67,10 @@ export function SettingsPage({
   const [busyAction, setBusyAction] = useState<string>();
   const [status, setStatus] = useState<OperationStatus>();
   const [confirmRestore, setConfirmRestore] = useState(false);
+  const restoreDialogRef = useDialogFocus<HTMLElement>(
+    confirmRestore,
+    () => setConfirmRestore(false),
+  );
 
   const run = async (label: string, operation: () => Promise<string | null>) => {
     setBusyAction(label);
@@ -303,6 +309,18 @@ export function SettingsPage({
 
         <aside className="space-y-6">
           <Card className="p-5">
+            <div className="flex items-center gap-2 text-leaf-700">
+              <Keyboard size={17} aria-hidden="true" />
+              <h2 className="text-xs font-bold uppercase tracking-[0.14em]">Keyboard</h2>
+            </div>
+            <dl className="mt-4 space-y-3 text-xs">
+              <div className="flex items-center justify-between gap-4"><dt className="text-ink-600">New habit</dt><dd><kbd className="rounded border border-line bg-canvas px-1.5 py-1 font-sans">⌘/Ctrl N</kbd></dd></div>
+              <div className="flex items-center justify-between gap-4"><dt className="text-ink-600">Change section</dt><dd><kbd className="rounded border border-line bg-canvas px-1.5 py-1 font-sans">Alt 1–6</kbd></dd></div>
+              <div className="flex items-center justify-between gap-4"><dt className="text-ink-600">Close a dialog</dt><dd><kbd className="rounded border border-line bg-canvas px-1.5 py-1 font-sans">Esc</kbd></dd></div>
+            </dl>
+          </Card>
+
+          <Card className="p-5">
             <div className="flex items-center gap-2 text-leaf-700"><ShieldCheck size={17} /><p className="text-xs font-bold uppercase tracking-[0.14em]">Local by design</p></div>
             <p className="mt-4 text-sm font-semibold leading-6">Your habit data stays on this Mac.</p>
             <ul className="mt-3 space-y-2 text-xs leading-5 text-ink-400">
@@ -330,13 +348,13 @@ export function SettingsPage({
 
       {confirmRestore && (
         <div className="fixed inset-0 z-[70] grid place-items-center bg-ink-950/50 p-4 backdrop-blur-[2px]" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && setConfirmRestore(false)}>
-          <section className="w-full max-w-md rounded-2xl border border-line bg-surface p-6 shadow-2xl" role="alertdialog" aria-modal="true" aria-labelledby="restore-title">
+          <section ref={restoreDialogRef} className="w-full max-w-md rounded-2xl border border-line bg-surface p-6 shadow-2xl" role="alertdialog" aria-modal="true" aria-labelledby="restore-title" aria-describedby="restore-description" tabIndex={-1}>
             <span className="grid size-10 place-items-center rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400"><AlertTriangle size={19} /></span>
             <h2 id="restore-title" className="mt-4 text-xl font-bold tracking-[-0.03em]">Restore from a backup?</h2>
-            <p className="mt-2 text-sm leading-6 text-ink-600">The selected database will be validated and staged. Nothing changes until you restart Habit Tracker.</p>
+            <p id="restore-description" className="mt-2 text-sm leading-6 text-ink-600">The selected database will be validated and staged. Nothing changes until you restart Habit Tracker.</p>
             <p className="mt-3 rounded-xl border border-line bg-canvas px-3 py-2.5 text-xs leading-5 text-ink-600">Your current database is preserved automatically before the staged backup is applied.</p>
             <div className="mt-6 flex justify-end gap-3">
-              <Button variant="secondary" onClick={() => setConfirmRestore(false)}>Cancel</Button>
+              <Button variant="secondary" onClick={() => setConfirmRestore(false)} data-dialog-autofocus>Cancel</Button>
               <Button onClick={() => {
                 setConfirmRestore(false);
                 void run("Restore", onRestore);

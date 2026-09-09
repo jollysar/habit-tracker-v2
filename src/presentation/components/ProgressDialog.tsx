@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent, type MouseEvent } from "react";
 import { Gauge, X } from "lucide-react";
 import type { TodayHabit } from "../../domain/habits/models";
 import { Button } from "./ui/Button";
+import { useDialogFocus } from "../hooks/useDialogFocus";
 
 interface ProgressDialogProps {
   readonly habit?: TodayHabit;
@@ -12,21 +13,13 @@ interface ProgressDialogProps {
 export function ProgressDialog({ habit, onCancel, onSave }: ProgressDialogProps) {
   const [value, setValue] = useState("0");
   const [error, setError] = useState("");
+  const dialogRef = useDialogFocus<HTMLElement>(Boolean(habit), onCancel);
 
   useEffect(() => {
     if (!habit) return;
     setValue(String(habit.todayValue ?? habit.value ?? 0));
     setError("");
   }, [habit]);
-
-  useEffect(() => {
-    if (!habit) return;
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onCancel();
-    };
-    window.addEventListener("keydown", handleEscape);
-    return () => window.removeEventListener("keydown", handleEscape);
-  }, [habit, onCancel]);
 
   if (!habit) return null;
 
@@ -52,10 +45,13 @@ export function ProgressDialog({ habit, onCancel, onSave }: ProgressDialogProps)
       onMouseDown={handleBackdrop}
     >
       <section
+        ref={dialogRef}
         className="w-full max-w-md rounded-2xl border border-line bg-surface p-5 shadow-2xl sm:p-6"
         role="dialog"
         aria-modal="true"
         aria-labelledby="progress-dialog-title"
+        aria-describedby={error ? "progress-dialog-error" : undefined}
+        tabIndex={-1}
       >
         <div className="flex items-start justify-between gap-4">
           <span className="grid size-10 place-items-center rounded-xl bg-leaf-50 text-leaf-700">
@@ -83,12 +79,14 @@ export function ProgressDialog({ habit, onCancel, onSave }: ProgressDialogProps)
                 step="any"
                 value={value}
                 onChange={(event) => setValue(event.currentTarget.value)}
-                autoFocus
+                data-dialog-autofocus
+                aria-invalid={Boolean(error) || undefined}
+                aria-describedby={error ? "progress-dialog-error" : undefined}
               />
               <span className="border-l border-line px-3 text-xs font-medium text-ink-400">{habit.targetUnit}</span>
             </div>
           </label>
-          {error && <p className="mt-3 text-sm font-medium text-red-600" role="alert">{error}</p>}
+          {error && <p id="progress-dialog-error" className="mt-3 text-sm font-medium text-red-600" role="alert">{error}</p>}
           <div className="mt-6 flex justify-end gap-3 border-t border-line pt-5">
             <Button variant="secondary" onClick={onCancel}>Cancel</Button>
             <Button type="submit">Save progress</Button>

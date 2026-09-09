@@ -12,6 +12,7 @@ import type {
   Weekday,
 } from "../../domain/habits/models";
 import { cn } from "../../lib/cn";
+import { useDialogFocus } from "../hooks/useDialogFocus";
 import { AnimatedPlant, plantChoices } from "./AnimatedPlant";
 import { Button } from "./ui/Button";
 
@@ -71,6 +72,7 @@ export function HabitDialog({
   onSave,
 }: HabitDialogProps) {
   const nameInputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useDialogFocus<HTMLElement>(open, onClose);
   const [creationCadence, setCreationCadence] = useState<"daily" | "weekly" | null>(null);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -143,15 +145,6 @@ export function HabitDialog({
       document.body.style.overflow = previousOverflow;
     };
   }, [open]);
-
-  useEffect(() => {
-    if (!open) return;
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", handleEscape);
-    return () => window.removeEventListener("keydown", handleEscape);
-  }, [onClose, open]);
 
   if (!open) return null;
 
@@ -229,10 +222,13 @@ export function HabitDialog({
       onMouseDown={handleBackdrop}
     >
       <section
+        ref={dialogRef}
         className="max-h-[calc(100vh-2rem)] w-full max-w-2xl overflow-y-auto rounded-2xl border border-line bg-surface p-5 shadow-2xl sm:p-6"
         role="dialog"
         aria-modal="true"
         aria-labelledby="habit-dialog-title"
+        aria-describedby={error ? "habit-dialog-error" : undefined}
+        tabIndex={-1}
       >
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -255,6 +251,7 @@ export function HabitDialog({
         {!habit && !creationCadence ? (
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
             <button
+              data-dialog-autofocus
               className="group rounded-2xl border border-line p-5 text-left transition hover:border-leaf-500 hover:bg-leaf-50 focus:outline-none focus:ring-2 focus:ring-leaf-500"
               type="button"
               onClick={() => {
@@ -290,6 +287,9 @@ export function HabitDialog({
             Name
             <input
               ref={nameInputRef}
+              required
+              aria-invalid={Boolean(error) || undefined}
+              aria-describedby={error ? "habit-dialog-error" : undefined}
               className={inputClass}
               value={name}
               maxLength={80}
@@ -510,7 +510,7 @@ export function HabitDialog({
             </div>
           )}
 
-          {error && <p className="text-sm font-medium text-red-600" role="alert">{error}</p>}
+          {error && <p id="habit-dialog-error" className="text-sm font-medium text-red-600" role="alert">{error}</p>}
 
           <div className="flex items-center justify-between gap-3 border-t border-line pt-5">
             {!habit && (

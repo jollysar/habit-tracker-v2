@@ -62,6 +62,7 @@ export function AppShell({
     () => localStorage.getItem("habit-tracker-sidebar-collapsed") === "true",
   );
   const resizing = useRef(false);
+  const mainRef = useRef<HTMLElement>(null);
   const effectiveSidebarWidth = sidebarCollapsed ? COLLAPSED_SIDEBAR_WIDTH : sidebarWidth;
 
   useEffect(() => {
@@ -92,6 +93,10 @@ export function AppShell({
   }, [sidebarCollapsed]);
 
   const toggleSidebar = () => setSidebarCollapsed((current) => !current);
+  const navigate = (section: AppSection) => {
+    onNavigate(section);
+    window.requestAnimationFrame(() => mainRef.current?.focus({ preventScroll: true }));
+  };
   const adjustSidebarWidth = (amount: number) => {
     setSidebarCollapsed(false);
     setSidebarWidth((current) => Math.min(MAX_SIDEBAR_WIDTH, Math.max(MIN_SIDEBAR_WIDTH, current + amount)));
@@ -120,6 +125,12 @@ export function AppShell({
       className="app-shell min-h-screen bg-canvas text-ink-950 lg:grid"
       style={{ "--sidebar-width": `${effectiveSidebarWidth}px` } as CSSProperties}
     >
+      <a
+        className="fixed left-3 top-3 z-[100] -translate-y-20 rounded-lg bg-ink-950 px-4 py-2 text-sm font-semibold text-surface shadow-lg transition-transform focus:translate-y-0"
+        href="#main-content"
+      >
+        Skip to main content
+      </a>
       <aside className="app-sidebar border-line bg-surface transition-[width] duration-200 ease-out lg:fixed lg:inset-y-0 lg:border-r">
         <div className={cn(
           "flex h-16 items-center justify-between border-b border-line px-5 lg:h-20 lg:border-b-0",
@@ -136,7 +147,7 @@ export function AppShell({
             </button>
             <button
               className={cn("flex min-w-0 items-end rounded-lg pb-1 text-left", sidebarCollapsed && "lg:hidden")}
-              onClick={() => onNavigate("today")}
+              onClick={() => navigate("today")}
               aria-label="Go to Today"
             >
               <span className="block text-xl font-bold leading-none tracking-[-0.03em]">Habitree</span>
@@ -160,7 +171,7 @@ export function AppShell({
           )}
           aria-label="Primary navigation"
         >
-          {navigation.map((item) => {
+          {navigation.map((item, index) => {
             const Icon = item.icon;
             const isActive = activeSection === item.id;
             return (
@@ -173,9 +184,10 @@ export function AppShell({
                     ? "bg-ink-950 text-surface"
                     : "text-ink-600 hover:bg-leaf-50 hover:text-ink-950",
                 )}
-                onClick={() => onNavigate(item.id)}
+                onClick={() => navigate(item.id)}
                 aria-label={item.label}
                 aria-current={isActive ? "page" : undefined}
+                aria-keyshortcuts={`Alt+${index + 1}`}
                 title={sidebarCollapsed ? item.label : undefined}
               >
                 <Icon size={18} strokeWidth={isActive ? 2.3 : 1.8} aria-hidden="true" />
@@ -227,7 +239,15 @@ export function AppShell({
         )}
       </aside>
 
-      <main className="min-w-0 lg:col-start-2">{children}</main>
+      <main
+        ref={mainRef}
+        id="main-content"
+        className="min-w-0 lg:col-start-2"
+        tabIndex={-1}
+        aria-label={`${navigation.find((item) => item.id === activeSection)?.label ?? "Habitree"} page`}
+      >
+        {children}
+      </main>
     </div>
   );
 }

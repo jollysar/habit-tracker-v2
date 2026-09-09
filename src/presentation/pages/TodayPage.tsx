@@ -17,8 +17,10 @@ import { AnimatedPlant, plantStageForStreak, plantStageLabel } from "../componen
 import { WeeklyHabitRow } from "../components/WeeklyHabitRow";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
+import { handleRovingTabKey } from "../hooks/rovingTabs";
 
 type HomeView = "daily" | "weekly";
+const homeViews: readonly HomeView[] = ["daily", "weekly"];
 
 interface TodayPageProps {
   readonly dashboard: TodayDashboard;
@@ -116,6 +118,8 @@ export function TodayPage({
                 onClick={() => setDatePickerOpen((open) => !open)}
                 title="Choose a date"
                 aria-expanded={datePickerOpen}
+                aria-haspopup="dialog"
+                aria-controls={datePickerOpen ? "home-date-picker" : undefined}
                 data-home-date-trigger
               >
                 {isDailyView ? dashboard.dateLabel : weekDateLabel}
@@ -158,7 +162,7 @@ export function TodayPage({
         </div>
 
         <div className="flex flex-wrap items-center gap-2 lg:pt-1">
-          <Button className="h-[60px] rounded-xl px-6 text-base" onClick={onAddHabit}>
+          <Button className="h-[60px] rounded-xl px-6 text-base" onClick={onAddHabit} aria-keyshortcuts="Meta+N Control+N">
             <Plus size={17} strokeWidth={2.5} aria-hidden="true" />
             Add habit
             <kbd className="ml-1 rounded-md bg-white/15 px-1.5 py-0.5 font-sans text-[10px]">⌘N</kbd>
@@ -179,6 +183,17 @@ export function TodayPage({
             type="button"
             role="tab"
             aria-selected={activeView === view}
+            tabIndex={activeView === view ? 0 : -1}
+            onKeyDown={(event) => handleRovingTabKey(
+              event,
+              homeViews,
+              activeView,
+              (nextView) => {
+                setActiveView(nextView);
+                setIsEditing(false);
+                setDatePickerOpen(false);
+              },
+            )}
             onClick={() => {
               setActiveView(view);
               setIsEditing(false);
@@ -212,7 +227,7 @@ export function TodayPage({
           </Card>
 
           {isDailyView ? (
-            <section aria-label="Today’s habits">
+            <section aria-label="Today’s habits" role="tabpanel">
               <div className="mb-3 flex flex-wrap items-center justify-end gap-2 px-1">
                 <button
                   className="inline-flex h-8 items-center gap-2 rounded-lg px-2 text-xs font-medium text-ink-600 transition hover:bg-leaf-50"
@@ -259,7 +274,7 @@ export function TodayPage({
               </div>
             </section>
           ) : (
-            <section aria-label="Weekly habits">
+            <section aria-label="Weekly habits" role="tabpanel">
               <Card className="overflow-visible shadow-none">
                 {weeklyHabits.length === 0 ? (
                   <div className="px-5 py-7 text-center">

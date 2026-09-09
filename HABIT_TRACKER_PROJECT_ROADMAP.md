@@ -22,7 +22,7 @@ This document is working context for AI coding agents and contributors building 
 
 ## Current gaps
 
-- No Git repository or remote code backup.
+- Git repository and GitHub remote backup are established.
 - No accounts, backend, authentication, cloud data or sync.
 - No generated iOS or Android projects.
 - No reminder UI or notifications implementation.
@@ -111,11 +111,11 @@ Use Supabase for version 1 unless a later requirement makes it unsuitable:
 
 Status as of 9 September 2026:
 
-- Local Git repository initialized on `main`; initial snapshot is staged.
+- Local Git repository initialized on `main`; the baseline is committed and pushed to GitHub.
 - Clean `npm ci`, frontend tests/build, Rust check and Rust tests pass locally.
 - Node, npm and Rust versions are pinned and documented.
 - macOS/Windows verification workflow and fresh/upgrade migration tests are added.
-- Private remote creation and its first successful CI run remain outstanding.
+- The first macOS/Windows CI run completed successfully; repository visibility is currently public by owner choice.
 
 - Initialize Git in the project directory.
 - Create a private remote repository and confirm restore access.
@@ -129,6 +129,12 @@ Status as of 9 September 2026:
 - Add migration tests against fresh and upgraded databases.
 
 ### Phase 2: Desktop MVP hardening
+
+Status as of 9 September 2026:
+
+- SQLite repository integration coverage exercises habit lifecycle, ordering, schedule versioning, history, partial progress, streaks, settings and starter-data idempotence against a migrated in-memory database.
+- Keyboard and accessibility hardening includes skip navigation, visible focus, modal focus containment/restoration, non-conflicting section shortcuts, keyboard tabs, calendar navigation, menu navigation and progress semantics.
+- Daily-use validation is underway and current performance is accepted by the owner.
 
 - Use the app daily for at least two weeks.
 - Test schedules, streaks, archive, export, backup and restore.

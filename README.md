@@ -43,9 +43,21 @@ cargo test --manifest-path src-tauri/Cargo.toml
 
 This runs the frontend unit tests, TypeScript/Vite production build, and Rust
 compiler checks. Rust tests separately cover native backup validation. The
-frontend suite includes fresh-database and existing-database migration tests.
+frontend suite includes fresh/upgrade migration tests, real SQLite repository
+integration tests, and keyboard-accessibility regression tests.
 
 The same commands run on clean macOS and Windows workers in GitHub Actions.
+
+## Keyboard navigation
+
+- `Command/Ctrl + N`: open the new-habit flow without changing scroll position.
+- `Alt + 1` through `Alt + 6`: move between Today, Habits, Week, Calendar,
+  Analytics, and Settings.
+- Arrow keys, Home, and End: move through Daily/Weekly tabs.
+- Arrow keys: move through the Home date picker and open habit action menus.
+- `Escape`: close an open menu, date picker, or dialog and restore focus.
+- `Tab` and `Shift + Tab`: move through controls; modal dialogs contain focus
+  until closed.
 
 ## Data architecture
 

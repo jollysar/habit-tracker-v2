@@ -382,7 +382,6 @@ function App() {
   }, [habitRepository, localDate, selectedHomeDate]);
 
   const openAddHabit = () => {
-    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
     setHabitDialog({ mode: "add" });
   };
 
@@ -397,22 +396,25 @@ function App() {
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
+      const modalOpen = habitDialog !== null || habitToDeleteId !== null || habitToLogId !== null;
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "n") {
         event.preventDefault();
-        window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-        setHabitDialog({ mode: "add" });
+        if (!modalOpen) openAddHabit();
         return;
       }
-      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      if (!event.altKey || event.metaKey || event.ctrlKey || modalOpen) return;
       const target = event.target as HTMLElement | null;
       if (target?.matches("input, textarea, select, [contenteditable='true']")) return;
       const section = sectionShortcuts[event.key];
-      if (section) setActiveSection(section);
+      if (section) {
+        event.preventDefault();
+        setActiveSection(section);
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [habitDialog, habitToDeleteId, habitToLogId]);
 
   const refreshPersistentData = async () => {
     if (!habitRepository) return;

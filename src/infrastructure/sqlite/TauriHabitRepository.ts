@@ -24,6 +24,18 @@ import type {
 const DATABASE_URL = "sqlite:habit-tracker.db";
 const WEEKDAYS: readonly Weekday[] = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 
+/**
+ * The small portion of the Tauri SQL API used by the repository. Keeping this
+ * boundary explicit lets the same repository contract run against real SQLite
+ * in Node during integration tests, without weakening production types.
+ */
+export interface HabitDatabase {
+  execute(query: string, bindValues?: unknown[]): Promise<unknown>;
+  select<T>(query: string, bindValues?: unknown[]): Promise<T>;
+}
+
+export type HabitDatabaseLoader = () => Promise<HabitDatabase>;
+
 interface HabitRow {
   readonly id: string;
   readonly name: string;
@@ -179,11 +191,15 @@ function scheduleSignature(schedule: HabitSchedule): string {
 }
 
 export class TauriHabitRepository implements HabitRepository {
-  private databasePromise: Promise<Database> | null = null;
+  private databasePromise: Promise<HabitDatabase> | null = null;
 
-  private async database(): Promise<Database> {
+  constructor(
+    private readonly loadDatabase: HabitDatabaseLoader = () => Database.load(DATABASE_URL),
+  ) {}
+
+  private async database(): Promise<HabitDatabase> {
     if (!this.databasePromise) {
-      this.databasePromise = Database.load(DATABASE_URL).then(async (database) => {
+      this.databasePromise = this.loadDatabase().then(async (database) => {
         await database.execute("PRAGMA foreign_keys = ON");
         return database;
       });
@@ -562,7 +578,7 @@ export class TauriHabitRepository implements HabitRepository {
   }
 
   private async insertHabit(
-    database: Database,
+    database: HabitDatabase,
     habit: TodayHabit,
     localDate: string,
     sortOrder: number,
@@ -592,7 +608,7 @@ export class TauriHabitRepository implements HabitRepository {
   }
 
   private async updateSchedule(
-    database: Database,
+    database: HabitDatabase,
     habitId: string,
     schedule: HabitSchedule,
     localDate: string,
@@ -668,7 +684,7 @@ export class TauriHabitRepository implements HabitRepository {
   }
 
   private async upsertCheckIn(
-    database: Database,
+    database: HabitDatabase,
     habit: TodayHabit,
     localDate: string,
     status: RecordedCompletionStatus,
@@ -700,7 +716,7 @@ export class TauriHabitRepository implements HabitRepository {
   }
 
   private async upsertProgress(
-    database: Database,
+    database: HabitDatabase,
     habitId: string,
     localDate: string,
     value: number,

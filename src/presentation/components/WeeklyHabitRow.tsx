@@ -13,6 +13,7 @@ interface WeeklyHabitRowProps {
 export function WeeklyHabitRow({ habit, goal, onSaveValue, onEdit, onDelete }: WeeklyHabitRowProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(String(goal.completed));
+  const [error, setError] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const requiresWholeNumber = habit.schedule?.type === "weekly_frequency";
 
@@ -27,9 +28,13 @@ export function WeeklyHabitRow({ habit, goal, onSaveValue, onEdit, onDelete }: W
   const commit = () => {
     const parsed = Number(draft);
     if (!Number.isFinite(parsed) || parsed < 0 || (requiresWholeNumber && !Number.isInteger(parsed))) {
+      setError(requiresWholeNumber
+        ? "Enter a whole number of zero or more."
+        : "Enter a number of zero or more.");
       inputRef.current?.focus();
       return;
     }
+    setError("");
     if (parsed !== goal.completed) onSaveValue(parsed);
     setEditing(false);
   };
@@ -38,6 +43,7 @@ export function WeeklyHabitRow({ habit, goal, onSaveValue, onEdit, onDelete }: W
     if (event.key === "Enter") commit();
     if (event.key === "Escape") {
       setDraft(String(goal.completed));
+      setError("");
       setEditing(false);
     }
   };
@@ -57,6 +63,8 @@ export function WeeklyHabitRow({ habit, goal, onSaveValue, onEdit, onDelete }: W
             onBlur={commit}
             onKeyDown={handleKeyDown}
             aria-label={`Current weekly value for ${habit.name}`}
+            aria-invalid={Boolean(error) || undefined}
+            aria-describedby={error ? `weekly-value-error-${habit.id}` : undefined}
           />
         ) : (
           <button
@@ -73,8 +81,9 @@ export function WeeklyHabitRow({ habit, goal, onSaveValue, onEdit, onDelete }: W
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold">{habit.name}</p>
         {habit.description && <p className="mt-0.5 truncate text-xs text-ink-400">{habit.description}</p>}
+        {error && <p id={`weekly-value-error-${habit.id}`} className="mt-1 text-xs font-medium text-red-600" role="alert">{error}</p>}
       </div>
-      <div className="flex shrink-0 items-center opacity-55 transition group-hover:opacity-100">
+      <div className="flex shrink-0 items-center opacity-55 transition group-hover:opacity-100 group-focus-within:opacity-100">
         <button className="grid size-8 place-items-center rounded-lg text-ink-400 hover:bg-leaf-50 hover:text-ink-800" type="button" onClick={onEdit} aria-label={`Edit ${habit.name}`}>
           <Pencil size={14} aria-hidden="true" />
         </button>
