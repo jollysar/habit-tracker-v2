@@ -1,5 +1,4 @@
 import { invoke, isTauri } from "@tauri-apps/api/core";
-import { open, save } from "@tauri-apps/plugin-dialog";
 
 export type TextExportFormat = "json" | "csv";
 
@@ -22,7 +21,7 @@ export async function saveTextExport(
   format: TextExportFormat,
   contents: string,
 ): Promise<string | null> {
-  const filename = `habit-tracker-export-${dateStamp()}.${format}`;
+  const filename = `habitree-export-${dateStamp()}.${format}`;
   if (!isTauri()) {
     return downloadInBrowser(
       filename,
@@ -30,38 +29,25 @@ export async function saveTextExport(
       format === "json" ? "application/json" : "text/csv",
     );
   }
-  const path = await save({
-    defaultPath: filename,
-    filters: [{
-      name: format === "json" ? "JSON export" : "CSV export",
-      extensions: [format],
-    }],
+  return invoke<string | null>("write_text_export", {
+    suggestedFilename: filename,
+    extension: format,
+    contents,
   });
-  if (!path) return null;
-  return invoke<string>("write_text_export", { path, contents });
 }
 
 export async function saveDatabaseBackup(): Promise<string | null> {
   if (!isTauri()) {
     throw new Error("Database backups are available in the installed desktop app.");
   }
-  const path = await save({
-    defaultPath: `habit-tracker-backup-${dateStamp()}.db`,
-    filters: [{ name: "Habit Tracker database", extensions: ["db"] }],
+  return invoke<string | null>("backup_database", {
+    suggestedFilename: `habitree-backup-${dateStamp()}.db`,
   });
-  if (!path) return null;
-  return invoke<string>("backup_database", { destinationPath: path });
 }
 
 export async function chooseAndStageDatabaseRestore(): Promise<string | null> {
   if (!isTauri()) {
     throw new Error("Database restore is available in the installed desktop app.");
   }
-  const path = await open({
-    multiple: false,
-    directory: false,
-    filters: [{ name: "Habit Tracker database", extensions: ["db"] }],
-  });
-  if (!path || Array.isArray(path)) return null;
-  return invoke<string>("stage_database_restore", { sourcePath: path });
+  return invoke<string | null>("stage_database_restore");
 }

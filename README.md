@@ -1,5 +1,7 @@
 # Habitree
 
+**Grow your habits.**
+
 A local-first desktop habit tracker built with Tauri 2, React, TypeScript,
 Tailwind CSS, and SQLite.
 
@@ -10,6 +12,22 @@ Tailwind CSS, and SQLite.
 - Rust 1.98.0
 
 Node and Rust versions are pinned in `.nvmrc` and `rust-toolchain.toml`.
+
+## Security model
+
+- Production web content is restricted by a Content Security Policy with no remote network, framing, object or form destinations.
+- Tauri capabilities apply only to the local `main` window and grant only the SQL load, read and write commands used by the repository.
+- Export, backup and restore paths are chosen inside trusted Rust-owned native dialogs; the webview cannot provide an arbitrary filesystem path.
+- JavaScript prototypes are frozen in production and Tauri's automatic CSP nonce/hash injection remains enabled.
+- Habitree does not include remote-domain IPC access, the asset protocol, an opener permission or a frontend filesystem permission.
+
+The unsigned macOS application used for local smoke testing can be built with:
+
+```bash
+npm run tauri build -- --bundles app
+```
+
+Signing and notarization are intentionally deferred to the release-engineering phase.
 
 ## Clean-machine setup
 

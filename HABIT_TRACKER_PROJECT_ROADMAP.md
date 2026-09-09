@@ -1,4 +1,4 @@
-# Habit Tracker Project Roadmap
+# Habitree Project Roadmap
 
 ## Purpose
 
@@ -134,6 +134,8 @@ Status as of 9 September 2026:
 
 - SQLite repository integration coverage exercises habit lifecycle, ordering, schedule versioning, history, partial progress, streaks, settings and starter-data idempotence against a migrated in-memory database.
 - Keyboard and accessibility hardening includes skip navigation, visible focus, modal focus containment/restoration, non-conflicting section shortcuts, keyboard tabs, calendar navigation, menu navigation and progress semantics.
+- Product identity is finalized as Habitree, with bundle identifier `com.jollysar.habitree`, author metadata, platform icon sets and a non-destructive legacy data migration.
+- Production security now includes a restrictive CSP, frozen JavaScript prototypes, local-only least-privilege SQL capabilities, trusted native file selection and removal of unused opener/dialog webview permissions.
 - Daily-use validation is underway and current performance is accepted by the owner.
 
 - Use the app daily for at least two weeks.

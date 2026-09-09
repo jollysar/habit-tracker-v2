@@ -341,7 +341,7 @@ export function SettingsPage({
 
           <Card className="border-leaf-100 bg-leaf-50 p-5 shadow-none">
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-leaf-700">Backup safety</p>
-            <p className="mt-3 text-xs leading-5 text-ink-600">Before a restore is applied, Habit Tracker preserves the current database as a pre-restore safety copy.</p>
+            <p className="mt-3 text-xs leading-5 text-ink-600">Before a restore is applied, Habitree preserves the current database as a pre-restore safety copy.</p>
           </Card>
         </aside>
       </div>
@@ -351,7 +351,7 @@ export function SettingsPage({
           <section ref={restoreDialogRef} className="w-full max-w-md rounded-2xl border border-line bg-surface p-6 shadow-2xl" role="alertdialog" aria-modal="true" aria-labelledby="restore-title" aria-describedby="restore-description" tabIndex={-1}>
             <span className="grid size-10 place-items-center rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400"><AlertTriangle size={19} /></span>
             <h2 id="restore-title" className="mt-4 text-xl font-bold tracking-[-0.03em]">Restore from a backup?</h2>
-            <p id="restore-description" className="mt-2 text-sm leading-6 text-ink-600">The selected database will be validated and staged. Nothing changes until you restart Habit Tracker.</p>
+            <p id="restore-description" className="mt-2 text-sm leading-6 text-ink-600">The selected database will be validated and staged. Nothing changes until you restart Habitree.</p>
             <p className="mt-3 rounded-xl border border-line bg-canvas px-3 py-2.5 text-xs leading-5 text-ink-600">Your current database is preserved automatically before the staged backup is applied.</p>
             <div className="mt-6 flex justify-end gap-3">
               <Button variant="secondary" onClick={() => setConfirmRestore(false)} data-dialog-autofocus>Cancel</Button>
