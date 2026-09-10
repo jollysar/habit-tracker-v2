@@ -148,7 +148,13 @@ Status as of 9 September 2026:
 
 ### Phase 3: Mobile feasibility
 
-- Initialize Tauri iOS and Android projects.
+Status as of 10 September 2026:
+
+- Tauri iOS and Android projects are initialized from the production Habitree configuration.
+- Both generated projects use the product name `Habitree` and identifier `com.jollysar.habitree`.
+- The local toolchain includes Xcode 26.6, an iOS 26.5 simulator runtime, CocoaPods 1.17, Android Studio Quail 4, Android SDK 37, NDK 30 and all required Rust mobile targets.
+- Apple signing is intentionally unconfigured until physical-device validation and release engineering.
+
 - Build and run on at least one real iPhone and Android device.
 - Confirm SQLite migrations run correctly on both platforms.
 - Confirm the current repository works on mobile.
