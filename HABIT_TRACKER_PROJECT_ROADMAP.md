@@ -148,11 +148,15 @@ Status as of 9 September 2026:
 
 ### Phase 3: Mobile feasibility
 
-Status as of 10 September 2026:
+Status as of 11 September 2026:
 
 - Tauri iOS and Android projects are initialized from the production Habitree configuration.
 - Both generated projects use the product name `Habitree` and identifier `com.jollysar.habitree`.
 - The local toolchain includes Xcode 26.6, an iOS 26.5 simulator runtime, CocoaPods 1.17, Android Studio Quail 4, Android SDK 37, NDK 30 and all required Rust mobile targets.
+- Android API 37 and iOS 26.5 simulator builds launch successfully and run the production React and SQLite repository stack.
+- All seven SQLx migrations apply successfully on clean Android and iOS app containers.
+- On both simulators, a habit created and completed through the UI remains completed after the app is terminated and relaunched.
+- Simulator testing found no blocker in the current repository abstraction; physical-device, responsive-layout, touch, safe-area and authentication-callback validation remain before Phase 3 can close.
 - Apple signing is intentionally unconfigured until physical-device validation and release engineering.
 
 - Build and run on at least one real iPhone and Android device.
