@@ -857,6 +857,7 @@ function App() {
     <AppShell
       activeSection={activeSection}
       onNavigate={setActiveSection}
+      onAddHabit={openAddHabit}
       theme={theme}
       onToggleTheme={() => handleThemePreferenceChange(theme === "light" ? "dark" : "light")}
     >

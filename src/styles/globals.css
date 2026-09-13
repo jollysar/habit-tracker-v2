@@ -49,6 +49,10 @@ body {
   transition: color 160ms ease, background-color 160ms ease;
 }
 
+.mobile-bottom-nav {
+  bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
 @media (min-width: 64rem) {
   .app-shell {
     grid-template-columns: var(--sidebar-width) minmax(0, 1fr);

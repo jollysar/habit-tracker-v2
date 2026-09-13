@@ -6,6 +6,7 @@ import {
   Clock3,
   LayoutList,
   Moon,
+  Plus,
   Settings,
   Sun,
 } from "lucide-react";
@@ -45,6 +46,7 @@ function getSavedSidebarWidth() {
 interface AppShellProps {
   readonly activeSection: AppSection;
   readonly onNavigate: (section: AppSection) => void;
+  readonly onAddHabit: () => void;
   readonly theme: "light" | "dark";
   readonly onToggleTheme: () => void;
   readonly children: ReactNode;
@@ -53,6 +55,7 @@ interface AppShellProps {
 export function AppShell({
   activeSection,
   onNavigate,
+  onAddHabit,
   theme,
   onToggleTheme,
   children,
@@ -63,7 +66,19 @@ export function AppShell({
   );
   const resizing = useRef(false);
   const mainRef = useRef<HTMLElement>(null);
+  const [mobileKeyboardOpen, setMobileKeyboardOpen] = useState(false);
   const effectiveSidebarWidth = sidebarCollapsed ? COLLAPSED_SIDEBAR_WIDTH : sidebarWidth;
+
+  useEffect(() => {
+    const viewport = window.visualViewport;
+    if (!viewport) return;
+    const updateKeyboardState = () => {
+      setMobileKeyboardOpen(window.innerHeight - viewport.height > 140);
+    };
+    updateKeyboardState();
+    viewport.addEventListener("resize", updateKeyboardState);
+    return () => viewport.removeEventListener("resize", updateKeyboardState);
+  }, []);
 
   useEffect(() => {
     const handlePointerMove = (event: PointerEvent) => {
@@ -131,14 +146,22 @@ export function AppShell({
       >
         Skip to main content
       </a>
-      <aside className="app-sidebar border-line bg-surface transition-[width] duration-200 ease-out lg:fixed lg:inset-y-0 lg:border-r">
+      <aside className="app-sidebar bg-canvas transition-[width] duration-200 ease-out lg:fixed lg:inset-y-0 lg:border-r lg:border-line lg:bg-surface">
         <div className={cn(
-          "flex h-16 items-center justify-between border-b border-line px-5 lg:h-20 lg:border-b-0",
+          "flex h-16 items-center justify-between px-5 lg:h-20",
           sidebarCollapsed && "lg:justify-center lg:px-2",
         )}>
           <div className={cn("flex min-w-0 items-end gap-3", sidebarCollapsed && "lg:justify-center")}>
             <button
-              className="grid size-11 shrink-0 place-items-center transition-transform duration-150 ease-out hover:scale-[1.04] active:scale-95"
+              className="grid size-11 shrink-0 place-items-center transition-transform duration-150 ease-out active:scale-95 lg:hidden"
+              onClick={() => navigate("today")}
+              aria-label="Go to Today"
+              title="Today"
+            >
+              <AnimatedPlant plantType="oak" stage={4} size={44} />
+            </button>
+            <button
+              className="hidden size-11 shrink-0 place-items-center transition-transform duration-150 ease-out hover:scale-[1.04] active:scale-95 lg:grid"
               onClick={toggleSidebar}
               aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
               title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -153,20 +176,11 @@ export function AppShell({
               <span className="block text-xl font-bold leading-none tracking-[-0.03em]">Habitree</span>
             </button>
           </div>
-          <Button
-            className="lg:hidden"
-            variant="ghost"
-            size="icon"
-            onClick={onToggleTheme}
-            aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
-          >
-            {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
-          </Button>
         </div>
 
         <nav
           className={cn(
-            "flex gap-1 overflow-x-auto px-3 py-2 lg:block lg:space-y-1 lg:py-4",
+            "hidden lg:block lg:space-y-1 lg:py-4",
             sidebarCollapsed ? "lg:px-2" : "lg:px-3",
           )}
           aria-label="Primary navigation"
@@ -239,10 +253,56 @@ export function AppShell({
         )}
       </aside>
 
+      <nav
+        className={cn(
+          "mobile-bottom-nav fixed inset-x-3 z-50 mx-auto max-w-md items-center justify-between gap-0.5 rounded-[1.65rem] border border-line bg-surface/95 px-2 py-2 shadow-[0_12px_36px_rgba(20,20,18,0.22)] backdrop-blur-xl lg:hidden",
+          mobileKeyboardOpen ? "hidden" : "flex",
+        )}
+        aria-label="Primary navigation"
+      >
+        {navigation.map((item, index) => {
+          const Icon = item.icon;
+          const isActive = activeSection === item.id;
+          const navigationButton = (
+            <button
+              key={item.id}
+              className={cn(
+                "grid size-11 shrink-0 place-items-center rounded-full text-ink-600 transition-[color,background-color,transform] duration-150 active:scale-90",
+                isActive && "bg-ink-950 text-surface",
+              )}
+              type="button"
+              onClick={() => navigate(item.id)}
+              aria-label={item.label}
+              aria-current={isActive ? "page" : undefined}
+              aria-keyshortcuts={`Alt+${index + 1}`}
+              title={item.label}
+            >
+              <Icon size={20} strokeWidth={isActive ? 2.4 : 1.9} aria-hidden="true" />
+            </button>
+          );
+
+          if (item.id !== "week") return navigationButton;
+          return (
+            <div className="contents" key={item.id}>
+              <button
+                className="grid size-12 shrink-0 place-items-center rounded-full bg-leaf-600 text-white shadow-md transition-transform duration-150 active:scale-90"
+                type="button"
+                onClick={onAddHabit}
+                aria-label="Add habit"
+                title="Add habit"
+              >
+                <Plus size={23} strokeWidth={2.5} aria-hidden="true" />
+              </button>
+              {navigationButton}
+            </div>
+          );
+        })}
+      </nav>
+
       <main
         ref={mainRef}
         id="main-content"
-        className="min-w-0 lg:col-start-2"
+        className="min-w-0 pb-[calc(6.5rem+env(safe-area-inset-bottom))] lg:col-start-2 lg:pb-0"
         tabIndex={-1}
         aria-label={`${navigation.find((item) => item.id === activeSection)?.label ?? "Habitree"} page`}
       >

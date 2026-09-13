@@ -161,7 +161,7 @@ export function TodayPage({
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 lg:pt-1">
+        <div className="hidden flex-wrap items-center gap-2 lg:flex lg:pt-1">
           <Button className="h-[60px] rounded-xl px-6 text-base" onClick={onAddHabit} aria-keyshortcuts="Meta+N Control+N">
             <Plus size={17} strokeWidth={2.5} aria-hidden="true" />
             Add habit
