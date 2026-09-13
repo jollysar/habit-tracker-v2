@@ -227,15 +227,27 @@ export function AppShell({
         )}
         aria-label="Primary navigation"
       >
-        <button
-          className="grid size-12 shrink-0 place-items-center rounded-full bg-leaf-600 text-white shadow-md transition-transform duration-150 active:scale-90"
-          type="button"
-          onClick={onAddHabit}
-          aria-label="Add habit"
-          title="Add habit"
-        >
-          <Plus size={23} strokeWidth={2.5} aria-hidden="true" />
-        </button>
+        {activeSection === "today" ? (
+          <button
+            className="grid size-12 shrink-0 place-items-center rounded-full bg-leaf-600 text-white shadow-md transition-transform duration-150 active:scale-90"
+            type="button"
+            onClick={onAddHabit}
+            aria-label="Add habit"
+            title="Add habit"
+          >
+            <Plus size={23} strokeWidth={2.5} aria-hidden="true" />
+          </button>
+        ) : (
+          <button
+            className="grid size-12 shrink-0 place-items-center rounded-full transition-transform duration-150 active:scale-90"
+            type="button"
+            onClick={() => navigate("today")}
+            aria-label="Go to Today"
+            title="Today"
+          >
+            <AnimatedPlant plantType="oak" stage={4} size={39} />
+          </button>
+        )}
         {navigation.filter((item) => item.id !== "today").map((item, index) => {
           const Icon = item.icon;
           const isActive = activeSection === item.id;
