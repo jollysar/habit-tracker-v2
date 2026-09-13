@@ -3,9 +3,9 @@ import { Plus } from "lucide-react";
 import type { TodayDashboard } from "../../application/today/buildTodayDashboard";
 import type { TodayHabit, Weekday, WeeklyGoal } from "../../domain/habits/models";
 import { cn } from "../../lib/cn";
+import { AnimatedPlant } from "../components/AnimatedPlant";
 import { HabitRow } from "../components/HabitRow";
 import { HomeDatePicker } from "../components/HomeDatePicker";
-import { CompactProgress } from "../components/CompactProgress";
 import { ProgressRing } from "../components/ProgressRing";
 import { WeeklyHabitRow } from "../components/WeeklyHabitRow";
 import { Button } from "../components/ui/Button";
@@ -69,11 +69,6 @@ export function TodayPage({
   const isToday = selectedDate === localDate;
   const allHabits = dashboard.sections.flatMap((section) => section.habits);
   const remainingWeeklyGoals = Math.max(0, weeklyGoals.length - completedWeeklyGoals);
-  const displayedCompleted = isDailyView ? dashboard.completedCount : completedWeeklyGoals;
-  const displayedTotal = isDailyView ? dashboard.scheduledCount : weeklyGoals.length;
-  const displayedPercentage = isDailyView
-    ? dashboard.completionPercentage
-    : weeklyCompletionPercentage;
 
   const swipeHandlers = useHorizontalDateSwipe((direction) => {
     const interval = isDailyView ? 1 : 7;
@@ -103,16 +98,19 @@ export function TodayPage({
 
   return (
     <div
-      className="mx-auto max-w-[1440px] touch-pan-y px-5 py-4 sm:px-8 sm:py-9 xl:px-12"
+      className="mx-auto max-w-[1440px] touch-pan-y px-5 pb-4 pt-[calc(max(0px,env(safe-area-inset-top,0px)-0.25rem)+0.5rem)] sm:px-8 sm:py-9 xl:px-12"
       {...swipeHandlers}
     >
       <header className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0 flex-1">
-          <div className="relative flex min-h-11 items-center justify-end gap-4">
+          <div className="relative flex min-h-11 items-center">
+            {isDailyView && isToday && (
+              <AnimatedPlant plantType="oak" stage={4} size={44} className="shrink-0 lg:hidden" />
+            )}
             <div className={cn(
               "min-w-0",
               isDailyView && isToday
-                ? "pointer-events-none absolute inset-x-0 flex justify-center"
+                ? "pointer-events-none absolute inset-x-0 flex justify-center lg:pointer-events-auto lg:static lg:mr-auto lg:block"
                 : "mr-auto max-w-[calc(100%-9rem)]",
             )}>
               <h1 className={cn(
@@ -144,14 +142,6 @@ export function TodayPage({
                   onClose={() => setDatePickerOpen(false)}
                 />
               )}
-            </div>
-            <div className="lg:hidden">
-              <CompactProgress
-                completed={displayedCompleted}
-                total={displayedTotal}
-                percentage={displayedPercentage}
-                label={isDailyView ? "Daily progress" : "Weekly progress"}
-              />
             </div>
           </div>
           <div className="mt-2 hidden flex-wrap items-center gap-2 lg:flex">
@@ -185,7 +175,7 @@ export function TodayPage({
         </div>
       </header>
 
-      <div className="mt-7 inline-flex w-full rounded-xl border border-line bg-canvas p-1 sm:w-auto" role="tablist" aria-label="Home habit view">
+      <div className="mt-4 inline-flex w-full rounded-xl border border-line bg-canvas p-1 sm:mt-7 sm:w-auto" role="tablist" aria-label="Home habit view">
         {([['daily', 'Today’s habits'], ['weekly', 'Weekly habits']] as const).map(([view, label]) => (
           <button
             key={view}
@@ -218,7 +208,7 @@ export function TodayPage({
         ))}
       </div>
 
-      <div className="mt-5 max-w-[1040px]">
+      <div className="mt-3 max-w-[1040px] sm:mt-5">
         <div className="min-w-0 space-y-6">
           <Card className="hidden overflow-hidden lg:block">
             <div className="flex items-center gap-4 p-4 sm:p-5">

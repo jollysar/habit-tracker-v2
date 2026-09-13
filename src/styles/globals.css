@@ -59,15 +59,6 @@ body {
   bottom: max(0.75rem, env(safe-area-inset-bottom));
 }
 
-.mobile-brand-bar {
-  min-height: calc(3.5rem + max(0px, env(safe-area-inset-top, 0px) - 0.25rem));
-  padding-top: max(0px, env(safe-area-inset-top, 0px) - 0.25rem);
-}
-
-.mobile-brand-bar-compact {
-  min-height: max(0px, env(safe-area-inset-top, 0px) - 0.25rem);
-}
-
 .habit-row-surface {
   border-radius: inherit;
 }

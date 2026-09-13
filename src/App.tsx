@@ -886,7 +886,6 @@ function App() {
       activeSection={activeSection}
       onNavigate={setActiveSection}
       onAddHabit={openAddHabit}
-      showMobileBrandTree={activeSection !== "today" || selectedHomeDate === localDate}
     >
       {dataError && (
         <div

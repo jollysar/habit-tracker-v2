@@ -44,7 +44,6 @@ interface AppShellProps {
   readonly activeSection: AppSection;
   readonly onNavigate: (section: AppSection) => void;
   readonly onAddHabit: () => void;
-  readonly showMobileBrandTree: boolean;
   readonly children: ReactNode;
 }
 
@@ -52,7 +51,6 @@ export function AppShell({
   activeSection,
   onNavigate,
   onAddHabit,
-  showMobileBrandTree,
   children,
 }: AppShellProps) {
   const [sidebarWidth, setSidebarWidth] = useState(getSavedSidebarWidth);
@@ -141,23 +139,12 @@ export function AppShell({
       >
         Skip to main content
       </a>
-      <aside className="app-sidebar bg-canvas transition-[width] duration-200 ease-out lg:fixed lg:inset-y-0 lg:border-r lg:border-line lg:bg-surface">
+      <aside className="app-sidebar hidden bg-canvas transition-[width] duration-200 ease-out lg:fixed lg:inset-y-0 lg:block lg:border-r lg:border-line lg:bg-surface">
         <div className={cn(
-          "mobile-brand-bar flex items-center justify-between px-5 lg:h-20",
-          !showMobileBrandTree && "mobile-brand-bar-compact",
+          "flex items-center justify-between px-5 lg:h-20",
           sidebarCollapsed && "lg:justify-center lg:px-2",
         )}>
           <div className={cn("flex min-w-0 items-end gap-3", sidebarCollapsed && "lg:justify-center")}>
-            {showMobileBrandTree && (
-              <button
-                className="grid size-11 shrink-0 place-items-center transition-transform duration-150 ease-out active:scale-95 lg:hidden"
-                onClick={() => navigate("today")}
-                aria-label="Go to Today"
-                title="Today"
-              >
-                <AnimatedPlant plantType="oak" stage={4} size={44} />
-              </button>
-            )}
             <button
               className="hidden size-11 shrink-0 place-items-center transition-transform duration-150 ease-out hover:scale-[1.04] active:scale-95 lg:grid"
               onClick={toggleSidebar}
@@ -240,7 +227,16 @@ export function AppShell({
         )}
         aria-label="Primary navigation"
       >
-        {navigation.map((item, index) => {
+        <button
+          className="grid size-12 shrink-0 place-items-center rounded-full bg-leaf-600 text-white shadow-md transition-transform duration-150 active:scale-90"
+          type="button"
+          onClick={onAddHabit}
+          aria-label="Add habit"
+          title="Add habit"
+        >
+          <Plus size={23} strokeWidth={2.5} aria-hidden="true" />
+        </button>
+        {navigation.filter((item) => item.id !== "today").map((item, index) => {
           const Icon = item.icon;
           const isActive = activeSection === item.id;
           const navigationButton = (
@@ -263,15 +259,6 @@ export function AppShell({
 
           return navigationButton;
         })}
-        <button
-          className="grid size-12 shrink-0 place-items-center rounded-full bg-leaf-600 text-white shadow-md transition-transform duration-150 active:scale-90"
-          type="button"
-          onClick={onAddHabit}
-          aria-label="Add habit"
-          title="Add habit"
-        >
-          <Plus size={23} strokeWidth={2.5} aria-hidden="true" />
-        </button>
       </nav>
 
       <main
