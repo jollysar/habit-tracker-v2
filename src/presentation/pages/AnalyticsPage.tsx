@@ -21,6 +21,7 @@ import type {
 import { cn } from "../../lib/cn";
 import { ProgressRing } from "../components/ProgressRing";
 import { AnimatedPlant } from "../components/AnimatedPlant";
+import { HabitGarden } from "../components/HabitGarden";
 import { Card } from "../components/ui/Card";
 
 interface AnalyticsPageProps {
@@ -117,6 +118,8 @@ export function AnalyticsPage({
           <p className="mt-1 text-xs text-ink-600">Total completions</p>
         </Card>
       </section>
+
+      <HabitGarden rows={dashboard.habitPerformance} />
 
       <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(340px,0.8fr)]">
         <Card className="p-5 sm:p-6">
