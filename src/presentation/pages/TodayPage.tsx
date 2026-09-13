@@ -111,7 +111,7 @@ export function TodayPage({
               "min-w-0",
               isDailyView && isToday
                 ? "pointer-events-none absolute inset-x-0 flex justify-center lg:pointer-events-auto lg:static lg:mr-auto lg:block"
-                : "mr-auto max-w-[calc(100%-9rem)]",
+                : "mr-auto max-w-[calc(100%-3.5rem)]",
             )}>
               <h1 className={cn(
                 "pointer-events-auto font-bold tracking-[-0.035em] sm:text-3xl",
@@ -142,6 +142,12 @@ export function TodayPage({
                   onClose={() => setDatePickerOpen(false)}
                 />
               )}
+            </div>
+            <div className="ml-auto lg:hidden">
+              <ProgressRing
+                percentage={isDailyView ? dashboard.completionPercentage : weeklyCompletionPercentage}
+                minimal
+              />
             </div>
           </div>
           <div className="mt-2 hidden flex-wrap items-center gap-2 lg:flex">
@@ -175,12 +181,12 @@ export function TodayPage({
         </div>
       </header>
 
-      <div className="mt-4 inline-flex w-full rounded-xl border border-line bg-canvas p-1 sm:mt-7 sm:w-auto" role="tablist" aria-label="Home habit view">
+      <div className="mt-4 inline-flex w-full rounded-2xl border border-line bg-canvas p-1 sm:mt-7 sm:w-auto" role="tablist" aria-label="Home habit view">
         {([['daily', 'Today’s habits'], ['weekly', 'Weekly habits']] as const).map(([view, label]) => (
           <button
             key={view}
             className={cn(
-              "flex-1 rounded-lg px-5 py-2 text-sm font-semibold transition sm:flex-none",
+              "flex-1 rounded-xl px-5 py-2 text-sm font-semibold transition sm:flex-none",
               activeView === view
                 ? "bg-surface text-ink-950 shadow-sm"
                 : "text-ink-600 hover:text-ink-950",
@@ -231,33 +237,42 @@ export function TodayPage({
 
           {isDailyView ? (
             <section aria-label="Today’s habits" role="tabpanel">
-              <Card className="habit-card overflow-visible shadow-none">
-                {allHabits.map(renderHabit)}
-              </Card>
+              <div className="space-y-2.5">
+                {allHabits.map((habit) => (
+                  <Card key={habit.id} className="habit-card overflow-visible rounded-2xl shadow-none">
+                    {renderHabit(habit)}
+                  </Card>
+                ))}
+              </div>
             </section>
           ) : (
             <section aria-label="Weekly habits" role="tabpanel">
-              <Card className="habit-card overflow-visible shadow-none">
-                {weeklyHabits.length === 0 ? (
+              {weeklyHabits.length === 0 ? (
+                <Card className="rounded-2xl shadow-none">
                   <div className="px-5 py-7 text-center">
                     <p className="text-sm font-semibold">No weekly habits yet</p>
                     <p className="mt-1 text-xs text-ink-400">Add a weekly habit to start tracking one.</p>
                   </div>
-                ) : weeklyHabits.map((habit) => {
+                </Card>
+              ) : (
+                <div className="space-y-2.5">
+                  {weeklyHabits.map((habit) => {
                   const goal = weeklyGoals.find((candidate) => candidate.id === habit.id);
                   return goal ? (
-                    <WeeklyHabitRow
-                      key={habit.id}
-                      habit={habit}
-                      goal={goal}
-                      onSaveValue={(value) => onSaveWeeklyValue(habit.id, value)}
-                      onEdit={() => onEditHabit(habit.id)}
-                      onDelete={() => onDeleteHabit(habit.id)}
-                      onViewStreakHistory={() => onViewWeek("weekly")}
-                    />
+                    <Card key={habit.id} className="habit-card overflow-visible rounded-2xl shadow-none">
+                      <WeeklyHabitRow
+                        habit={habit}
+                        goal={goal}
+                        onSaveValue={(value) => onSaveWeeklyValue(habit.id, value)}
+                        onEdit={() => onEditHabit(habit.id)}
+                        onDelete={() => onDeleteHabit(habit.id)}
+                        onViewStreakHistory={() => onViewWeek("weekly")}
+                      />
+                    </Card>
                   ) : null;
-                })}
-              </Card>
+                  })}
+                </div>
+              )}
             </section>
           )}
         </div>

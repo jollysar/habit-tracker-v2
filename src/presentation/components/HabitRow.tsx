@@ -55,7 +55,7 @@ export function HabitRow({ habit, onToggle, onEdit, onSkip, onReset, onDelete, o
   return (
     <div
       ref={gestures.rootRef}
-      className={cn("habit-gesture-row group relative border-t border-line first:border-t-0 first:rounded-t-[9px] last:rounded-b-[9px]", menuOpen ? "overflow-visible" : "overflow-hidden lg:overflow-visible")}
+      className={cn("habit-gesture-row group relative border-t border-line first:border-t-0 first:rounded-t-[15px] last:rounded-b-[15px]", menuOpen ? "overflow-visible" : "overflow-hidden lg:overflow-visible")}
       data-habit-row
       onTouchStart={gestures.onTouchStart}
       onTouchMove={gestures.onTouchMove}
@@ -133,7 +133,7 @@ export function HabitRow({ habit, onToggle, onEdit, onSkip, onReset, onDelete, o
           {habit.value} {habit.targetUnit}
         </span>
         )}
-        <div className="relative" ref={menuRef}>
+        <div className="relative self-center" ref={menuRef}>
         <HabitStreakButton
           ref={menuButtonRef}
           habitName={habit.name}

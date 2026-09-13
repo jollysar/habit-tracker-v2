@@ -79,7 +79,7 @@ export function WeeklyHabitRow({ habit, goal, onSaveValue, onEdit, onDelete, onV
   return (
     <div
       ref={gestures.rootRef}
-      className={cn("habit-gesture-row group relative border-t border-line first:border-t-0 first:rounded-t-[9px] last:rounded-b-[9px]", menuOpen ? "overflow-visible" : "overflow-hidden lg:overflow-visible")}
+      className={cn("habit-gesture-row group relative border-t border-line first:border-t-0 first:rounded-t-[15px] last:rounded-b-[15px]", menuOpen ? "overflow-visible" : "overflow-hidden lg:overflow-visible")}
       data-habit-row
       onTouchStart={gestures.onTouchStart}
       onTouchMove={gestures.onTouchMove}
@@ -146,7 +146,7 @@ export function WeeklyHabitRow({ habit, goal, onSaveValue, onEdit, onDelete, onV
           <Trash2 size={14} aria-hidden="true" />
         </button>
       </div>
-      <div className="relative" ref={menuRef}>
+      <div className="relative self-center" ref={menuRef}>
         <HabitStreakButton
           ref={menuButtonRef}
           habitName={habit.name}
