@@ -13,10 +13,12 @@ import {
   LockKeyhole,
   MessageSquareText,
   Moon,
+  MoveHorizontal,
   Palette,
   RotateCcw,
   ShieldCheck,
   Send,
+  Smartphone,
   Sun,
   X,
 } from "lucide-react";
@@ -255,6 +257,17 @@ export function SettingsPage({
                 <span className="size-5 rounded-full bg-white shadow-sm" />
               </span>
             </button>
+            <div className="mt-5 border-t border-line pt-5 lg:hidden">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-leaf-700">
+                <Smartphone size={15} aria-hidden="true" />
+                Touch controls
+              </div>
+              <ul className="mt-3 space-y-2.5 text-xs leading-5 text-ink-600">
+                <li className="flex items-start gap-2.5"><MoveHorizontal className="mt-0.5 shrink-0 text-ink-400" size={14} aria-hidden="true" /><span>Swipe an open area on Home to move between days or weeks.</span></li>
+                <li className="flex items-start gap-2.5"><MoveHorizontal className="mt-0.5 shrink-0 text-ink-400" size={14} aria-hidden="true" /><span>Swipe a habit right to reveal Delete.</span></li>
+                <li className="flex items-start gap-2.5"><Smartphone className="mt-0.5 shrink-0 text-ink-400" size={14} aria-hidden="true" /><span>Press and hold a habit for actions, or tap its plant.</span></li>
+              </ul>
+            </div>
           </Card>
 
           <Card className="p-5 sm:p-6">

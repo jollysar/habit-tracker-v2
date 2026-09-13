@@ -57,7 +57,7 @@ export function HabitRow({ habit, isEditing, onToggle, onEdit, onSkip, onReset, 
   return (
     <div
       ref={gestures.rootRef}
-      className={cn("group relative border-t border-line first:border-t-0", menuOpen ? "overflow-visible" : "overflow-hidden lg:overflow-visible")}
+      className={cn("habit-gesture-row group relative border-t border-line first:border-t-0", menuOpen ? "overflow-visible" : "overflow-hidden lg:overflow-visible")}
       data-page-swipe="ignore"
       onTouchStart={gestures.onTouchStart}
       onTouchMove={gestures.onTouchMove}
@@ -72,6 +72,7 @@ export function HabitRow({ habit, isEditing, onToggle, onEdit, onSkip, onReset, 
         data-habit-gesture="ignore"
         aria-label={`Delete ${habit.name}`}
         aria-hidden={!gestures.deleteRevealed}
+        inert={!gestures.deleteRevealed}
         tabIndex={gestures.deleteRevealed ? 0 : -1}
         onClick={() => { gestures.closeDelete(); onDelete(); }}
       >

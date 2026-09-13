@@ -74,6 +74,20 @@ a {
   -webkit-tap-highlight-color: transparent;
 }
 
+@media (max-width: 63.999rem) {
+  .habit-gesture-row {
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  .habit-gesture-row input,
+  .habit-gesture-row textarea {
+    user-select: text;
+    -webkit-touch-callout: default;
+  }
+}
+
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
