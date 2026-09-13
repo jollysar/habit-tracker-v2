@@ -4,6 +4,7 @@ import type { TodayHabit } from "../../domain/habits/models";
 import { cn } from "../../lib/cn";
 import { AnimatedPlant } from "./AnimatedPlant";
 import { Button } from "./ui/Button";
+import { useHabitRowGestures } from "../hooks/useHabitRowGestures";
 
 interface HabitRowProps {
   readonly habit: TodayHabit;
@@ -26,6 +27,7 @@ export function HabitRow({ habit, isEditing, onToggle, onEdit, onSkip, onReset, 
   const progress = hasProgress
     ? Math.min(100, Math.round(((habit.value ?? 0) / habit.targetValue!) * 100))
     : 0;
+  const gestures = useHabitRowGestures({ onLongPress: () => setMenuOpen(true) });
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -52,8 +54,34 @@ export function HabitRow({ habit, isEditing, onToggle, onEdit, onSkip, onReset, 
   }, [menuOpen]);
 
   return (
-    <div className="group flex items-center gap-3 border-t border-line px-4 py-3.5 first:border-t-0 sm:px-5">
+    <div
+      ref={gestures.rootRef}
+      className={cn("group relative border-t border-line first:border-t-0", menuOpen ? "overflow-visible" : "overflow-hidden lg:overflow-visible")}
+      data-page-swipe="ignore"
+      onTouchStart={gestures.onTouchStart}
+      onTouchMove={gestures.onTouchMove}
+      onTouchEnd={gestures.onTouchEnd}
+      onTouchCancel={gestures.onTouchCancel}
+      onClickCapture={gestures.onClickCapture}
+    >
       <button
+        className="absolute inset-y-0 left-0 flex w-24 items-center justify-center gap-1.5 bg-red-600 text-sm font-semibold text-white lg:hidden"
+        type="button"
+        data-delete-action
+        data-habit-gesture="ignore"
+        aria-label={`Delete ${habit.name}`}
+        aria-hidden={!gestures.deleteRevealed}
+        tabIndex={gestures.deleteRevealed ? 0 : -1}
+        onClick={() => { gestures.closeDelete(); onDelete(); }}
+      >
+        <Trash2 size={17} aria-hidden="true" />
+        Delete
+      </button>
+      <div className={cn(
+        "relative flex items-center gap-3 bg-surface px-4 py-3.5 transition-transform duration-200 ease-out sm:px-5 lg:translate-x-0",
+        gestures.deleteRevealed && "translate-x-24",
+      )}>
+        <button
         className="flex min-w-0 flex-1 items-center gap-3 text-left"
         onClick={onToggle}
         aria-label={isComplete ? `Mark ${habit.name} incomplete` : `Complete ${habit.name}`}
@@ -104,23 +132,23 @@ export function HabitRow({ habit, isEditing, onToggle, onEdit, onSkip, onReset, 
           </span>
         )}
         </span>
-      </button>
+        </button>
 
-      {hasProgress && isComplete && (
+        {hasProgress && isComplete && (
         <span className="hidden text-xs font-medium text-ink-400 sm:block">
           {habit.value} {habit.targetUnit}
         </span>
-      )}
-      {isEditing && (
+        )}
+        {isEditing && (
         <Button variant="secondary" className="h-8 px-2.5 text-xs" onClick={onSkip}>
           <Minus size={14} aria-hidden="true" />
           Skip
         </Button>
-      )}
-      <div className="relative" ref={menuRef}>
+        )}
+        <div className="relative" ref={menuRef}>
         <Button
           ref={menuButtonRef}
-          className="opacity-60 group-hover:opacity-100"
+          className="sr-only opacity-60 focus:not-sr-only focus:grid lg:not-sr-only lg:grid group-hover:opacity-100"
           variant="ghost"
           size="icon"
           aria-label={`More options for ${habit.name}`}
@@ -176,6 +204,7 @@ export function HabitRow({ habit, isEditing, onToggle, onEdit, onSkip, onReset, 
             </button>
           </div>
         )}
+        </div>
       </div>
     </div>
   );

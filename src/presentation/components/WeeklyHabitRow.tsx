@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
-import { Pencil, Trash2 } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import type { TodayHabit, WeeklyGoal } from "../../domain/habits/models";
+import { cn } from "../../lib/cn";
+import { useHabitRowGestures } from "../hooks/useHabitRowGestures";
 
 interface WeeklyHabitRowProps {
   readonly habit: TodayHabit;
@@ -15,7 +17,11 @@ export function WeeklyHabitRow({ habit, goal, onSaveValue, onEdit, onDelete }: W
   const [draft, setDraft] = useState(String(goal.completed));
   const [error, setError] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const requiresWholeNumber = habit.schedule?.type === "weekly_frequency";
+  const gestures = useHabitRowGestures({ onLongPress: () => setMenuOpen(true) });
 
   useEffect(() => {
     if (!editing) setDraft(String(goal.completed));
@@ -24,6 +30,26 @@ export function WeeklyHabitRow({ habit, goal, onSaveValue, onEdit, onDelete }: W
   useEffect(() => {
     if (editing) inputRef.current?.select();
   }, [editing]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    window.requestAnimationFrame(() => menuRef.current?.querySelector<HTMLElement>("[role='menuitem']")?.focus({ preventScroll: true }));
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!menuRef.current?.contains(event.target as Node)) setMenuOpen(false);
+    };
+    const handleEscape = (event: globalThis.KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      setMenuOpen(false);
+      menuButtonRef.current?.focus({ preventScroll: true });
+    };
+    window.addEventListener("pointerdown", handlePointerDown);
+    window.addEventListener("keydown", handleEscape);
+    return () => {
+      window.removeEventListener("pointerdown", handlePointerDown);
+      window.removeEventListener("keydown", handleEscape);
+    };
+  }, [menuOpen]);
 
   const commit = () => {
     const parsed = Number(draft);
@@ -49,7 +75,33 @@ export function WeeklyHabitRow({ habit, goal, onSaveValue, onEdit, onDelete }: W
   };
 
   return (
-    <div className="group flex min-h-16 items-center gap-4 border-t border-line px-5 py-3.5 first:border-t-0">
+    <div
+      ref={gestures.rootRef}
+      className={cn("group relative border-t border-line first:border-t-0", menuOpen ? "overflow-visible" : "overflow-hidden lg:overflow-visible")}
+      data-page-swipe="ignore"
+      onTouchStart={gestures.onTouchStart}
+      onTouchMove={gestures.onTouchMove}
+      onTouchEnd={gestures.onTouchEnd}
+      onTouchCancel={gestures.onTouchCancel}
+      onClickCapture={gestures.onClickCapture}
+    >
+      <button
+        className="absolute inset-y-0 left-0 flex w-24 items-center justify-center gap-1.5 bg-red-600 text-sm font-semibold text-white lg:hidden"
+        type="button"
+        data-delete-action
+        data-habit-gesture="ignore"
+        aria-label={`Delete ${habit.name}`}
+        aria-hidden={!gestures.deleteRevealed}
+        tabIndex={gestures.deleteRevealed ? 0 : -1}
+        onClick={() => { gestures.closeDelete(); onDelete(); }}
+      >
+        <Trash2 size={17} aria-hidden="true" />
+        Delete
+      </button>
+      <div className={cn(
+        "relative flex min-h-16 items-center gap-4 bg-surface px-5 py-3.5 transition-transform duration-200 ease-out lg:translate-x-0",
+        gestures.deleteRevealed && "translate-x-24",
+      )}>
       <div className="flex w-24 shrink-0 items-baseline gap-1.5" aria-label={`${goal.completed} of ${goal.target} ${goal.unit}`}>
         {editing ? (
           <input
@@ -83,13 +135,45 @@ export function WeeklyHabitRow({ habit, goal, onSaveValue, onEdit, onDelete }: W
         {habit.description && <p className="mt-0.5 truncate text-xs text-ink-400">{habit.description}</p>}
         {error && <p id={`weekly-value-error-${habit.id}`} className="mt-1 text-xs font-medium text-red-600" role="alert">{error}</p>}
       </div>
-      <div className="flex shrink-0 items-center opacity-55 transition group-hover:opacity-100 group-focus-within:opacity-100">
+      <div className="hidden shrink-0 items-center opacity-55 transition group-hover:opacity-100 group-focus-within:opacity-100 lg:flex">
         <button className="grid size-8 place-items-center rounded-lg text-ink-400 hover:bg-leaf-50 hover:text-ink-800" type="button" onClick={onEdit} aria-label={`Edit ${habit.name}`}>
           <Pencil size={14} aria-hidden="true" />
         </button>
         <button className="grid size-8 place-items-center rounded-lg text-ink-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30" type="button" onClick={onDelete} aria-label={`Delete ${habit.name}`}>
           <Trash2 size={14} aria-hidden="true" />
         </button>
+      </div>
+      <div className="relative lg:hidden" ref={menuRef}>
+        <button
+          ref={menuButtonRef}
+          className="sr-only focus:not-sr-only focus:grid focus:size-8 focus:place-items-center focus:rounded-lg focus:text-ink-600"
+          type="button"
+          aria-label={`More options for ${habit.name}`}
+          aria-expanded={menuOpen}
+          aria-haspopup="menu"
+          aria-controls={menuOpen ? `weekly-habit-menu-${habit.id}` : undefined}
+          onClick={() => setMenuOpen((current) => !current)}
+        >
+          <MoreHorizontal size={18} aria-hidden="true" />
+        </button>
+        {menuOpen && (
+          <div
+            id={`weekly-habit-menu-${habit.id}`}
+            className="menu-popover absolute right-0 top-8 z-30 w-44 rounded-lg border border-line bg-surface p-1.5 shadow-xl"
+            role="menu"
+            aria-label={`Actions for ${habit.name}`}
+          >
+            <button className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-ink-800 hover:bg-leaf-50" role="menuitem" onClick={() => { setMenuOpen(false); onEdit(); }}>
+              <Pencil size={14} aria-hidden="true" />
+              Edit details
+            </button>
+            <button className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-semibold text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30" role="menuitem" onClick={() => { setMenuOpen(false); onDelete(); }}>
+              <Trash2 size={14} aria-hidden="true" />
+              Delete habit
+            </button>
+          </div>
+        )}
+      </div>
       </div>
     </div>
   );
