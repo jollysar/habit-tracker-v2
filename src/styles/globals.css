@@ -59,6 +59,47 @@ body {
   bottom: max(0.75rem, env(safe-area-inset-bottom));
 }
 
+.mobile-brand-bar {
+  min-height: calc(4rem + env(safe-area-inset-top, 0px));
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.habit-row-surface {
+  border-radius: inherit;
+}
+
+@keyframes progress-power-up {
+  0% {
+    filter: brightness(1);
+    box-shadow: 0 0 0 color-mix(in srgb, var(--color-leaf-500) 0%, transparent);
+  }
+  45% {
+    filter: brightness(1.35);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--color-leaf-500) 72%, transparent);
+  }
+  100% {
+    filter: brightness(1);
+    box-shadow: 0 0 0 color-mix(in srgb, var(--color-leaf-500) 0%, transparent);
+  }
+}
+
+.progress-power-up {
+  animation: progress-power-up 520ms ease-out;
+}
+
+.progress-power-up::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background: linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 0.85) 50%, transparent 100%);
+  transform: translateX(-110%);
+  animation: progress-charge-sweep 520ms ease-out;
+}
+
+@keyframes progress-charge-sweep {
+  to { transform: translateX(110%); }
+}
+
 @media (min-width: 64rem) {
   .app-shell {
     grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
@@ -85,6 +126,13 @@ a {
   .habit-gesture-row textarea {
     user-select: text;
     -webkit-touch-callout: default;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress-power-up,
+  .progress-power-up::after {
+    animation: none;
   }
 }
 

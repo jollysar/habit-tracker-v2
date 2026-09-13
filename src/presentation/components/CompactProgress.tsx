@@ -24,7 +24,8 @@ export function CompactProgress({ completed, total, percentage, label }: Compact
       </div>
       <div className="h-1.5 overflow-hidden rounded-full bg-line">
         <div
-          className="h-full rounded-full bg-leaf-500 transition-[width] duration-300"
+          key={`${completed}-${total}`}
+          className="progress-power-up relative h-full overflow-hidden rounded-full bg-leaf-500 transition-[width] duration-500 ease-out"
           style={{ width: `${boundedPercentage}%` }}
         />
       </div>

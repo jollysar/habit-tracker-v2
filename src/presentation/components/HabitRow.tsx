@@ -3,12 +3,10 @@ import { ArrowUpRight, Check, Gauge, Minus, Pencil, RotateCcw, Trash2 } from "lu
 import type { TodayHabit } from "../../domain/habits/models";
 import { cn } from "../../lib/cn";
 import { HabitStreakButton } from "./HabitStreakButton";
-import { Button } from "./ui/Button";
 import { useHabitRowGestures } from "../hooks/useHabitRowGestures";
 
 interface HabitRowProps {
   readonly habit: TodayHabit;
-  readonly isEditing: boolean;
   readonly onToggle: () => void;
   readonly onEdit: () => void;
   readonly onSkip: () => void;
@@ -18,7 +16,7 @@ interface HabitRowProps {
   readonly onViewStreakHistory: () => void;
 }
 
-export function HabitRow({ habit, isEditing, onToggle, onEdit, onSkip, onReset, onDelete, onLogProgress, onViewStreakHistory }: HabitRowProps) {
+export function HabitRow({ habit, onToggle, onEdit, onSkip, onReset, onDelete, onLogProgress, onViewStreakHistory }: HabitRowProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -57,7 +55,7 @@ export function HabitRow({ habit, isEditing, onToggle, onEdit, onSkip, onReset, 
   return (
     <div
       ref={gestures.rootRef}
-      className={cn("habit-gesture-row group relative border-t border-line first:border-t-0", menuOpen ? "overflow-visible" : "overflow-hidden lg:overflow-visible")}
+      className={cn("habit-gesture-row group relative border-t border-line first:border-t-0 first:rounded-t-[9px] last:rounded-b-[9px]", menuOpen ? "overflow-visible" : "overflow-hidden lg:overflow-visible")}
       data-page-swipe="ignore"
       onTouchStart={gestures.onTouchStart}
       onTouchMove={gestures.onTouchMove}
@@ -80,7 +78,7 @@ export function HabitRow({ habit, isEditing, onToggle, onEdit, onSkip, onReset, 
         Delete
       </button>
       <div className={cn(
-        "relative flex items-center gap-3 bg-surface px-4 py-3.5 transition-transform duration-200 ease-out sm:px-5 lg:translate-x-0",
+        "habit-row-surface relative flex items-center gap-3 bg-surface px-4 py-4 transition-transform duration-200 ease-out sm:px-5 lg:translate-x-0",
         gestures.deleteRevealed && "translate-x-24",
       )}>
         <button
@@ -104,7 +102,7 @@ export function HabitRow({ habit, isEditing, onToggle, onEdit, onSkip, onReset, 
         </span>
         <span className="min-w-0 flex-1">
         <span className="flex items-center gap-2">
-          <span className={cn("truncate text-sm font-semibold", (isComplete || isSkipped) && "text-ink-600", isComplete && "line-through decoration-line")}>
+          <span className={cn("truncate text-base font-semibold", (isComplete || isSkipped) && "text-ink-600", isComplete && "line-through decoration-line")}>
             {habit.name}
           </span>
           {isSkipped && <span className="rounded-md bg-line px-1.5 py-0.5 text-[10px] font-semibold text-ink-600">Skipped</span>}
@@ -134,12 +132,6 @@ export function HabitRow({ habit, isEditing, onToggle, onEdit, onSkip, onReset, 
         <span className="hidden text-xs font-medium text-ink-400 sm:block">
           {habit.value} {habit.targetUnit}
         </span>
-        )}
-        {isEditing && (
-        <Button variant="secondary" className="h-8 px-2.5 text-xs" onClick={onSkip}>
-          <Minus size={14} aria-hidden="true" />
-          Skip
-        </Button>
         )}
         <div className="relative" ref={menuRef}>
         <HabitStreakButton

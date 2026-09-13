@@ -79,7 +79,7 @@ export function WeeklyHabitRow({ habit, goal, onSaveValue, onEdit, onDelete, onV
   return (
     <div
       ref={gestures.rootRef}
-      className={cn("habit-gesture-row group relative border-t border-line first:border-t-0", menuOpen ? "overflow-visible" : "overflow-hidden lg:overflow-visible")}
+      className={cn("habit-gesture-row group relative border-t border-line first:border-t-0 first:rounded-t-[9px] last:rounded-b-[9px]", menuOpen ? "overflow-visible" : "overflow-hidden lg:overflow-visible")}
       data-page-swipe="ignore"
       onTouchStart={gestures.onTouchStart}
       onTouchMove={gestures.onTouchMove}
@@ -102,7 +102,7 @@ export function WeeklyHabitRow({ habit, goal, onSaveValue, onEdit, onDelete, onV
         Delete
       </button>
       <div className={cn(
-        "relative flex min-h-16 items-center gap-4 bg-surface px-5 py-3.5 transition-transform duration-200 ease-out lg:translate-x-0",
+        "habit-row-surface relative flex min-h-16 items-center gap-4 bg-surface px-5 py-4 transition-transform duration-200 ease-out lg:translate-x-0",
         gestures.deleteRevealed && "translate-x-24",
       )}>
       <div className="flex w-24 shrink-0 items-baseline gap-1.5" aria-label={`${goal.completed} of ${goal.target} ${goal.unit}`}>
@@ -134,7 +134,7 @@ export function WeeklyHabitRow({ habit, goal, onSaveValue, onEdit, onDelete, onV
         <span className="text-sm font-semibold tabular-nums text-ink-600">/ {goal.target}</span>
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold">{habit.name}</p>
+        <p className="truncate text-base font-semibold">{habit.name}</p>
         {habit.description && <p className="mt-0.5 truncate text-xs text-ink-400">{habit.description}</p>}
         {error && <p id={`weekly-value-error-${habit.id}`} className="mt-1 text-xs font-medium text-red-600" role="alert">{error}</p>}
       </div>

@@ -2,8 +2,8 @@ import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, ty
 import {
   BarChart3,
   CalendarDays,
-  Check,
   Clock3,
+  House,
   LayoutList,
   Plus,
   Settings,
@@ -18,7 +18,7 @@ const navigation: ReadonlyArray<{
   label: string;
   icon: typeof CalendarDays;
 }> = [
-  { id: "today", label: "Today", icon: Check },
+  { id: "today", label: "Today", icon: House },
   { id: "habits", label: "Habits", icon: LayoutList },
   { id: "week", label: "Week", icon: Clock3 },
   { id: "calendar", label: "Calendar", icon: CalendarDays },
@@ -141,7 +141,7 @@ export function AppShell({
       </a>
       <aside className="app-sidebar bg-canvas transition-[width] duration-200 ease-out lg:fixed lg:inset-y-0 lg:border-r lg:border-line lg:bg-surface">
         <div className={cn(
-          "flex h-16 items-center justify-between px-5 lg:h-20",
+          "mobile-brand-bar flex items-center justify-between px-5 lg:h-20",
           sidebarCollapsed && "lg:justify-center lg:px-2",
         )}>
           <div className={cn("flex min-w-0 items-end gap-3", sidebarCollapsed && "lg:justify-center")}>
@@ -263,22 +263,17 @@ export function AppShell({
             </button>
           );
 
-          if (item.id !== "week") return navigationButton;
-          return (
-            <div className="contents" key={item.id}>
-              <button
-                className="grid size-12 shrink-0 place-items-center rounded-full bg-leaf-600 text-white shadow-md transition-transform duration-150 active:scale-90"
-                type="button"
-                onClick={onAddHabit}
-                aria-label="Add habit"
-                title="Add habit"
-              >
-                <Plus size={23} strokeWidth={2.5} aria-hidden="true" />
-              </button>
-              {navigationButton}
-            </div>
-          );
+          return navigationButton;
         })}
+        <button
+          className="grid size-12 shrink-0 place-items-center rounded-full bg-leaf-600 text-white shadow-md transition-transform duration-150 active:scale-90"
+          type="button"
+          onClick={onAddHabit}
+          aria-label="Add habit"
+          title="Add habit"
+        >
+          <Plus size={23} strokeWidth={2.5} aria-hidden="true" />
+        </button>
       </nav>
 
       <main

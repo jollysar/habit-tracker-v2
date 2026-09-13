@@ -1,10 +1,5 @@
 import { useState } from "react";
-import {
-  Check,
-  ChevronRight,
-  Pencil,
-  Plus,
-} from "lucide-react";
+import { Plus } from "lucide-react";
 import type { TodayDashboard } from "../../application/today/buildTodayDashboard";
 import type { TodayHabit, Weekday, WeeklyGoal } from "../../domain/habits/models";
 import { cn } from "../../lib/cn";
@@ -69,10 +64,6 @@ export function TodayPage({
 }: TodayPageProps) {
   const [activeView, setActiveView] = useState<HomeView>("daily");
   const [datePickerOpen, setDatePickerOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [groupByTime, setGroupByTime] = useState(() =>
-    localStorage.getItem("habit-tracker-group-by-time") !== "false",
-  );
 
   const isDailyView = activeView === "daily";
   const isToday = selectedDate === localDate;
@@ -96,16 +87,10 @@ export function TodayPage({
     setDatePickerOpen(false);
   });
 
-  const updateGrouping = (grouped: boolean) => {
-    setGroupByTime(grouped);
-    localStorage.setItem("habit-tracker-group-by-time", String(grouped));
-  };
-
   const renderHabit = (habit: TodayHabit) => (
     <HabitRow
       key={habit.id}
       habit={habit}
-      isEditing={isEditing}
       onToggle={() => onToggleHabit(habit.id)}
       onEdit={() => onEditHabit(habit.id)}
       onSkip={() => onSkipHabit(habit.id)}
@@ -118,7 +103,7 @@ export function TodayPage({
 
   return (
     <div
-      className="mx-auto max-w-[1440px] touch-pan-y px-5 py-7 sm:px-8 sm:py-9 xl:px-12"
+      className="mx-auto max-w-[1440px] touch-pan-y px-5 py-4 sm:px-8 sm:py-9 xl:px-12"
       {...swipeHandlers}
     >
       <header className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
@@ -126,7 +111,7 @@ export function TodayPage({
           <div className="flex items-center justify-between gap-4">
             <div className="-ml-1.5 flex min-w-0 items-center">
             <div className="relative min-w-0">
-              <h1 className="text-2xl font-bold tracking-[-0.035em] sm:text-3xl">
+              <h1 className="text-[1.75rem] font-bold tracking-[-0.035em] sm:text-3xl">
               <button
                 className="rounded-lg px-1.5 py-1 text-left text-ink-950 transition hover:bg-leaf-50 focus:outline-none focus:ring-2 focus:ring-leaf-500"
                 type="button"
@@ -137,7 +122,7 @@ export function TodayPage({
                 aria-controls={datePickerOpen ? "home-date-picker" : undefined}
                 data-home-date-trigger
               >
-                {isDailyView ? dashboard.dateLabel : weekDateLabel}
+                {isDailyView && isToday ? "Today" : isDailyView ? dashboard.dateLabel : weekDateLabel}
               </button>
               </h1>
               {datePickerOpen && (
@@ -214,13 +199,11 @@ export function TodayPage({
               activeView,
               (nextView) => {
                 setActiveView(nextView);
-                setIsEditing(false);
                 setDatePickerOpen(false);
               },
             )}
             onClick={() => {
               setActiveView(view);
-              setIsEditing(false);
               setDatePickerOpen(false);
             }}
           >
@@ -252,54 +235,13 @@ export function TodayPage({
 
           {isDailyView ? (
             <section aria-label="Today’s habits" role="tabpanel">
-              <div className="mb-3 flex flex-wrap items-center justify-end gap-2 px-1">
-                <button
-                  className="inline-flex h-8 items-center gap-2 rounded-lg px-2 text-xs font-medium text-ink-600 transition hover:bg-leaf-50"
-                  type="button"
-                  role="switch"
-                  aria-checked={groupByTime}
-                  onClick={() => updateGrouping(!groupByTime)}
-                >
-                  <span className={`inline-flex h-5 w-9 shrink-0 items-center rounded-full p-0.5 transition-colors ${groupByTime ? "justify-end bg-leaf-500" : "justify-start bg-line"}`} aria-hidden="true">
-                    <span className="size-4 shrink-0 rounded-full bg-white shadow-sm" />
-                  </span>
-                  Group by time
-                </button>
-                <Button
-                  variant={isEditing ? "secondary" : "ghost"}
-                  className="h-8 px-2 text-xs"
-                  onClick={() => setIsEditing((current) => !current)}
-                  aria-pressed={isEditing}
-                >
-                  {isEditing ? <Check size={14} aria-hidden="true" /> : <Pencil size={13} aria-hidden="true" />}
-                  {isEditing ? "Done editing" : "Edit day"}
-                  {!isEditing && <ChevronRight size={14} aria-hidden="true" />}
-                </Button>
-              </div>
-              {isEditing && (
-                <div className="mb-3 flex items-center justify-between rounded-xl border border-leaf-100 bg-leaf-50 px-4 py-3 text-xs text-ink-600">
-                  <span>Use Skip for habits that don’t apply on this day.</span>
-                  <Button variant="ghost" className="h-7 px-2 text-xs" onClick={onAddHabit}>Add another</Button>
-                </div>
-              )}
-              <div className="space-y-4">
-                {groupByTime ? dashboard.sections.map((section) => (
-                  <Card key={section.id} className="overflow-visible shadow-none">
-                    <div className="rounded-t-[9px] bg-leaf-50/55 px-5 py-2.5">
-                      <h2 className="text-[11px] font-bold uppercase tracking-[0.15em] text-ink-600">{section.label}</h2>
-                    </div>
-                    {section.habits.map(renderHabit)}
-                  </Card>
-                )) : (
-                  <Card className="overflow-visible shadow-none">
-                    {allHabits.map(renderHabit)}
-                  </Card>
-                )}
-              </div>
+              <Card className="habit-card overflow-visible shadow-none">
+                {allHabits.map(renderHabit)}
+              </Card>
             </section>
           ) : (
             <section aria-label="Weekly habits" role="tabpanel">
-              <Card className="overflow-visible shadow-none">
+              <Card className="habit-card overflow-visible shadow-none">
                 {weeklyHabits.length === 0 ? (
                   <div className="px-5 py-7 text-center">
                     <p className="text-sm font-semibold">No weekly habits yet</p>
