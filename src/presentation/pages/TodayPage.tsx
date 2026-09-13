@@ -12,12 +12,15 @@ import type { TodayHabit, Weekday, WeeklyGoal } from "../../domain/habits/models
 import { cn } from "../../lib/cn";
 import { HabitRow } from "../components/HabitRow";
 import { HomeDatePicker } from "../components/HomeDatePicker";
+import { CompactProgress } from "../components/CompactProgress";
 import { ProgressRing } from "../components/ProgressRing";
 import { AnimatedPlant, plantStageForStreak, plantStageLabel } from "../components/AnimatedPlant";
 import { WeeklyHabitRow } from "../components/WeeklyHabitRow";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { handleRovingTabKey } from "../hooks/rovingTabs";
+import { useHorizontalDateSwipe } from "../hooks/useHorizontalDateSwipe";
+import { addDaysToLocalDateKey } from "../../application/dates/localDate";
 
 type HomeView = "daily" | "weekly";
 const homeViews: readonly HomeView[] = ["daily", "weekly"];
@@ -85,6 +88,23 @@ export function TodayPage({
     );
   const allHabits = dashboard.sections.flatMap((section) => section.habits);
   const remainingWeeklyGoals = Math.max(0, weeklyGoals.length - completedWeeklyGoals);
+  const displayedCompleted = isDailyView ? dashboard.completedCount : completedWeeklyGoals;
+  const displayedTotal = isDailyView ? dashboard.scheduledCount : weeklyGoals.length;
+  const displayedPercentage = isDailyView
+    ? dashboard.completionPercentage
+    : weeklyCompletionPercentage;
+
+  const swipeHandlers = useHorizontalDateSwipe((direction) => {
+    const interval = isDailyView ? 1 : 7;
+    const offset = direction === "previous" ? -interval : interval;
+    const candidate = addDaysToLocalDateKey(selectedDate, offset);
+    if (direction === "next" && candidate > localDate) {
+      if (selectedDate < localDate) onSelectDate(localDate);
+      return;
+    }
+    onSelectDate(candidate);
+    setDatePickerOpen(false);
+  });
 
   const updateGrouping = (grouped: boolean) => {
     setGroupByTime(grouped);
@@ -106,14 +126,18 @@ export function TodayPage({
   );
 
   return (
-    <div className="mx-auto max-w-[1440px] px-5 py-7 sm:px-8 sm:py-9 xl:px-12">
+    <div
+      className="mx-auto max-w-[1440px] touch-pan-y px-5 py-7 sm:px-8 sm:py-9 xl:px-12"
+      {...swipeHandlers}
+    >
       <header className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-        <div>
-          <div className="-ml-1.5 flex items-center">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-4">
+            <div className="-ml-1.5 flex min-w-0 items-center">
             <div className="relative min-w-0">
               <h1 className="text-2xl font-bold tracking-[-0.035em] sm:text-3xl">
               <button
-                className="rounded-lg px-1.5 py-1 text-left transition hover:bg-leaf-50 focus:outline-none focus:ring-2 focus:ring-leaf-500"
+                className="rounded-lg px-1.5 py-1 text-left text-ink-950 transition hover:bg-leaf-50 focus:outline-none focus:ring-2 focus:ring-leaf-500"
                 type="button"
                 onClick={() => setDatePickerOpen((open) => !open)}
                 title="Choose a date"
@@ -138,8 +162,17 @@ export function TodayPage({
                 />
               )}
             </div>
+            </div>
+            <div className="lg:hidden">
+              <CompactProgress
+                completed={displayedCompleted}
+                total={displayedTotal}
+                percentage={displayedPercentage}
+                label={isDailyView ? "Daily progress" : "Weekly progress"}
+              />
+            </div>
           </div>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
+          <div className="mt-2 hidden flex-wrap items-center gap-2 lg:flex">
             <p className="text-sm text-ink-600">
               {isDailyView
                 ? dashboard.remainingCount === 0
@@ -207,7 +240,7 @@ export function TodayPage({
 
       <div className="mt-5 grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
         <div className="min-w-0 space-y-6">
-          <Card className="overflow-hidden">
+          <Card className="hidden overflow-hidden lg:block">
             <div className="flex items-center gap-4 p-4 sm:p-5">
               <ProgressRing percentage={isDailyView ? dashboard.completionPercentage : weeklyCompletionPercentage} compact />
               <div className="min-w-0 flex-1">

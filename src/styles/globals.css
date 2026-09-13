@@ -78,6 +78,10 @@ textarea:focus-visible,
   outline-offset: 3px;
 }
 
+#main-content:focus-visible {
+  outline: none;
+}
+
 @media (forced-colors: active) {
   button,
   input,

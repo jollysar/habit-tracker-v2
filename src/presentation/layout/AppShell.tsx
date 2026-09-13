@@ -302,7 +302,7 @@ export function AppShell({
       <main
         ref={mainRef}
         id="main-content"
-        className="min-w-0 pb-[calc(6.5rem+env(safe-area-inset-bottom))] lg:col-start-2 lg:pb-0"
+        className="min-w-0 pb-[calc(6.5rem+env(safe-area-inset-bottom))] outline-none lg:col-start-2 lg:pb-0"
         tabIndex={-1}
         aria-label={`${navigation.find((item) => item.id === activeSection)?.label ?? "Habitree"} page`}
       >

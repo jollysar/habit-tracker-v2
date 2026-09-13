@@ -30,11 +30,13 @@ import {
   type HistoryCorrection,
 } from "../components/HistoryCorrectionDialog";
 import { ProgressRing } from "../components/ProgressRing";
+import { CompactProgress } from "../components/CompactProgress";
 import { AnimatedPlant } from "../components/AnimatedPlant";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { cn } from "../../lib/cn";
 import { handleRovingTabKey } from "../hooks/rovingTabs";
+import { useHorizontalDateSwipe } from "../hooks/useHorizontalDateSwipe";
 
 interface WeekPageProps {
   readonly habits: readonly ManagedHabit[];
@@ -111,10 +113,30 @@ export function WeekPage({
     0,
   );
   const canMoveForward = dashboard.endDate < localDate;
+  const swipeHandlers = useHorizontalDateSwipe((direction) => {
+    if (direction === "next" && !canMoveForward) return;
+    setSelectedDate(addDaysToLocalDateKey(selectedDate, direction === "previous" ? -7 : 7));
+  });
 
   return (
-    <div className="mx-auto max-w-[1540px] px-5 py-7 sm:px-8 sm:py-9 xl:px-12">
-      <header className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+    <div
+      className="mx-auto max-w-[1540px] touch-pan-y px-5 py-7 sm:px-8 sm:py-9 xl:px-12"
+      {...swipeHandlers}
+    >
+      <header className="lg:hidden">
+        <div className="flex items-center justify-between gap-4">
+          <h1 className="min-w-0 text-2xl font-bold tracking-[-0.035em]">{dashboard.dateLabel}</h1>
+          <CompactProgress
+            completed={dashboard.completedCount}
+            total={dashboard.scheduledCount}
+            percentage={dashboard.completionPercentage}
+            label={`${habitView === "daily" ? "Daily" : "Weekly"} habits progress`}
+          />
+        </div>
+        <span className="sr-only">Swipe left or right to move between weeks.</span>
+      </header>
+
+      <header className="hidden flex-col gap-5 lg:flex lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="mb-2 text-sm font-medium text-ink-400">{dashboard.dateLabel}</p>
           <h1 className="text-3xl font-bold tracking-[-0.045em] sm:text-4xl">Your week</h1>
@@ -140,7 +162,7 @@ export function WeekPage({
       </header>
 
       <div
-        className="mt-7 inline-flex w-full rounded-xl border border-line bg-canvas p-1 sm:w-auto"
+        className="mt-5 inline-flex w-full rounded-xl border border-line bg-canvas p-1 sm:w-auto lg:mt-7"
         role="tablist"
         aria-label="Week habit type"
       >
@@ -171,7 +193,7 @@ export function WeekPage({
       </div>
 
       <section className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-[1.3fr_repeat(3,1fr)]" aria-label={`${habitView === "daily" ? "Daily" : "Weekly"} habit summary`}>
-        <Card className="flex items-center gap-5 p-5 sm:col-span-2 xl:col-span-1">
+        <Card className="hidden items-center gap-5 p-5 lg:col-span-2 lg:flex xl:col-span-1">
           <ProgressRing percentage={dashboard.completionPercentage} />
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-ink-400">
