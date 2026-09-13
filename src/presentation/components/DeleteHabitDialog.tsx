@@ -1,4 +1,4 @@
-import type { MouseEvent } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 import { AlertTriangle, Trash2, X } from "lucide-react";
 import type { TodayHabit } from "../../domain/habits/models";
 import { Button } from "./ui/Button";
@@ -7,11 +7,16 @@ import { useDialogFocus } from "../hooks/useDialogFocus";
 interface DeleteHabitDialogProps {
   readonly habit?: TodayHabit;
   readonly onCancel: () => void;
-  readonly onConfirm: () => void;
+  readonly onConfirm: (dontShowAgain: boolean) => void;
 }
 
 export function DeleteHabitDialog({ habit, onCancel, onConfirm }: DeleteHabitDialogProps) {
+  const [dontShowAgain, setDontShowAgain] = useState(false);
   const dialogRef = useDialogFocus<HTMLElement>(Boolean(habit), onCancel);
+
+  useEffect(() => {
+    if (habit) setDontShowAgain(false);
+  }, [habit]);
 
   if (!habit) return null;
 
@@ -52,11 +57,20 @@ export function DeleteHabitDialog({ habit, onCancel, onConfirm }: DeleteHabitDia
           Existing completion history is retained locally for accurate analytics,
           but the habit will be removed from your active lists.
         </p>
+        <label className="mt-4 flex cursor-pointer items-center gap-3 rounded-xl border border-line px-3 py-3 text-sm text-ink-600">
+          <input
+            className="size-4 rounded border-line accent-red-600"
+            type="checkbox"
+            checked={dontShowAgain}
+            onChange={(event) => setDontShowAgain(event.currentTarget.checked)}
+          />
+          Don’t show this warning again
+        </label>
         <div className="mt-6 flex justify-end gap-3">
           <Button variant="secondary" onClick={onCancel} data-dialog-autofocus>Cancel</Button>
           <button
             className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-red-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-red-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
-            onClick={onConfirm}
+            onClick={() => onConfirm(dontShowAgain)}
           >
             <Trash2 size={16} aria-hidden="true" />
             Delete habit

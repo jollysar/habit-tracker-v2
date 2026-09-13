@@ -94,6 +94,10 @@ function getInitialAppTone(): AppTone {
   return normalizeAppTone(localStorage.getItem("habit-tracker-tone")) ?? "green";
 }
 
+function getInitialDeleteConfirmation(): boolean {
+  return localStorage.getItem("habit-tracker-confirm-before-delete") !== "false";
+}
+
 function createDemoManagedHabits(localDate: string): readonly ManagedHabit[] {
   const historyStart = addDaysToLocalDateKey(localDate, -27);
   return demoTodayHabits.map((habit, index) => ({
@@ -192,6 +196,7 @@ function App() {
   );
   const [weekStartsOn, setWeekStartsOn] = useState<WeekStart>(getInitialWeekStart);
   const [appTone, setAppTone] = useState<AppTone>(getInitialAppTone);
+  const [confirmBeforeDelete, setConfirmBeforeDelete] = useState(getInitialDeleteConfirmation);
   const [savedSettings, setSavedSettings] = useState<Readonly<Record<string, string>>>({});
   const [weeklyProgress, setWeeklyProgress] = useState<WeeklyProgressOverrides>({});
   const theme: "light" | "dark" = themePreference === "system"
@@ -363,6 +368,11 @@ function App() {
           }
           const savedAccent = normalizeAppTone(saved.settings.app_tone);
           if (savedAccent) setAppTone(savedAccent);
+          if (saved.settings.confirm_before_delete === "true" || saved.settings.confirm_before_delete === "false") {
+            const shouldConfirm = saved.settings.confirm_before_delete === "true";
+            setConfirmBeforeDelete(shouldConfirm);
+            localStorage.setItem("habit-tracker-confirm-before-delete", String(shouldConfirm));
+          }
           setDataError(null);
         }
       } catch (error) {
@@ -685,15 +695,6 @@ function App() {
     }
   };
 
-  const handleDeleteHabit = () => {
-    if (!habitToDeleteId) return;
-    archiveHabit(
-      habitToDeleteId,
-      "The habit could not be deleted. Your saved data has been restored.",
-    );
-    setHabitToDeleteId(null);
-  };
-
   const handleRestoreHabit = (habitId: string) => {
     const restored = managedHabits.find((habit) => habit.id === habitId);
     if (!restored) return;
@@ -824,6 +825,33 @@ function App() {
     ));
   };
 
+  const handleConfirmBeforeDeleteChange = (enabled: boolean) => {
+    setConfirmBeforeDelete(enabled);
+    localStorage.setItem("habit-tracker-confirm-before-delete", String(enabled));
+    persistSetting("confirm_before_delete", String(enabled));
+  };
+
+  const handleDeleteHabit = (dontShowAgain: boolean) => {
+    if (!habitToDeleteId) return;
+    if (dontShowAgain) handleConfirmBeforeDeleteChange(false);
+    archiveHabit(
+      habitToDeleteId,
+      "The habit could not be deleted. Your saved data has been restored.",
+    );
+    setHabitToDeleteId(null);
+  };
+
+  const requestDeleteHabit = (habitId: string) => {
+    if (confirmBeforeDelete) {
+      setHabitToDeleteId(habitId);
+      return;
+    }
+    archiveHabit(
+      habitId,
+      "The habit could not be deleted. Your saved data has been restored.",
+    );
+  };
+
   const exportSnapshot = () => buildDataExport({
     settings: {
       ...savedSettings,
@@ -858,8 +886,6 @@ function App() {
       activeSection={activeSection}
       onNavigate={setActiveSection}
       onAddHabit={openAddHabit}
-      theme={theme}
-      onToggleTheme={() => handleThemePreferenceChange(theme === "light" ? "dark" : "light")}
     >
       {dataError && (
         <div
@@ -892,7 +918,7 @@ function App() {
           onToggleHabit={handleToggleHabit}
           onSkipHabit={handleSkipHabit}
           onResetHabit={handleResetHabit}
-          onDeleteHabit={setHabitToDeleteId}
+          onDeleteHabit={requestDeleteHabit}
           onLogProgress={setHabitToLogId}
           onSaveWeeklyValue={handleSaveWeeklyValue}
           onViewWeek={(view) => {
@@ -964,9 +990,11 @@ function App() {
           habitCount={managedHabits.length}
           completionCount={completionHistory.length}
           scheduleCount={scheduleHistory.length}
+          confirmBeforeDelete={confirmBeforeDelete}
           onThemeChange={handleThemePreferenceChange}
           onAppToneChange={handleAppToneChange}
           onWeekStartsOnChange={handleWeekStartChange}
+          onConfirmBeforeDeleteChange={handleConfirmBeforeDeleteChange}
           onExport={handleExport}
           onBackup={handleBackup}
           onRestore={chooseAndStageDatabaseRestore}

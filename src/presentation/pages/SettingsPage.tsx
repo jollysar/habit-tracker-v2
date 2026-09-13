@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import {
   AlertTriangle,
   CalendarRange,
@@ -11,10 +11,12 @@ import {
   Keyboard,
   Laptop,
   LockKeyhole,
+  MessageSquareText,
   Moon,
   Palette,
   RotateCcw,
   ShieldCheck,
+  Send,
   Sun,
   X,
 } from "lucide-react";
@@ -33,9 +35,11 @@ interface SettingsPageProps {
   readonly habitCount: number;
   readonly completionCount: number;
   readonly scheduleCount: number;
+  readonly confirmBeforeDelete: boolean;
   readonly onThemeChange: (theme: ThemePreference) => void;
   readonly onAppToneChange: (tone: AppTone) => void;
   readonly onWeekStartsOnChange: (weekday: WeekStart) => void;
+  readonly onConfirmBeforeDeleteChange: (enabled: boolean) => void;
   readonly onExport: (format: "json" | "csv") => Promise<string | null>;
   readonly onBackup: () => Promise<string | null>;
   readonly onRestore: () => Promise<string | null>;
@@ -57,9 +61,11 @@ export function SettingsPage({
   habitCount,
   completionCount,
   scheduleCount,
+  confirmBeforeDelete,
   onThemeChange,
   onAppToneChange,
   onWeekStartsOnChange,
+  onConfirmBeforeDeleteChange,
   onExport,
   onBackup,
   onRestore,
@@ -67,6 +73,8 @@ export function SettingsPage({
   const [busyAction, setBusyAction] = useState<string>();
   const [status, setStatus] = useState<OperationStatus>();
   const [confirmRestore, setConfirmRestore] = useState(false);
+  const [feedbackType, setFeedbackType] = useState("Suggestion");
+  const [feedbackMessage, setFeedbackMessage] = useState("");
   const restoreDialogRef = useDialogFocus<HTMLElement>(
     confirmRestore,
     () => setConfirmRestore(false),
@@ -105,10 +113,19 @@ export function SettingsPage({
     description: string;
     icon: typeof Laptop;
   }> = [
-    { id: "system", label: "System", description: "Follow macOS", icon: Laptop },
+    { id: "system", label: "System", description: "Follow this device", icon: Laptop },
     { id: "light", label: "Light", description: "Always light", icon: Sun },
     { id: "dark", label: "Dark", description: "Always dark", icon: Moon },
   ];
+
+  const submitFeedback = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const message = feedbackMessage.trim();
+    if (!message) return;
+    const subject = encodeURIComponent(`Habitree feedback: ${feedbackType}`);
+    const body = encodeURIComponent(`${message}\n\n— Sent from Habitree`);
+    window.location.assign(`mailto:sargaur03@gmail.com?subject=${subject}&body=${body}`);
+  };
   const toneOptions: ReadonlyArray<{
     id: AppTone;
     label: string;
@@ -210,6 +227,73 @@ export function SettingsPage({
                 })}
               </div>
             </fieldset>
+          </Card>
+
+          <Card className="p-5 sm:p-6">
+            <div className="flex items-start gap-3">
+              <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-leaf-50 text-leaf-700"><ShieldCheck size={17} /></span>
+              <div>
+                <h2 className="font-bold tracking-[-0.02em]">Safety</h2>
+                <p className="mt-1 text-xs leading-5 text-ink-400">Control safeguards around destructive actions.</p>
+              </div>
+            </div>
+            <button
+              className="mt-5 flex w-full items-center justify-between gap-4 rounded-xl border border-line p-4 text-left transition hover:bg-leaf-50/50"
+              type="button"
+              role="switch"
+              aria-checked={confirmBeforeDelete}
+              onClick={() => onConfirmBeforeDeleteChange(!confirmBeforeDelete)}
+            >
+              <span>
+                <span className="block text-sm font-semibold">Confirm before deleting</span>
+                <span className="mt-1 block text-xs leading-5 text-ink-400">Show a warning before a habit is removed from active lists.</span>
+              </span>
+              <span className={cn(
+                "inline-flex h-6 w-11 shrink-0 items-center rounded-full p-0.5 transition-colors",
+                confirmBeforeDelete ? "justify-end bg-leaf-500" : "justify-start bg-line",
+              )} aria-hidden="true">
+                <span className="size-5 rounded-full bg-white shadow-sm" />
+              </span>
+            </button>
+          </Card>
+
+          <Card className="p-5 sm:p-6">
+            <div className="flex items-start gap-3">
+              <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-leaf-50 text-leaf-700"><MessageSquareText size={17} /></span>
+              <div>
+                <h2 className="font-bold tracking-[-0.02em]">Send feedback</h2>
+                <p className="mt-1 text-xs leading-5 text-ink-400">Share an idea, report a problem, or tell us what is working.</p>
+              </div>
+            </div>
+            <form className="mt-5 space-y-4" onSubmit={submitFeedback}>
+              <label className="block text-xs font-semibold text-ink-600" htmlFor="feedback-type">Feedback type</label>
+              <select
+                id="feedback-type"
+                className="h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm outline-none focus:border-leaf-500 focus:ring-2 focus:ring-leaf-100"
+                value={feedbackType}
+                onChange={(event) => setFeedbackType(event.currentTarget.value)}
+              >
+                <option>Suggestion</option>
+                <option>Problem</option>
+                <option>Something I like</option>
+              </select>
+              <label className="block text-xs font-semibold text-ink-600" htmlFor="feedback-message">Message</label>
+              <textarea
+                id="feedback-message"
+                className="min-h-28 w-full resize-y rounded-xl border border-line bg-surface p-3 text-sm leading-6 outline-none focus:border-leaf-500 focus:ring-2 focus:ring-leaf-100"
+                value={feedbackMessage}
+                onChange={(event) => setFeedbackMessage(event.currentTarget.value)}
+                placeholder="What would make Habitree better for you?"
+                required
+              />
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-[11px] leading-5 text-ink-400">This opens your email app. Nothing is sent until you choose Send.</p>
+                <Button type="submit" disabled={!feedbackMessage.trim()}>
+                  <Send size={15} aria-hidden="true" />
+                  Prepare feedback
+                </Button>
+              </div>
+            </form>
           </Card>
 
           <Card className="p-5 sm:p-6">

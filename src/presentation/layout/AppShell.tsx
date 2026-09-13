@@ -5,14 +5,11 @@ import {
   Check,
   Clock3,
   LayoutList,
-  Moon,
   Plus,
   Settings,
-  Sun,
 } from "lucide-react";
 import { cn } from "../../lib/cn";
 import { AnimatedPlant } from "../components/AnimatedPlant";
-import { Button } from "../components/ui/Button";
 
 export type AppSection = "today" | "habits" | "week" | "calendar" | "analytics" | "settings";
 
@@ -47,8 +44,6 @@ interface AppShellProps {
   readonly activeSection: AppSection;
   readonly onNavigate: (section: AppSection) => void;
   readonly onAddHabit: () => void;
-  readonly theme: "light" | "dark";
-  readonly onToggleTheme: () => void;
   readonly children: ReactNode;
 }
 
@@ -56,8 +51,6 @@ export function AppShell({
   activeSection,
   onNavigate,
   onAddHabit,
-  theme,
-  onToggleTheme,
   children,
 }: AppShellProps) {
   const [sidebarWidth, setSidebarWidth] = useState(getSavedSidebarWidth);
@@ -211,22 +204,11 @@ export function AppShell({
           })}
         </nav>
 
-        <div className={cn(
-          "absolute bottom-0 hidden w-full border-t border-line p-3 lg:block",
-          sidebarCollapsed && "lg:px-2",
-        )}>
-          <Button
-            className={cn("w-full", sidebarCollapsed ? "justify-center px-0" : "justify-start")}
-            variant="ghost"
-            onClick={onToggleTheme}
-            aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
-            title={sidebarCollapsed ? `${theme === "light" ? "Dark" : "Light"} mode` : undefined}
-          >
-            {theme === "light" ? <Moon size={17} /> : <Sun size={17} />}
-            <span className={cn(sidebarCollapsed && "hidden")}>{theme === "light" ? "Dark mode" : "Light mode"}</span>
-          </Button>
-          {!sidebarCollapsed && <p className="px-3 pt-2 text-[11px] text-ink-400">Private · Local · Offline</p>}
-        </div>
+        {!sidebarCollapsed && (
+          <p className="absolute bottom-0 hidden w-full border-t border-line px-6 py-4 text-[11px] text-ink-400 lg:block">
+            Private · Local · Offline
+          </p>
+        )}
 
         {!sidebarCollapsed && (
           <div
