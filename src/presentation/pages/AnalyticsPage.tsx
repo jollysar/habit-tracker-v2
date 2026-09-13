@@ -70,17 +70,16 @@ export function AnalyticsPage({
     : "All habits";
 
   return (
-    <div className="mx-auto max-w-[1540px] px-5 py-7 sm:px-8 sm:py-9 xl:px-12">
+    <div className="mobile-page-safe mx-auto max-w-[1540px] px-5 pb-7 sm:px-8 sm:py-9 xl:px-12">
       <header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="mb-2 text-sm font-medium text-ink-400">Patterns, not pressure</p>
           <h1 className="text-3xl font-bold tracking-[-0.045em] sm:text-4xl">Analytics</h1>
-          <p className="mt-2 text-sm text-ink-600">Understand consistency using your real schedule and history.</p>
+          <p className="mt-2 hidden text-sm text-ink-600 lg:block">Understand consistency using your real schedule and history.</p>
         </div>
-        <label className="relative self-start sm:self-auto">
+        <label className="relative w-full self-start sm:w-auto sm:self-auto">
           <Filter className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" size={15} />
           <select
-            className="h-10 max-w-64 appearance-none rounded-xl border border-line bg-surface pl-9 pr-8 text-sm font-semibold text-ink-800 outline-none focus:border-leaf-500 focus:ring-2 focus:ring-leaf-100"
+            className="h-11 w-full appearance-none rounded-xl border border-line bg-surface pl-9 pr-8 text-sm font-semibold text-ink-800 outline-none focus:border-leaf-500 focus:ring-2 focus:ring-leaf-100 sm:h-10 sm:max-w-64"
             value={selectedHabitId}
             onChange={(event) => setSelectedHabitId(event.currentTarget.value)}
             aria-label="Filter analytics by habit"
@@ -93,29 +92,29 @@ export function AnalyticsPage({
         </label>
       </header>
 
-      <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-[1.35fr_repeat(3,1fr)]" aria-label="Analytics summary">
-        <Card className="flex items-center gap-5 p-5 sm:col-span-2 xl:col-span-1">
+      <section className="mt-5 grid grid-cols-3 gap-3 sm:mt-8 sm:grid-cols-2 sm:gap-4 xl:grid-cols-[1.35fr_repeat(3,1fr)]" aria-label="Analytics summary">
+        <Card className="col-span-3 flex items-center gap-4 p-4 sm:col-span-2 sm:gap-5 sm:p-5 xl:col-span-1">
           <ProgressRing percentage={dashboard.completionPercentage} />
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-ink-400">{dashboard.monthLabel} completion</p>
             <p className="mt-1 text-2xl font-bold tracking-[-0.04em]">{selectedHabitName}</p>
-            <p className="mt-1 text-xs text-ink-600">Schedule-aware completion rate</p>
+            <p className="mt-1 hidden text-xs text-ink-600 sm:block">Schedule-aware completion rate</p>
           </div>
         </Card>
-        <Card className="p-5">
+        <Card className="p-3 sm:p-5">
           <span className="grid size-10 place-items-center"><AnimatedPlant plantType="oak" streak={dashboard.currentStreak} size={34} /></span>
-          <p className="mt-4 text-2xl font-bold tracking-[-0.04em]">{dashboard.currentStreak}</p>
-          <p className="mt-1 text-xs text-ink-600">Longest current streak</p>
+          <p className="mt-2 text-xl font-bold tracking-[-0.04em] sm:mt-4 sm:text-2xl">{dashboard.currentStreak}</p>
+          <p className="mt-1 text-[10px] leading-4 text-ink-600 sm:text-xs">Current streak</p>
         </Card>
-        <Card className="p-5">
+        <Card className="p-3 sm:p-5">
           <span className="grid size-9 place-items-center rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400"><Trophy size={18} /></span>
-          <p className="mt-4 text-2xl font-bold tracking-[-0.04em]">{dashboard.bestStreak}</p>
-          <p className="mt-1 text-xs text-ink-600">Best streak</p>
+          <p className="mt-2 text-xl font-bold tracking-[-0.04em] sm:mt-4 sm:text-2xl">{dashboard.bestStreak}</p>
+          <p className="mt-1 text-[10px] leading-4 text-ink-600 sm:text-xs">Best streak</p>
         </Card>
-        <Card className="p-5">
+        <Card className="p-3 sm:p-5">
           <span className="grid size-9 place-items-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/30 dark:text-blue-400"><History size={18} /></span>
-          <p className="mt-4 text-2xl font-bold tracking-[-0.04em]">{dashboard.totalCompletions}</p>
-          <p className="mt-1 text-xs text-ink-600">Total completions</p>
+          <p className="mt-2 text-xl font-bold tracking-[-0.04em] sm:mt-4 sm:text-2xl">{dashboard.totalCompletions}</p>
+          <p className="mt-1 text-[10px] leading-4 text-ink-600 sm:text-xs">Completed</p>
         </Card>
       </section>
 
@@ -155,7 +154,7 @@ export function AnalyticsPage({
               </div>
             ))}
           </div>
-          <p className="mt-4 border-t border-line pt-4 text-xs leading-5 text-ink-400">
+          <p className="mt-4 hidden border-t border-line pt-4 text-xs leading-5 text-ink-400 sm:block">
             Current-month results include scheduled opportunities through today. Weekly targets are normalised so pages or minutes do not overpower other habits.
           </p>
         </Card>

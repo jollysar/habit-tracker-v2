@@ -86,18 +86,17 @@ export function CalendarPage({
   const canMoveForward = dashboard.monthEnd < localDate.slice(0, 7) + "-01";
 
   return (
-    <div className="mx-auto max-w-[1540px] px-5 py-7 sm:px-8 sm:py-9 xl:px-12">
+    <div className="mobile-page-safe mx-auto max-w-[1540px] px-5 pb-7 sm:px-8 sm:py-9 xl:px-12">
       <header className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="mb-2 text-sm font-medium text-ink-400">Historical record</p>
           <h1 className="text-3xl font-bold tracking-[-0.045em] sm:text-4xl">Calendar</h1>
-          <p className="mt-2 text-sm text-ink-600">See what happened, spot gaps, and correct past check-ins.</p>
+          <p className="mt-2 hidden text-sm text-ink-600 lg:block">See what happened, spot gaps, and correct past check-ins.</p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <label className="relative">
+        <div className="grid grid-cols-[1fr_auto_auto_auto] gap-2">
+          <label className="relative col-span-4 sm:col-span-1">
             <Filter className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" size={15} />
             <select
-              className="h-10 max-w-56 appearance-none rounded-xl border border-line bg-surface pl-9 pr-8 text-sm font-semibold text-ink-800 outline-none focus:border-leaf-500 focus:ring-2 focus:ring-leaf-100"
+              className="h-11 w-full appearance-none rounded-xl border border-line bg-surface pl-9 pr-8 text-sm font-semibold text-ink-800 outline-none focus:border-leaf-500 focus:ring-2 focus:ring-leaf-100 sm:h-10 sm:max-w-56"
               value={selectedHabitId}
               onChange={(event) => setSelectedHabitId(event.currentTarget.value)}
               aria-label="Filter calendar by habit"
@@ -111,7 +110,7 @@ export function CalendarPage({
           <Button variant="secondary" size="icon" onClick={() => setSelectedMonth(addMonthsToLocalDateKey(selectedMonth, -1))} aria-label="Previous month">
             <ChevronLeft size={18} />
           </Button>
-          <Button variant="secondary" onClick={() => setSelectedMonth(localDate)}>
+          <Button className="col-span-2 sm:col-span-1" variant="secondary" onClick={() => setSelectedMonth(localDate)}>
             <CalendarCheck size={16} /> This month
           </Button>
           <Button
@@ -126,7 +125,7 @@ export function CalendarPage({
         </div>
       </header>
 
-      <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-[1.35fr_repeat(3,1fr)]" aria-label="Monthly summary">
+      <section className="mt-8 hidden gap-4 lg:grid lg:grid-cols-2 xl:grid-cols-[1.35fr_repeat(3,1fr)]" aria-label="Monthly summary">
         <Card className="flex items-center gap-5 p-5 sm:col-span-2 xl:col-span-1">
           <ProgressRing percentage={dashboard.completionPercentage} />
           <div>
@@ -152,8 +151,8 @@ export function CalendarPage({
         </Card>
       </section>
 
-      <div className="mt-6 grid gap-6 2xl:grid-cols-[440px_minmax(0,1fr)]">
-        <Card className="h-fit overflow-hidden p-4 sm:p-5">
+      <div className="mt-5 grid gap-4 sm:mt-6 sm:gap-6 2xl:grid-cols-[440px_minmax(0,1fr)]">
+        <Card className="h-fit overflow-hidden p-3 shadow-none sm:p-5">
           <div className="mb-4 flex items-center justify-between px-1">
             <h2 className="text-lg font-bold tracking-[-0.025em]">{dashboard.monthLabel}</h2>
             <span className="text-xs text-ink-400">{selectedHabitId ? "Filtered" : "All habits"}</span>
@@ -166,7 +165,7 @@ export function CalendarPage({
               <div
                 key={day.date}
                 className={cn(
-                  "relative min-h-16 rounded-xl border p-2 transition sm:min-h-[72px]",
+                  "relative min-h-14 rounded-xl border p-1.5 transition sm:min-h-[72px] sm:p-2",
                   !day.isInMonth && "border-transparent opacity-25",
                   day.isInMonth && "border-line bg-surface",
                   day.isToday && "border-leaf-500 ring-2 ring-leaf-100",
@@ -189,7 +188,7 @@ export function CalendarPage({
                         style={{ width: `${Math.max(8, day.completionPercentage)}%` }}
                       />
                     </div>
-                    <span className="absolute bottom-4.5 right-2 text-[9px] font-semibold text-ink-400">{day.completedCount}/{day.expectedCount}</span>
+                    <span className="absolute bottom-4 right-1.5 text-[8px] font-semibold text-ink-400 sm:bottom-4.5 sm:right-2 sm:text-[9px]">{day.completedCount}/{day.expectedCount}</span>
                   </>
                 )}
                 {day.isInMonth && day.expectedCount === 0 && day.hasCheckIn && (
@@ -202,11 +201,63 @@ export function CalendarPage({
             <span className="flex items-center gap-1.5"><span className="size-2 rounded-full bg-leaf-500" />Complete</span>
             <span className="flex items-center gap-1.5"><span className="size-2 rounded-full bg-amber-500" />Partial day</span>
             <span className="flex items-center gap-1.5"><span className="size-2 rounded-full bg-red-400" />Missed</span>
-            <span className="flex items-center gap-1.5"><span className="size-2 rounded-full bg-blue-500" />Flexible</span>
+            <span className="hidden items-center gap-1.5 sm:flex"><span className="size-2 rounded-full bg-blue-500" />Flexible</span>
           </div>
         </Card>
 
-        <Card className="min-w-0 overflow-hidden">
+        <section className="space-y-3 lg:hidden" aria-labelledby="mobile-history-title">
+          <h2 id="mobile-history-title" className="px-1 text-lg font-bold tracking-[-0.025em]">Habit history</h2>
+          {dashboard.rows.length === 0 ? (
+            <Card className="grid min-h-36 place-items-center px-6 text-center shadow-none">
+              <div><RotateCcw className="mx-auto text-ink-400" size={24} /><p className="mt-3 text-sm font-semibold">No history this month</p></div>
+            </Card>
+          ) : dashboard.rows.map((row) => (
+            <Card key={row.habit.id} className="p-4 shadow-none">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex min-w-0 items-center gap-2.5">
+                  <span className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: row.habit.colour ?? "#3e9b68" }} />
+                  <h3 className="truncate text-sm font-bold">{row.habit.name}</h3>
+                </div>
+                <span className="text-xs font-bold text-ink-600">{row.completionPercentage}%</span>
+              </div>
+              <div className="mt-3 grid grid-cols-7 gap-1.5">
+                {row.cells.map((cell) => (
+                  <div key={cell.date} className="min-w-0 text-center">
+                    <span className="block text-[8px] font-semibold text-ink-400">{Number(cell.date.slice(-2))}</span>
+                    {cell.status === "not_scheduled" && !cell.isFlexible ? (
+                      <span className="mt-1 grid aspect-square w-full place-items-center rounded-lg bg-canvas text-line" aria-label={`${cell.date}: not scheduled`}>·</span>
+                    ) : (
+                      <button
+                        className={cn(
+                          "mt-1 grid aspect-square w-full place-items-center rounded-lg border transition",
+                          cell.status === "completed" && "border-leaf-500 bg-leaf-500 text-white",
+                          cell.status === "missed" && "border-red-200 bg-red-50 text-red-500 dark:border-red-900 dark:bg-red-950/30",
+                          cell.status === "skipped" && "border-line bg-canvas text-ink-400",
+                          cell.status === "incomplete" && "border-line bg-surface text-ink-400",
+                          cell.status === "not_scheduled" && cell.isFlexible && "border-dashed border-line bg-transparent text-ink-400",
+                          cell.isFuture && "opacity-30",
+                        )}
+                        type="button"
+                        disabled={!cell.canCorrect}
+                        onClick={() => setCorrection({
+                          habit: row.habit,
+                          date: cell.date,
+                          status: cell.status === "not_scheduled" ? "incomplete" : cell.status,
+                          value: cell.value,
+                        })}
+                        aria-label={`${row.habit.name}, ${cell.date}: ${cell.status}`}
+                      >
+                        <HistoryCellIcon cell={cell} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </Card>
+          ))}
+        </section>
+
+        <Card className="hidden min-w-0 overflow-hidden lg:block">
           <div className="flex flex-col gap-2 border-b border-line px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="font-bold tracking-[-0.02em]">Habit history</h2>

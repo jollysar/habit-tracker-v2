@@ -217,13 +217,13 @@ export function HabitDialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 grid place-items-center bg-ink-950/45 p-4 backdrop-blur-[2px]"
+      className="mobile-dialog-layer fixed inset-0 z-50 grid place-items-center bg-ink-950/45 p-4 backdrop-blur-[2px]"
       role="presentation"
       onMouseDown={handleBackdrop}
     >
       <section
         ref={dialogRef}
-        className="max-h-[calc(100vh-2rem)] w-full max-w-2xl overflow-y-auto rounded-2xl border border-line bg-surface p-5 shadow-2xl sm:p-6"
+        className="max-h-full w-full max-w-2xl overflow-y-auto rounded-3xl border border-line bg-surface p-5 shadow-2xl sm:max-h-[calc(100vh-2rem)] sm:p-6"
         role="dialog"
         aria-modal="true"
         aria-labelledby="habit-dialog-title"

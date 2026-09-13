@@ -142,17 +142,16 @@ export function SettingsPage({
   ];
 
   return (
-    <div className="mx-auto max-w-[1200px] px-5 py-7 sm:px-8 sm:py-9 xl:px-12">
+    <div className="mobile-page-safe mx-auto max-w-[1200px] px-5 pb-7 sm:px-8 sm:py-9 xl:px-12">
       <header>
-        <p className="mb-2 text-sm font-medium text-ink-400">Make it yours</p>
         <h1 className="text-3xl font-bold tracking-[-0.045em] sm:text-4xl">Settings</h1>
-        <p className="mt-2 text-sm text-ink-600">Appearance, calendar preferences, and control of your local data.</p>
+        <p className="mt-2 hidden text-sm text-ink-600 lg:block">Appearance, calendar preferences, and control of your local data.</p>
       </header>
 
       {status && (
         <div
           className={cn(
-            "mt-6 flex items-start gap-3 rounded-xl border px-4 py-3 text-sm",
+            "mt-5 flex items-start gap-3 rounded-2xl border px-4 py-3 text-sm sm:mt-6",
             status.tone === "success"
               ? "border-leaf-100 bg-leaf-50 text-leaf-700"
               : "border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300",
@@ -165,14 +164,14 @@ export function SettingsPage({
         </div>
       )}
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <div className="space-y-6">
-          <Card className="p-5 sm:p-6">
+      <div className="mt-5 grid gap-4 sm:mt-8 sm:gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="space-y-4 sm:space-y-6">
+          <Card className="p-4 sm:p-6">
             <div className="flex items-start gap-3">
               <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-leaf-50 text-leaf-700"><Sun size={17} /></span>
               <div>
                 <h2 className="font-bold tracking-[-0.02em]">Appearance</h2>
-                <p className="mt-1 text-xs leading-5 text-ink-400">Choose the brightness and accent colour of the app.</p>
+                <p className="mt-1 hidden text-xs leading-5 text-ink-400 sm:block">Choose the brightness and accent colour of the app.</p>
               </div>
             </div>
             <div className="mt-5 grid gap-3 sm:grid-cols-3">
@@ -183,7 +182,7 @@ export function SettingsPage({
                   <button
                     key={option.id}
                     className={cn(
-                      "flex items-center gap-3 rounded-xl border p-4 text-left transition",
+                      "flex items-center gap-3 rounded-2xl border p-3.5 text-left transition sm:rounded-xl sm:p-4",
                       selected ? "border-leaf-500 bg-leaf-50 ring-2 ring-leaf-100" : "border-line hover:bg-leaf-50/50",
                     )}
                     type="button"
@@ -193,7 +192,7 @@ export function SettingsPage({
                     <Icon size={17} className={selected ? "text-leaf-700" : "text-ink-400"} />
                     <span>
                       <span className="block text-sm font-semibold">{option.label}</span>
-                      <span className="mt-0.5 block text-[10px] text-ink-400">{option.description}</span>
+                      <span className="mt-0.5 hidden text-[10px] text-ink-400 sm:block">{option.description}</span>
                     </span>
                   </button>
                 );
@@ -205,7 +204,7 @@ export function SettingsPage({
                 <Palette size={14} aria-hidden="true" />
                 Accent colour
               </legend>
-              <p className="mt-1 text-[11px] leading-5 text-ink-400">Choose the colour used for highlights, progress and selected controls.</p>
+              <p className="mt-1 hidden text-[11px] leading-5 text-ink-400 sm:block">Choose the colour used for highlights, progress and selected controls.</p>
               <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
                 {toneOptions.map((option) => {
                   const selected = appTone === option.id;
@@ -213,7 +212,7 @@ export function SettingsPage({
                     <button
                       key={option.id}
                       className={cn(
-                        "flex items-center gap-2 rounded-lg border px-3 py-2.5 text-left text-xs font-semibold transition",
+                        "flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-xs font-semibold transition",
                         selected
                           ? "border-leaf-500 bg-leaf-50 ring-2 ring-leaf-100"
                           : "border-line hover:bg-leaf-50/50",
@@ -231,16 +230,16 @@ export function SettingsPage({
             </fieldset>
           </Card>
 
-          <Card className="p-5 sm:p-6">
+          <Card className="p-4 sm:p-6">
             <div className="flex items-start gap-3">
               <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-leaf-50 text-leaf-700"><ShieldCheck size={17} /></span>
               <div>
                 <h2 className="font-bold tracking-[-0.02em]">Safety</h2>
-                <p className="mt-1 text-xs leading-5 text-ink-400">Control safeguards around destructive actions.</p>
+                <p className="mt-1 hidden text-xs leading-5 text-ink-400 sm:block">Control safeguards around destructive actions.</p>
               </div>
             </div>
             <button
-              className="mt-5 flex w-full items-center justify-between gap-4 rounded-xl border border-line p-4 text-left transition hover:bg-leaf-50/50"
+              className="mt-5 flex w-full items-center justify-between gap-4 rounded-2xl border border-line p-4 text-left transition hover:bg-leaf-50/50"
               type="button"
               role="switch"
               aria-checked={confirmBeforeDelete}
@@ -248,7 +247,7 @@ export function SettingsPage({
             >
               <span>
                 <span className="block text-sm font-semibold">Confirm before deleting</span>
-                <span className="mt-1 block text-xs leading-5 text-ink-400">Show a warning before a habit is removed from active lists.</span>
+                <span className="mt-1 hidden text-xs leading-5 text-ink-400 sm:block">Show a warning before a habit is removed from active lists.</span>
               </span>
               <span className={cn(
                 "inline-flex h-6 w-11 shrink-0 items-center rounded-full p-0.5 transition-colors",
@@ -264,18 +263,18 @@ export function SettingsPage({
               </div>
               <ul className="mt-3 space-y-2.5 text-xs leading-5 text-ink-600">
                 <li className="flex items-start gap-2.5"><MoveHorizontal className="mt-0.5 shrink-0 text-ink-400" size={14} aria-hidden="true" /><span>Swipe an open area on Home to move between days or weeks.</span></li>
-                <li className="flex items-start gap-2.5"><MoveHorizontal className="mt-0.5 shrink-0 text-ink-400" size={14} aria-hidden="true" /><span>Swipe a habit right to reveal Delete.</span></li>
+                <li className="flex items-start gap-2.5"><MoveHorizontal className="mt-0.5 shrink-0 text-ink-400" size={14} aria-hidden="true" /><span>Swipe a habit left to reveal Delete.</span></li>
                 <li className="flex items-start gap-2.5"><Smartphone className="mt-0.5 shrink-0 text-ink-400" size={14} aria-hidden="true" /><span>Press and hold a habit for actions, or tap its plant.</span></li>
               </ul>
             </div>
           </Card>
 
-          <Card className="p-5 sm:p-6">
+          <Card className="p-4 sm:p-6">
             <div className="flex items-start gap-3">
               <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-leaf-50 text-leaf-700"><MessageSquareText size={17} /></span>
               <div>
                 <h2 className="font-bold tracking-[-0.02em]">Send feedback</h2>
-                <p className="mt-1 text-xs leading-5 text-ink-400">Share an idea, report a problem, or tell us what is working.</p>
+                <p className="mt-1 hidden text-xs leading-5 text-ink-400 sm:block">Share an idea or report a problem.</p>
               </div>
             </div>
             <form className="mt-5 space-y-4" onSubmit={submitFeedback}>
@@ -300,7 +299,7 @@ export function SettingsPage({
                 required
               />
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-[11px] leading-5 text-ink-400">This opens your email app. Nothing is sent until you choose Send.</p>
+                <p className="hidden text-[11px] leading-5 text-ink-400 sm:block">This opens your email app. Nothing is sent until you choose Send.</p>
                 <Button type="submit" disabled={!feedbackMessage.trim()}>
                   <Send size={15} aria-hidden="true" />
                   Prepare feedback
@@ -309,12 +308,12 @@ export function SettingsPage({
             </form>
           </Card>
 
-          <Card className="p-5 sm:p-6">
+          <Card className="p-4 sm:p-6">
             <div className="flex items-start gap-3">
               <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/30 dark:text-blue-400"><CalendarRange size={17} /></span>
               <div>
                 <h2 className="font-bold tracking-[-0.02em]">Calendar</h2>
-                <p className="mt-1 text-xs leading-5 text-ink-400">This changes week boundaries everywhere, including streaks and analytics.</p>
+                <p className="mt-1 hidden text-xs leading-5 text-ink-400 sm:block">This changes week boundaries everywhere.</p>
               </div>
             </div>
             <fieldset className="mt-5">
@@ -347,7 +346,7 @@ export function SettingsPage({
                 <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-leaf-50 text-leaf-700"><Download size={17} /></span>
                 <div>
                   <h2 className="font-bold tracking-[-0.02em]">Export your data</h2>
-                  <p className="mt-1 text-xs leading-5 text-ink-400">Exports never alter your database or completion history.</p>
+                  <p className="mt-1 hidden text-xs leading-5 text-ink-400 sm:block">Exports never alter your database or completion history.</p>
                 </div>
               </div>
             </div>
@@ -355,7 +354,7 @@ export function SettingsPage({
               <div className="flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
                 <div className="flex items-center gap-3">
                   <FileJson className="text-ink-400" size={19} />
-                  <div><p className="text-sm font-semibold">JSON archive</p><p className="mt-0.5 text-[11px] text-ink-400">Complete, structured and portable</p></div>
+                  <div><p className="text-sm font-semibold">JSON archive</p><p className="mt-0.5 hidden text-[11px] text-ink-400 sm:block">Complete, structured and portable</p></div>
                 </div>
                 <Button variant="secondary" disabled={Boolean(busyAction)} onClick={() => void run("JSON export", () => onExport("json"))}>
                   {busyAction === "JSON export" ? "Saving…" : "Export JSON"}
@@ -364,7 +363,7 @@ export function SettingsPage({
               <div className="flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
                 <div className="flex items-center gap-3">
                   <FileSpreadsheet className="text-ink-400" size={19} />
-                  <div><p className="text-sm font-semibold">CSV history</p><p className="mt-0.5 text-[11px] text-ink-400">Completion rows for spreadsheets</p></div>
+                  <div><p className="text-sm font-semibold">CSV history</p><p className="mt-0.5 hidden text-[11px] text-ink-400 sm:block">Completion rows for spreadsheets</p></div>
                 </div>
                 <Button variant="secondary" disabled={Boolean(busyAction)} onClick={() => void run("CSV export", () => onExport("csv"))}>
                   {busyAction === "CSV export" ? "Saving…" : "Export CSV"}
@@ -379,23 +378,23 @@ export function SettingsPage({
                 <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400"><Database size={17} /></span>
                 <div>
                   <h2 className="font-bold tracking-[-0.02em]">Backup and restore</h2>
-                  <p className="mt-1 text-xs leading-5 text-ink-400">Create an exact SQLite backup or stage a validated restore.</p>
+                  <p className="mt-1 hidden text-xs leading-5 text-ink-400 sm:block">Create an exact SQLite backup or stage a validated restore.</p>
                 </div>
               </div>
             </div>
             <div className="grid gap-4 p-5 sm:grid-cols-2 sm:p-6">
-              <div className="rounded-xl border border-line p-4">
+              <div className="rounded-2xl border border-line p-4">
                 <HardDriveDownload className="text-leaf-700" size={20} />
                 <p className="mt-3 text-sm font-semibold">Database backup</p>
-                <p className="mt-1 min-h-10 text-xs leading-5 text-ink-400">Save a restorable copy of every habit, schedule and check-in.</p>
+                <p className="mt-1 hidden min-h-10 text-xs leading-5 text-ink-400 sm:block">Save a restorable copy of every habit, schedule and check-in.</p>
                 <Button className="mt-4 w-full" variant="secondary" disabled={Boolean(busyAction)} onClick={() => void run("Backup", onBackup)}>
                   {busyAction === "Backup" ? "Backing up…" : "Create backup"}
                 </Button>
               </div>
-              <div className="rounded-xl border border-line p-4">
+              <div className="rounded-2xl border border-line p-4">
                 <RotateCcw className="text-ink-600" size={20} />
                 <p className="mt-3 text-sm font-semibold">Restore backup</p>
-                <p className="mt-1 min-h-10 text-xs leading-5 text-ink-400">Validate a database and apply it safely on the next restart.</p>
+                <p className="mt-1 hidden min-h-10 text-xs leading-5 text-ink-400 sm:block">Validate a database and apply it safely on the next restart.</p>
                 <Button className="mt-4 w-full" variant="secondary" disabled={Boolean(busyAction)} onClick={() => setConfirmRestore(true)}>
                   Choose backup…
                 </Button>
@@ -404,7 +403,7 @@ export function SettingsPage({
           </Card>
         </div>
 
-        <aside className="space-y-6">
+        <aside className="hidden space-y-6 lg:block">
           <Card className="p-5">
             <div className="flex items-center gap-2 text-leaf-700">
               <Keyboard size={17} aria-hidden="true" />
@@ -444,8 +443,8 @@ export function SettingsPage({
       </div>
 
       {confirmRestore && (
-        <div className="fixed inset-0 z-[70] grid place-items-center bg-ink-950/50 p-4 backdrop-blur-[2px]" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && setConfirmRestore(false)}>
-          <section ref={restoreDialogRef} className="w-full max-w-md rounded-2xl border border-line bg-surface p-6 shadow-2xl" role="alertdialog" aria-modal="true" aria-labelledby="restore-title" aria-describedby="restore-description" tabIndex={-1}>
+        <div className="mobile-dialog-layer fixed inset-0 z-[70] grid place-items-center bg-ink-950/50 p-4 backdrop-blur-[2px]" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && setConfirmRestore(false)}>
+          <section ref={restoreDialogRef} className="max-h-full w-full max-w-md overflow-y-auto rounded-3xl border border-line bg-surface p-5 shadow-2xl sm:p-6" role="alertdialog" aria-modal="true" aria-labelledby="restore-title" aria-describedby="restore-description" tabIndex={-1}>
             <span className="grid size-10 place-items-center rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400"><AlertTriangle size={19} /></span>
             <h2 id="restore-title" className="mt-4 text-xl font-bold tracking-[-0.03em]">Restore from a backup?</h2>
             <p id="restore-description" className="mt-2 text-sm leading-6 text-ink-600">The selected database will be validated and staged. Nothing changes until you restart Habitree.</p>

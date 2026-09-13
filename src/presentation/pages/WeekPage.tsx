@@ -30,7 +30,6 @@ import {
   type HistoryCorrection,
 } from "../components/HistoryCorrectionDialog";
 import { ProgressRing } from "../components/ProgressRing";
-import { CompactProgress } from "../components/CompactProgress";
 import { AnimatedPlant } from "../components/AnimatedPlant";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
@@ -120,19 +119,15 @@ export function WeekPage({
 
   return (
     <div
-      className="mx-auto max-w-[1540px] touch-pan-y px-5 py-7 sm:px-8 sm:py-9 xl:px-12"
+      className="mobile-page-safe mx-auto max-w-[1540px] touch-pan-y px-5 pb-7 sm:px-8 sm:py-9 xl:px-12"
       {...swipeHandlers}
     >
       <header className="lg:hidden">
         <div className="flex items-center justify-between gap-4">
-          <h1 className="min-w-0 text-2xl font-bold tracking-[-0.035em]">{dashboard.dateLabel}</h1>
-          <CompactProgress
-            completed={dashboard.completedCount}
-            total={dashboard.scheduledCount}
-            percentage={dashboard.completionPercentage}
-            label={`${habitView === "daily" ? "Daily" : "Weekly"} habits progress`}
-          />
+          <h1 className="min-w-0 text-2xl font-bold tracking-[-0.035em]">Week</h1>
+          <ProgressRing percentage={dashboard.completionPercentage} minimal />
         </div>
+        <p className="mt-1 text-sm font-medium text-ink-400">{dashboard.dateLabel}</p>
         <span className="sr-only">Swipe left or right to move between weeks.</span>
       </header>
 
@@ -162,7 +157,7 @@ export function WeekPage({
       </header>
 
       <div
-        className="mt-5 inline-flex w-full rounded-xl border border-line bg-canvas p-1 sm:w-auto lg:mt-7"
+        className="mt-4 inline-flex w-full rounded-2xl border border-line bg-canvas p-1 sm:mt-5 sm:w-auto lg:mt-7"
         role="tablist"
         aria-label="Week habit type"
       >
@@ -170,7 +165,7 @@ export function WeekPage({
           <button
             key={view}
             className={cn(
-              "flex-1 rounded-lg px-5 py-2 text-sm font-semibold transition sm:flex-none",
+              "flex-1 rounded-xl px-5 py-2.5 text-sm font-semibold transition sm:flex-none",
               habitView === view
                 ? "bg-surface text-ink-950 shadow-sm"
                 : "text-ink-600 hover:text-ink-950",
@@ -192,7 +187,7 @@ export function WeekPage({
         ))}
       </div>
 
-      <section className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-[1.3fr_repeat(3,1fr)]" aria-label={`${habitView === "daily" ? "Daily" : "Weekly"} habit summary`}>
+      <section className="mt-5 hidden gap-4 lg:grid lg:grid-cols-2 xl:grid-cols-[1.3fr_repeat(3,1fr)]" aria-label={`${habitView === "daily" ? "Daily" : "Weekly"} habit summary`}>
         <Card className="hidden items-center gap-5 p-5 lg:col-span-2 lg:flex xl:col-span-1">
           <ProgressRing percentage={dashboard.completionPercentage} />
           <div>
@@ -220,7 +215,64 @@ export function WeekPage({
         </Card>
       </section>
 
-      <Card className="mt-6 overflow-hidden">
+      <section className="mt-4 space-y-3 lg:hidden" aria-label={`${habitView === "daily" ? "Daily" : "Weekly"} habits this week`}>
+        {dashboard.habits.length === 0 ? (
+          <Card className="grid min-h-40 place-items-center px-6 text-center shadow-none">
+            <div>
+              <Target className="mx-auto text-ink-400" size={26} />
+              <p className="mt-3 text-sm font-semibold">No {habitView} habits this week</p>
+            </div>
+          </Card>
+        ) : dashboard.habits.map((row) => {
+          const percentage = row.target === 0 ? 0 : Math.min(100, Math.round((row.completed / row.target) * 100));
+          return (
+            <Card key={row.habit.id} className="p-4 shadow-none">
+              <div className="flex min-w-0 items-center justify-between gap-3">
+                <div className="flex min-w-0 items-center gap-2.5">
+                  <span className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: row.habit.colour ?? "#777872" }} />
+                  <h2 className="truncate text-base font-bold">{row.habit.name}</h2>
+                </div>
+                <span className="shrink-0 text-sm font-bold text-ink-600">{row.completed}/{row.target}</span>
+              </div>
+              <div className="mt-4 grid grid-cols-7 gap-1.5">
+                {dashboard.days.map((day, index) => {
+                  const cell = row.cells[index];
+                  return (
+                    <div key={day.date} className="min-w-0 text-center">
+                      <span className={cn("block text-[9px] font-bold uppercase tracking-[0.08em] text-ink-400", day.isToday && "text-leaf-700")}>{day.dayLabel.slice(0, 1)}</span>
+                      {cell.status === "not_scheduled" ? (
+                        <span className="mt-1 grid aspect-square w-full place-items-center rounded-xl bg-canvas text-line" aria-label={`${day.dayLabel}: not scheduled`}>—</span>
+                      ) : (
+                        <button
+                          className={cn(
+                            "mt-1 grid aspect-square w-full place-items-center rounded-xl border text-ink-400 transition",
+                            cell.status === "completed" && "border-leaf-500 bg-leaf-500 text-white",
+                            cell.status === "missed" && "border-red-200 bg-red-50 text-red-500 dark:border-red-900 dark:bg-red-950/30",
+                            cell.status === "skipped" && "border-line bg-canvas",
+                            cell.status === "incomplete" && "border-line bg-surface",
+                            cell.isFuture && "opacity-35",
+                          )}
+                          type="button"
+                          disabled={!cell.canCorrect}
+                          onClick={() => setCorrection({ habit: row.habit, date: cell.date, status: cell.status, value: cell.value })}
+                          aria-label={`${row.habit.name}, ${cell.date}: ${cell.status}`}
+                        >
+                          <CellIcon cell={cell} />
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-line" aria-hidden="true">
+                <div className="h-full rounded-full bg-leaf-500" style={{ width: `${percentage}%` }} />
+              </div>
+            </Card>
+          );
+        })}
+      </section>
+
+      <Card className="mt-6 hidden overflow-hidden lg:block">
         <div className="overflow-x-auto">
           <div className="min-w-[900px]">
             <div className="grid grid-cols-[minmax(220px,1fr)_repeat(7,68px)_150px] border-b border-line bg-leaf-50/45 px-4">

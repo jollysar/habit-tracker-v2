@@ -100,12 +100,11 @@ export function HabitsPage({
   const activeHabits = habits.filter((habit) => !habit.isArchived);
 
   return (
-    <div className="mx-auto max-w-[1200px] px-5 py-7 sm:px-8 sm:py-9 xl:px-12">
+    <div className="mobile-page-safe mx-auto max-w-[1200px] px-5 pb-7 sm:px-8 sm:py-9 xl:px-12">
       <header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="mb-2 text-sm font-medium text-ink-400">Habit library</p>
           <h1 className="text-3xl font-bold tracking-[-0.045em] sm:text-4xl">Habits</h1>
-          <p className="mt-2 text-sm text-ink-600">
+          <p className="mt-2 hidden text-sm text-ink-600 sm:block">
             {activeHabits.length} active habit{activeHabits.length === 1 ? "" : "s"} · organise what you track.
           </p>
         </div>
@@ -115,7 +114,7 @@ export function HabitsPage({
         </Button>
       </header>
 
-      <Card className="mt-8 p-4 shadow-none">
+      <Card className="mt-5 p-3 shadow-none sm:mt-8 sm:p-4">
         <div className="grid gap-3 md:grid-cols-[minmax(220px,1fr)_200px_160px]">
           <label className="relative block">
             <span className="sr-only">Search habits</span>
@@ -155,27 +154,21 @@ export function HabitsPage({
         </div>
       </Card>
 
-      <div className="mt-5 flex items-center justify-between px-1">
-        <h2 className="text-sm font-bold">{status === "archived" ? "Archived habits" : status === "all" ? "All habits" : "Active habits"}</h2>
-        <span className="text-xs text-ink-400">{filteredHabits.length} shown</span>
-      </div>
-
-      <Card className="mt-3 overflow-hidden shadow-none">
+      <div className="mt-4 space-y-3" aria-live="polite">
         {filteredHabits.length === 0 ? (
-          <div className="grid min-h-52 place-items-center p-8 text-center">
+          <Card className="grid min-h-44 place-items-center p-8 text-center shadow-none">
             <div>
-              <span className="mx-auto grid size-11 place-items-center rounded-xl bg-leaf-50 text-leaf-600">
+              <span className="mx-auto grid size-11 place-items-center rounded-2xl bg-leaf-50 text-leaf-600">
                 <Search size={19} aria-hidden="true" />
               </span>
-              <p className="mt-3 text-sm font-semibold">No habits match these filters</p>
-              <p className="mt-1 text-xs text-ink-400">Try another search or status.</p>
+              <p className="mt-3 text-sm font-semibold">No matching habits</p>
             </div>
-          </div>
+          </Card>
         ) : filteredHabits.map((habit) => {
           const Icon = icons[habit.icon as keyof typeof icons] ?? Check;
           const activeIndex = activeHabits.findIndex((item) => item.id === habit.id);
           return (
-            <article key={habit.id} className="flex flex-col gap-4 border-t border-line p-4 first:border-t-0 sm:flex-row sm:items-center sm:px-5">
+            <article key={habit.id} className="flex flex-col gap-3 rounded-2xl border border-line bg-surface p-4 shadow-soft sm:flex-row sm:items-center sm:gap-4 sm:px-5">
               <span
                 className="grid size-10 shrink-0 place-items-center rounded-xl text-white shadow-sm"
                 style={{ backgroundColor: habit.colour ?? "#73bd8c" }}
@@ -187,20 +180,20 @@ export function HabitsPage({
                 <div className="flex flex-wrap items-center gap-2">
                   <h3 className="truncate text-sm font-bold">{habit.name}</h3>
                   {habit.categoryName && (
-                    <span className="rounded-md bg-leaf-50 px-2 py-0.5 text-[10px] font-semibold text-leaf-700">
+                    <span className="rounded-full bg-leaf-50 px-2 py-0.5 text-[10px] font-semibold text-leaf-700">
                       {habit.categoryName}
                     </span>
                   )}
                   {habit.isArchived && (
-                    <span className="rounded-md bg-line px-2 py-0.5 text-[10px] font-semibold text-ink-600">Archived</span>
+                    <span className="rounded-full bg-line px-2 py-0.5 text-[10px] font-semibold text-ink-600">Archived</span>
                   )}
                 </div>
                 {habit.description && <p className="mt-1 truncate text-xs text-ink-400">{habit.description}</p>}
                 <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] font-medium text-ink-400">
                   <span>{describeSchedule(habit)}</span>
                   <span>{typeLabel(habit)}</span>
-                  <span className="capitalize">{habit.timeOfDay}</span>
-                  <span>Starts {habit.startDate}</span>
+                  <span className="hidden capitalize sm:inline">{habit.timeOfDay}</span>
+                  <span className="hidden sm:inline">Starts {habit.startDate}</span>
                 </div>
               </div>
               <div className="flex shrink-0 items-center gap-1 self-end sm:self-auto">
@@ -244,7 +237,7 @@ export function HabitsPage({
             </article>
           );
         })}
-      </Card>
+      </div>
     </div>
   );
 }

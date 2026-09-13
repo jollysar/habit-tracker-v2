@@ -19,12 +19,12 @@ export function HabitGarden({ rows }: HabitGardenProps) {
 
   return (
     <section className="mt-6" aria-labelledby="habit-garden-title">
-      <div className="mb-4 flex flex-wrap items-end justify-between gap-2 px-1">
+      <div className="mb-3 flex flex-wrap items-end justify-between gap-2 px-1 sm:mb-4">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-leaf-700">Growing together</p>
-          <h2 id="habit-garden-title" className="mt-1 text-xl font-bold tracking-[-0.03em]">Your garden</h2>
+          <p className="hidden text-xs font-bold uppercase tracking-[0.14em] text-leaf-700 sm:block">Growing together</p>
+          <h2 id="habit-garden-title" className="text-xl font-bold tracking-[-0.03em] sm:mt-1">Your garden</h2>
         </div>
-        <p className="text-xs text-ink-400">Each current streak grows its own tree.</p>
+        <p className="hidden text-xs text-ink-400 sm:block">Each current streak grows its own tree.</p>
       </div>
 
       <div className="habit-garden relative overflow-hidden rounded-2xl border border-line px-4 pb-5 pt-7 shadow-soft sm:px-6">

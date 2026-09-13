@@ -26,13 +26,13 @@ export function DeleteHabitDialog({ habit, onCancel, onConfirm }: DeleteHabitDia
 
   return (
     <div
-      className="fixed inset-0 z-[60] grid place-items-center bg-ink-950/50 p-4 backdrop-blur-[2px]"
+      className="mobile-dialog-layer fixed inset-0 z-[60] grid place-items-center bg-ink-950/50 p-4 backdrop-blur-[2px]"
       role="presentation"
       onMouseDown={handleBackdrop}
     >
       <section
         ref={dialogRef}
-        className="w-full max-w-md rounded-2xl border border-line bg-surface p-5 shadow-2xl sm:p-6"
+        className="max-h-full w-full max-w-md overflow-y-auto rounded-3xl border border-line bg-surface p-5 shadow-2xl sm:p-6"
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="delete-habit-title"

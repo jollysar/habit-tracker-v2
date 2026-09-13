@@ -111,6 +111,15 @@ a {
 }
 
 @media (max-width: 63.999rem) {
+  .mobile-page-safe {
+    padding-top: calc(max(0.75rem, env(safe-area-inset-top)) + 0.5rem);
+  }
+
+  .mobile-dialog-layer {
+    padding-top: max(1rem, env(safe-area-inset-top));
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
   .habit-gesture-row {
     touch-action: pan-y;
     user-select: none;
