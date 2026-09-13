@@ -882,7 +882,6 @@ function App() {
           weeklyGoals={todayHighlights.weeklyGoals}
           weeklyCompletionPercentage={todayHighlights.weeklyCompletionPercentage}
           completedWeeklyGoals={todayHighlights.completedWeeklyGoals}
-          streaks={todayHighlights.streaks}
           selectedDate={selectedHomeDate}
           localDate={localDate}
           weekStartsOn={weekStartsOn}

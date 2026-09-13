@@ -1,20 +1,17 @@
-import { useState, type CSSProperties } from "react";
+import { useState } from "react";
 import {
-  ArrowUpRight,
   Check,
   ChevronRight,
   Pencil,
   Plus,
 } from "lucide-react";
 import type { TodayDashboard } from "../../application/today/buildTodayDashboard";
-import type { TodayStreakPreview } from "../../application/today/buildTodayHighlights";
 import type { TodayHabit, Weekday, WeeklyGoal } from "../../domain/habits/models";
 import { cn } from "../../lib/cn";
 import { HabitRow } from "../components/HabitRow";
 import { HomeDatePicker } from "../components/HomeDatePicker";
 import { CompactProgress } from "../components/CompactProgress";
 import { ProgressRing } from "../components/ProgressRing";
-import { AnimatedPlant, plantStageForStreak, plantStageLabel } from "../components/AnimatedPlant";
 import { WeeklyHabitRow } from "../components/WeeklyHabitRow";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
@@ -32,7 +29,6 @@ interface TodayPageProps {
   readonly weeklyGoals: readonly WeeklyGoal[];
   readonly weeklyCompletionPercentage: number;
   readonly completedWeeklyGoals: number;
-  readonly streaks: readonly TodayStreakPreview[];
   readonly selectedDate: string;
   readonly localDate: string;
   readonly weekStartsOn: Extract<Weekday, "mon" | "sun">;
@@ -56,7 +52,6 @@ export function TodayPage({
   weeklyGoals,
   weeklyCompletionPercentage,
   completedWeeklyGoals,
-  streaks,
   selectedDate,
   localDate,
   weekStartsOn,
@@ -81,11 +76,6 @@ export function TodayPage({
 
   const isDailyView = activeView === "daily";
   const isToday = selectedDate === localDate;
-  const visibleStreaks = [...streaks]
-    .filter((streak) => streak.cadence === activeView)
-    .sort((a, b) =>
-      b.currentStreak - a.currentStreak || a.name.localeCompare(b.name),
-    );
   const allHabits = dashboard.sections.flatMap((section) => section.habits);
   const remainingWeeklyGoals = Math.max(0, weeklyGoals.length - completedWeeklyGoals);
   const displayedCompleted = isDailyView ? dashboard.completedCount : completedWeeklyGoals;
@@ -122,6 +112,7 @@ export function TodayPage({
       onReset={() => onResetHabit(habit.id)}
       onDelete={() => onDeleteHabit(habit.id)}
       onLogProgress={() => onLogProgress(habit.id)}
+      onViewStreakHistory={() => onViewWeek("daily")}
     />
   );
 
@@ -238,7 +229,7 @@ export function TodayPage({
         ))}
       </div>
 
-      <div className="mt-5 grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="mt-5 max-w-[1040px]">
         <div className="min-w-0 space-y-6">
           <Card className="hidden overflow-hidden lg:block">
             <div className="flex items-center gap-4 p-4 sm:p-5">
@@ -324,6 +315,7 @@ export function TodayPage({
                       onSaveValue={(value) => onSaveWeeklyValue(habit.id, value)}
                       onEdit={() => onEditHabit(habit.id)}
                       onDelete={() => onDeleteHabit(habit.id)}
+                      onViewStreakHistory={() => onViewWeek("weekly")}
                     />
                   ) : null;
                 })}
@@ -332,53 +324,6 @@ export function TodayPage({
           )}
         </div>
 
-        <aside className="space-y-6" aria-label={isDailyView ? "Daily summary" : "Weekly summary"}>
-          <Card className="overflow-hidden">
-            <button
-              className="flex w-full items-center justify-between border-b border-line px-5 py-4 text-left transition hover:bg-leaf-50/60 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-leaf-500"
-              type="button"
-              onClick={() => onViewWeek(activeView)}
-              aria-label={`Open ${isDailyView ? "daily" : "weekly"} streak history`}
-            >
-              <span className="block text-xl font-bold tracking-[-0.03em]">
-                {isDailyView ? "Daily streaks" : "Weekly streaks"}
-              </span>
-              <ArrowUpRight size={18} className="text-ink-400" aria-hidden="true" />
-            </button>
-
-            {visibleStreaks.length === 0 ? (
-              <div className="px-5 py-6 text-center">
-                <p className="text-sm font-semibold">Your record starts here</p>
-                <p className="mt-1 text-xs leading-5 text-ink-400">Complete a habit to begin a {isDailyView ? "daily" : "weekly"} streak.</p>
-              </div>
-            ) : (
-              <div className="divide-y divide-line">
-                {visibleStreaks.map((streak, index) => (
-                  <div key={streak.id} className="streak-row flex items-center gap-2 px-3 py-4" style={{ "--streak-delay": `${index * 28}ms` } as CSSProperties}>
-                    <span
-                      className="-ml-1.5 grid size-12 shrink-0 place-items-center"
-                      role="img"
-                      aria-label={`${plantStageLabel(plantStageForStreak(streak.currentStreak))} ${streak.plantType} tree`}
-                    >
-                      <AnimatedPlant plantType={streak.plantType} streak={streak.currentStreak} size={43} className="relative -top-2 drop-shadow-[0_2px_3px_rgba(47,118,80,0.16)]" />
-                    </span>
-                    <span className="min-w-0 flex-1 truncate text-base font-semibold">{streak.name}</span>
-                    <span className="flex shrink-0 items-baseline gap-1" aria-label={`${streak.currentStreak} ${isDailyView ? "day" : "week"} streak`}>
-                      <strong className="text-2xl font-bold leading-none tracking-[-0.04em] tabular-nums text-ink-950">
-                        {streak.currentStreak}
-                      </strong>
-                      <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-ink-400">
-                        {isDailyView
-                          ? streak.currentStreak === 1 ? "day" : "days"
-                          : streak.currentStreak === 1 ? "week" : "weeks"}
-                      </span>
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </Card>
-        </aside>
       </div>
     </div>
   );

@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { Check, Gauge, Minus, MoreHorizontal, Pencil, RotateCcw, Trash2 } from "lucide-react";
+import { ArrowUpRight, Check, Gauge, Minus, Pencil, RotateCcw, Trash2 } from "lucide-react";
 import type { TodayHabit } from "../../domain/habits/models";
 import { cn } from "../../lib/cn";
-import { AnimatedPlant } from "./AnimatedPlant";
+import { HabitStreakButton } from "./HabitStreakButton";
 import { Button } from "./ui/Button";
 import { useHabitRowGestures } from "../hooks/useHabitRowGestures";
 
@@ -15,9 +15,10 @@ interface HabitRowProps {
   readonly onReset: () => void;
   readonly onDelete: () => void;
   readonly onLogProgress: () => void;
+  readonly onViewStreakHistory: () => void;
 }
 
-export function HabitRow({ habit, isEditing, onToggle, onEdit, onSkip, onReset, onDelete, onLogProgress }: HabitRowProps) {
+export function HabitRow({ habit, isEditing, onToggle, onEdit, onSkip, onReset, onDelete, onLogProgress, onViewStreakHistory }: HabitRowProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -106,12 +107,6 @@ export function HabitRow({ habit, isEditing, onToggle, onEdit, onSkip, onReset, 
             {habit.name}
           </span>
           {isSkipped && <span className="rounded-md bg-line px-1.5 py-0.5 text-[10px] font-semibold text-ink-600">Skipped</span>}
-          {habit.streak > 0 && (
-            <span className="inline-flex items-center gap-1 text-xs font-medium text-ink-400" title={`${habit.streak}-day streak`}>
-              <AnimatedPlant className="relative -top-1" plantType={habit.plantType} streak={habit.streak} size={17} />
-              {habit.streak}
-            </span>
-          )}
         </span>
         {habit.description && <span className="mt-0.5 block truncate text-xs text-ink-400">{habit.description}</span>}
         {hasProgress && !isComplete && !isSkipped && (
@@ -146,19 +141,16 @@ export function HabitRow({ habit, isEditing, onToggle, onEdit, onSkip, onReset, 
         </Button>
         )}
         <div className="relative" ref={menuRef}>
-        <Button
+        <HabitStreakButton
           ref={menuButtonRef}
-          className="sr-only opacity-60 focus:not-sr-only focus:grid lg:not-sr-only lg:grid group-hover:opacity-100"
-          variant="ghost"
-          size="icon"
-          aria-label={`More options for ${habit.name}`}
-          aria-expanded={menuOpen}
-          aria-haspopup="menu"
-          aria-controls={menuOpen ? `habit-menu-${habit.id}` : undefined}
+          habitName={habit.name}
+          plantType={habit.plantType}
+          streak={habit.streak}
+          cadence="day"
+          menuOpen={menuOpen}
+          menuId={`habit-menu-${habit.id}`}
           onClick={() => setMenuOpen((current) => !current)}
-        >
-          <MoreHorizontal size={18} aria-hidden="true" />
-        </Button>
+        />
         {menuOpen && (
           <div
             id={`habit-menu-${habit.id}`}
@@ -179,6 +171,14 @@ export function HabitRow({ habit, isEditing, onToggle, onEdit, onSkip, onReset, 
               }
             }}
           >
+            <div className="mb-1 flex items-center justify-between gap-3 border-b border-line px-2.5 py-2 text-xs text-ink-600">
+              <span>Current streak</span>
+              <strong className="text-sm tabular-nums text-ink-950">{habit.streak} {habit.streak === 1 ? "day" : "days"}</strong>
+            </div>
+            <button className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-ink-800 hover:bg-leaf-50" role="menuitem" onClick={() => { setMenuOpen(false); onViewStreakHistory(); }}>
+              <ArrowUpRight size={14} aria-hidden="true" />
+              View streak history
+            </button>
             <button className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-ink-800 hover:bg-leaf-50" role="menuitem" onClick={() => { setMenuOpen(false); onEdit(); }}>
               <Pencil size={14} aria-hidden="true" />
               Edit details

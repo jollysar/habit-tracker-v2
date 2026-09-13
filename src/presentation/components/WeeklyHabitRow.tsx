@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { ArrowUpRight, Pencil, Trash2 } from "lucide-react";
 import type { TodayHabit, WeeklyGoal } from "../../domain/habits/models";
 import { cn } from "../../lib/cn";
 import { useHabitRowGestures } from "../hooks/useHabitRowGestures";
+import { HabitStreakButton } from "./HabitStreakButton";
 
 interface WeeklyHabitRowProps {
   readonly habit: TodayHabit;
@@ -10,9 +11,10 @@ interface WeeklyHabitRowProps {
   readonly onSaveValue: (value: number) => void;
   readonly onEdit: () => void;
   readonly onDelete: () => void;
+  readonly onViewStreakHistory: () => void;
 }
 
-export function WeeklyHabitRow({ habit, goal, onSaveValue, onEdit, onDelete }: WeeklyHabitRowProps) {
+export function WeeklyHabitRow({ habit, goal, onSaveValue, onEdit, onDelete, onViewStreakHistory }: WeeklyHabitRowProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(String(goal.completed));
   const [error, setError] = useState("");
@@ -143,26 +145,45 @@ export function WeeklyHabitRow({ habit, goal, onSaveValue, onEdit, onDelete }: W
           <Trash2 size={14} aria-hidden="true" />
         </button>
       </div>
-      <div className="relative lg:hidden" ref={menuRef}>
-        <button
+      <div className="relative" ref={menuRef}>
+        <HabitStreakButton
           ref={menuButtonRef}
-          className="sr-only focus:not-sr-only focus:grid focus:size-8 focus:place-items-center focus:rounded-lg focus:text-ink-600"
-          type="button"
-          aria-label={`More options for ${habit.name}`}
-          aria-expanded={menuOpen}
-          aria-haspopup="menu"
-          aria-controls={menuOpen ? `weekly-habit-menu-${habit.id}` : undefined}
+          habitName={habit.name}
+          plantType={habit.plantType}
+          streak={habit.streak}
+          cadence="week"
+          menuOpen={menuOpen}
+          menuId={`weekly-habit-menu-${habit.id}`}
           onClick={() => setMenuOpen((current) => !current)}
-        >
-          <MoreHorizontal size={18} aria-hidden="true" />
-        </button>
+        />
         {menuOpen && (
           <div
             id={`weekly-habit-menu-${habit.id}`}
             className="menu-popover absolute right-0 top-8 z-30 w-44 rounded-lg border border-line bg-surface p-1.5 shadow-xl"
             role="menu"
             aria-label={`Actions for ${habit.name}`}
+            onKeyDown={(event) => {
+              const items = Array.from(event.currentTarget.querySelectorAll<HTMLElement>("[role='menuitem']"));
+              const currentIndex = items.indexOf(document.activeElement as HTMLElement);
+              let nextIndex: number | undefined;
+              if (event.key === "ArrowDown") nextIndex = (currentIndex + 1) % items.length;
+              if (event.key === "ArrowUp") nextIndex = (currentIndex - 1 + items.length) % items.length;
+              if (event.key === "Home") nextIndex = 0;
+              if (event.key === "End") nextIndex = items.length - 1;
+              if (nextIndex !== undefined) {
+                event.preventDefault();
+                items[nextIndex]?.focus();
+              }
+            }}
           >
+            <div className="mb-1 flex items-center justify-between gap-3 border-b border-line px-2.5 py-2 text-xs text-ink-600">
+              <span>Current streak</span>
+              <strong className="text-sm tabular-nums text-ink-950">{habit.streak} {habit.streak === 1 ? "week" : "weeks"}</strong>
+            </div>
+            <button className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-ink-800 hover:bg-leaf-50" role="menuitem" onClick={() => { setMenuOpen(false); onViewStreakHistory(); }}>
+              <ArrowUpRight size={14} aria-hidden="true" />
+              View streak history
+            </button>
             <button className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-ink-800 hover:bg-leaf-50" role="menuitem" onClick={() => { setMenuOpen(false); onEdit(); }}>
               <Pencil size={14} aria-hidden="true" />
               Edit details
