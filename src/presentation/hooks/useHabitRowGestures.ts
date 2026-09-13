@@ -21,7 +21,7 @@ export function habitRowSwipeAction(
   const verticalDistance = end.y - start.y;
   if (Math.abs(horizontalDistance) < SWIPE_THRESHOLD) return undefined;
   if (Math.abs(horizontalDistance) < Math.abs(verticalDistance) * HORIZONTAL_BIAS) return undefined;
-  return horizontalDistance > 0 ? "reveal-delete" : "close-delete";
+  return horizontalDistance < 0 ? "reveal-delete" : "close-delete";
 }
 
 interface HabitRowGestureOptions {

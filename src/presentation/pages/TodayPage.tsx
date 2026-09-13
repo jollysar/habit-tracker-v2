@@ -108,12 +108,19 @@ export function TodayPage({
     >
       <header className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0 flex-1">
-          <div className="flex items-center justify-between gap-4">
-            <div className="-ml-1.5 flex min-w-0 items-center">
-            <div className="relative min-w-0">
-              <h1 className="text-[1.75rem] font-bold tracking-[-0.035em] sm:text-3xl">
+          <div className="relative flex min-h-11 items-center justify-end gap-4">
+            <div className={cn(
+              "min-w-0",
+              isDailyView && isToday
+                ? "pointer-events-none absolute inset-x-0 flex justify-center"
+                : "mr-auto max-w-[calc(100%-9rem)]",
+            )}>
+              <h1 className={cn(
+                "pointer-events-auto font-bold tracking-[-0.035em] sm:text-3xl",
+                isDailyView && isToday ? "text-[1.9rem]" : "text-[1.05rem]",
+              )}>
               <button
-                className="rounded-lg px-1.5 py-1 text-left text-ink-950 transition hover:bg-leaf-50 focus:outline-none focus:ring-2 focus:ring-leaf-500"
+                className="whitespace-nowrap rounded-lg px-1.5 py-1 text-left text-ink-950 transition hover:bg-leaf-50 focus:outline-none focus:ring-2 focus:ring-leaf-500"
                 type="button"
                 onClick={() => setDatePickerOpen((open) => !open)}
                 title="Choose a date"
@@ -137,7 +144,6 @@ export function TodayPage({
                   onClose={() => setDatePickerOpen(false)}
                 />
               )}
-            </div>
             </div>
             <div className="lg:hidden">
               <CompactProgress

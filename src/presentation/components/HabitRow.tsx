@@ -56,7 +56,7 @@ export function HabitRow({ habit, onToggle, onEdit, onSkip, onReset, onDelete, o
     <div
       ref={gestures.rootRef}
       className={cn("habit-gesture-row group relative border-t border-line first:border-t-0 first:rounded-t-[9px] last:rounded-b-[9px]", menuOpen ? "overflow-visible" : "overflow-hidden lg:overflow-visible")}
-      data-page-swipe="ignore"
+      data-habit-row
       onTouchStart={gestures.onTouchStart}
       onTouchMove={gestures.onTouchMove}
       onTouchEnd={gestures.onTouchEnd}
@@ -64,7 +64,7 @@ export function HabitRow({ habit, onToggle, onEdit, onSkip, onReset, onDelete, o
       onClickCapture={gestures.onClickCapture}
     >
       <button
-        className="absolute inset-y-0 left-0 flex w-24 items-center justify-center gap-1.5 bg-red-600 text-sm font-semibold text-white lg:hidden"
+        className="absolute inset-y-0 right-0 flex w-24 items-center justify-center gap-1.5 bg-red-600 text-sm font-semibold text-white lg:hidden"
         type="button"
         data-delete-action
         data-habit-gesture="ignore"
@@ -79,7 +79,7 @@ export function HabitRow({ habit, onToggle, onEdit, onSkip, onReset, onDelete, o
       </button>
       <div className={cn(
         "habit-row-surface relative flex items-center gap-3 bg-surface px-4 py-4 transition-transform duration-200 ease-out sm:px-5 lg:translate-x-0",
-        gestures.deleteRevealed && "translate-x-24",
+        gestures.deleteRevealed && "-translate-x-24",
       )}>
         <button
         className="flex min-w-0 flex-1 items-center gap-3 text-left"

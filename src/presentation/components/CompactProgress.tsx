@@ -10,7 +10,7 @@ export function CompactProgress({ completed, total, percentage, label }: Compact
 
   return (
     <div
-      className="w-24 shrink-0 sm:w-32"
+      className="w-32 shrink-0 sm:w-40"
       role="progressbar"
       aria-label={label}
       aria-valuemin={0}

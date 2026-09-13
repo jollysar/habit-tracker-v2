@@ -44,6 +44,7 @@ interface AppShellProps {
   readonly activeSection: AppSection;
   readonly onNavigate: (section: AppSection) => void;
   readonly onAddHabit: () => void;
+  readonly showMobileBrandTree: boolean;
   readonly children: ReactNode;
 }
 
@@ -51,6 +52,7 @@ export function AppShell({
   activeSection,
   onNavigate,
   onAddHabit,
+  showMobileBrandTree,
   children,
 }: AppShellProps) {
   const [sidebarWidth, setSidebarWidth] = useState(getSavedSidebarWidth);
@@ -142,17 +144,20 @@ export function AppShell({
       <aside className="app-sidebar bg-canvas transition-[width] duration-200 ease-out lg:fixed lg:inset-y-0 lg:border-r lg:border-line lg:bg-surface">
         <div className={cn(
           "mobile-brand-bar flex items-center justify-between px-5 lg:h-20",
+          !showMobileBrandTree && "mobile-brand-bar-compact",
           sidebarCollapsed && "lg:justify-center lg:px-2",
         )}>
           <div className={cn("flex min-w-0 items-end gap-3", sidebarCollapsed && "lg:justify-center")}>
-            <button
-              className="grid size-11 shrink-0 place-items-center transition-transform duration-150 ease-out active:scale-95 lg:hidden"
-              onClick={() => navigate("today")}
-              aria-label="Go to Today"
-              title="Today"
-            >
-              <AnimatedPlant plantType="oak" stage={4} size={44} />
-            </button>
+            {showMobileBrandTree && (
+              <button
+                className="grid size-11 shrink-0 place-items-center transition-transform duration-150 ease-out active:scale-95 lg:hidden"
+                onClick={() => navigate("today")}
+                aria-label="Go to Today"
+                title="Today"
+              >
+                <AnimatedPlant plantType="oak" stage={4} size={44} />
+              </button>
+            )}
             <button
               className="hidden size-11 shrink-0 place-items-center transition-transform duration-150 ease-out hover:scale-[1.04] active:scale-95 lg:grid"
               onClick={toggleSidebar}
@@ -160,13 +165,6 @@ export function AppShell({
               title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
               <AnimatedPlant plantType="oak" stage={4} size={44} />
-            </button>
-            <button
-              className={cn("flex min-w-0 items-end rounded-lg pb-1 text-left", sidebarCollapsed && "lg:hidden")}
-              onClick={() => navigate("today")}
-              aria-label="Go to Today"
-            >
-              <span className="block text-xl font-bold leading-none tracking-[-0.03em]">Habitree</span>
             </button>
           </div>
         </div>

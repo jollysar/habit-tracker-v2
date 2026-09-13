@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { horizontalSwipeDirection } from "./useHorizontalDateSwipe";
+import { horizontalSwipeDirection, shouldHandleDateSwipe } from "./useHorizontalDateSwipe";
 
 describe("horizontalSwipeDirection", () => {
   it("maps deliberate horizontal gestures to date directions", () => {
@@ -10,5 +10,11 @@ describe("horizontalSwipeDirection", () => {
   it("ignores short or mostly vertical gestures", () => {
     expect(horizontalSwipeDirection({ x: 20, y: 100 }, { x: 60, y: 102 })).toBeUndefined();
     expect(horizontalSwipeDirection({ x: 20, y: 100 }, { x: 90, y: 180 })).toBeUndefined();
+  });
+
+  it("reserves a habit-row left swipe for delete but allows right swipe date navigation", () => {
+    expect(shouldHandleDateSwipe("next", true)).toBe(false);
+    expect(shouldHandleDateSwipe("previous", true)).toBe(true);
+    expect(shouldHandleDateSwipe("next", false)).toBe(true);
   });
 });

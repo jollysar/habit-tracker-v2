@@ -32,7 +32,7 @@ export const HabitStreakButton = forwardRef<HTMLButtonElement, HabitStreakButton
       <button
         ref={ref}
         className={cn(
-          "flex h-11 shrink-0 items-center gap-0.5 rounded-lg px-1 text-ink-600 transition hover:bg-leaf-50 hover:text-ink-950 focus:outline-none focus:ring-2 focus:ring-leaf-500",
+          "flex h-11 shrink-0 items-end gap-0.5 rounded-lg px-1 text-ink-600 transition hover:bg-leaf-50 hover:text-ink-950 focus:outline-none focus:ring-2 focus:ring-leaf-500",
           className,
         )}
         type="button"
@@ -43,8 +43,8 @@ export const HabitStreakButton = forwardRef<HTMLButtonElement, HabitStreakButton
         title={`${streak} ${unit} streak`}
         onClick={onClick}
       >
-        <AnimatedPlant plantType={plantType} streak={streak} size={37} className="relative -top-1" />
-        <span className="min-w-3 text-center text-xs font-bold tabular-nums" aria-hidden="true">{streak}</span>
+        <AnimatedPlant plantType={plantType} streak={streak} size={37} />
+        <span className="mb-[3px] min-w-3 text-center text-xs font-bold leading-none tabular-nums" aria-hidden="true">{streak}</span>
       </button>
     );
   },

@@ -102,7 +102,7 @@ export function HomeDatePicker({
     <div
       ref={pickerRef}
       id="home-date-picker"
-      className="absolute left-0 top-full z-50 mt-2 w-72 rounded-2xl border border-line bg-surface p-4 shadow-2xl"
+      className="pointer-events-auto fixed left-5 right-5 top-[calc(env(safe-area-inset-top,0px)+7rem)] z-50 w-auto rounded-2xl border border-line bg-surface p-4 shadow-2xl sm:absolute sm:left-0 sm:right-auto sm:top-full sm:mt-2 sm:w-72"
       role="dialog"
       aria-label="Choose a date"
     >
