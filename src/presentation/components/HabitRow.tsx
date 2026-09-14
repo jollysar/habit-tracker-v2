@@ -69,6 +69,7 @@ export function HabitRow({ habit, onToggle, onEdit, onSkip, onReset, onDelete, o
       className={cn(
         "habit-gesture-row group relative rounded-[1.75rem] transition-transform duration-200",
         gestures.longPressActive && "is-long-pressing",
+        menuOpen && "z-50",
         menuOpen ? "overflow-visible" : "overflow-hidden lg:overflow-visible",
       )}
       data-habit-row

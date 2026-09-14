@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from "react";
+
 interface ProgressRingProps {
   readonly percentage: number;
   readonly compact?: boolean;
@@ -8,10 +10,26 @@ export function ProgressRing({ percentage, compact = false, minimal = false }: P
   const radius = 42;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (percentage / 100) * circumference;
+  const previousPercentage = useRef(percentage);
+  const [poweringUp, setPoweringUp] = useState(false);
+
+  useEffect(() => {
+    const increased = percentage > previousPercentage.current;
+    previousPercentage.current = percentage;
+    if (!increased) return;
+
+    setPoweringUp(false);
+    const frame = window.requestAnimationFrame(() => setPoweringUp(true));
+    const timer = window.setTimeout(() => setPoweringUp(false), 620);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(timer);
+    };
+  }, [percentage]);
 
   return (
     <div
-      className={`relative grid shrink-0 place-items-center ${minimal ? "size-10" : compact ? "size-24" : "size-28"}`}
+      className={`relative grid shrink-0 place-items-center ${poweringUp ? "progress-ring-power" : ""} ${minimal ? "size-10" : compact ? "size-24" : "size-28"}`}
       role="progressbar"
       aria-label="Completion progress"
       aria-valuemin={0}
@@ -22,6 +40,7 @@ export function ProgressRing({ percentage, compact = false, minimal = false }: P
       <svg className="absolute inset-0 -rotate-90" viewBox="0 0 100 100" aria-hidden="true">
         <circle cx="50" cy="50" r={radius} fill="none" stroke="var(--color-line)" strokeWidth="7" />
         <circle
+          className="progress-ring-value"
           cx="50"
           cy="50"
           r={radius}

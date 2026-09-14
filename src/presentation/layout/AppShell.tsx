@@ -4,7 +4,6 @@ import {
   CalendarDays,
   Clock3,
   House,
-  LayoutList,
   Plus,
   Settings,
 } from "lucide-react";
@@ -12,7 +11,7 @@ import { cn } from "../../lib/cn";
 import { AnimatedPlant } from "../components/AnimatedPlant";
 import { useGlobalHaptics } from "../hooks/useGlobalHaptics";
 
-export type AppSection = "today" | "habits" | "week" | "calendar" | "analytics" | "settings";
+export type AppSection = "today" | "week" | "calendar" | "analytics" | "settings";
 
 const navigation: ReadonlyArray<{
   id: AppSection;
@@ -20,7 +19,6 @@ const navigation: ReadonlyArray<{
   icon: typeof CalendarDays;
 }> = [
   { id: "today", label: "Today", icon: House },
-  { id: "habits", label: "Habits", icon: LayoutList },
   { id: "week", label: "Week", icon: Clock3 },
   { id: "calendar", label: "Calendar", icon: CalendarDays },
   { id: "analytics", label: "Analytics", icon: BarChart3 },
@@ -257,7 +255,7 @@ export function AppShell({
             <button
               key={item.id}
               className={cn(
-                "grid size-11 shrink-0 place-items-center rounded-full text-ink-600 transition-[color,background-color,transform] duration-150 active:scale-90",
+                "grid size-11 shrink-0 place-items-center rounded-full text-ink-800 transition-[color,background-color,transform] duration-150 active:scale-90",
                 isActive && "nav-active bg-ink-950 text-surface",
               )}
               type="button"
@@ -267,7 +265,7 @@ export function AppShell({
               aria-keyshortcuts={`Alt+${index + 1}`}
               title={item.label}
             >
-              <Icon size={20} strokeWidth={isActive ? 2.4 : 1.9} aria-hidden="true" />
+              <Icon size={21} strokeWidth={isActive ? 2.5 : 2.2} aria-hidden="true" />
             </button>
           );
 

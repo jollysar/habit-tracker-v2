@@ -59,7 +59,6 @@ import {
   type HabitDraft,
 } from "./presentation/components/HabitDialog";
 import { AppShell, type AppSection } from "./presentation/layout/AppShell";
-import { HabitsPage } from "./presentation/pages/HabitsPage";
 import { CalendarPage } from "./presentation/pages/CalendarPage";
 import { AnalyticsPage } from "./presentation/pages/AnalyticsPage";
 import { SettingsPage } from "./presentation/pages/SettingsPage";
@@ -398,11 +397,10 @@ function App() {
   useEffect(() => {
     const sectionShortcuts: Record<string, AppSection> = {
       "1": "today",
-      "2": "habits",
-      "3": "week",
-      "4": "calendar",
-      "5": "analytics",
-      "6": "settings",
+      "2": "week",
+      "3": "calendar",
+      "4": "analytics",
+      "5": "settings",
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -695,61 +693,6 @@ function App() {
     }
   };
 
-  const handleRestoreHabit = (habitId: string) => {
-    const restored = managedHabits.find((habit) => habit.id === habitId);
-    if (!restored) return;
-    const restoredHabit: ManagedHabit = {
-      ...restored,
-      isArchived: false,
-      endDate: undefined,
-    };
-    setManagedHabits((current) => current.map((habit) =>
-      habit.id === habitId ? restoredHabit : habit,
-    ));
-    if (restoredHabit.startDate <= localDate) {
-      setHabits((current) => [...current, restoredHabit]);
-    }
-    if (habitRepository) {
-      void habitRepository.restoreHabit(habitId).then(refreshPersistentData).catch(
-        (error) => recoverFromPersistenceFailure(
-          "The habit could not be restored. Your saved data has been restored.",
-          error,
-        ),
-      );
-    }
-  };
-
-  const handleMoveHabit = (habitId: string, direction: -1 | 1) => {
-    const activeHabits = managedHabits.filter((habit) => !habit.isArchived);
-    const currentIndex = activeHabits.findIndex((habit) => habit.id === habitId);
-    const targetIndex = currentIndex + direction;
-    if (currentIndex < 0 || targetIndex < 0 || targetIndex >= activeHabits.length) return;
-    const reordered = [...activeHabits];
-    [reordered[currentIndex], reordered[targetIndex]] = [
-      reordered[targetIndex],
-      reordered[currentIndex],
-    ];
-    const orderById = new Map(reordered.map((habit, index) => [habit.id, index]));
-    setManagedHabits((current) => [...current].sort((a, b) => {
-      if (a.isArchived !== b.isArchived) return a.isArchived ? 1 : -1;
-      return (orderById.get(a.id) ?? a.sortOrder) - (orderById.get(b.id) ?? b.sortOrder);
-    }).map((habit) => ({
-      ...habit,
-      sortOrder: orderById.get(habit.id) ?? habit.sortOrder,
-    })));
-    setHabits((current) => [...current].sort(
-      (a, b) => (orderById.get(a.id) ?? 0) - (orderById.get(b.id) ?? 0),
-    ));
-    if (habitRepository) {
-      void habitRepository.reorderHabits(reordered.map((habit) => habit.id)).catch(
-        (error) => recoverFromPersistenceFailure(
-          "The new habit order could not be saved. Your saved order has been restored.",
-          error,
-        ),
-      );
-    }
-  };
-
   const handleCorrectHistory = (
     habit: ManagedHabit,
     date: string,
@@ -925,21 +868,6 @@ function App() {
             setWeekHabitView(view);
             setActiveSection("week");
           }}
-        />
-      )}
-
-      {activeSection === "habits" && (
-        <HabitsPage
-          habits={managedHabits}
-          categories={categories}
-          onAddHabit={openAddHabit}
-          onEditHabit={(habitId) => setHabitDialog({ mode: "edit", habitId })}
-          onArchiveHabit={(habitId) => archiveHabit(
-            habitId,
-            "The habit could not be archived. Your saved data has been restored.",
-          )}
-          onRestoreHabit={handleRestoreHabit}
-          onMoveHabit={handleMoveHabit}
         />
       )}
 

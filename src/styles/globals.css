@@ -93,6 +93,20 @@ body {
   animation: progress-charge-sweep 520ms ease-out;
 }
 
+.progress-ring-value {
+  transition: stroke-dashoffset 620ms cubic-bezier(0.16, 1, 0.3, 1), stroke 180ms ease;
+}
+
+@keyframes progress-ring-power {
+  0% { filter: drop-shadow(0 0 0 transparent); transform: scale(1); }
+  42% { filter: drop-shadow(0 0 5px color-mix(in srgb, var(--color-leaf-500) 72%, transparent)); transform: scale(1.08); }
+  100% { filter: drop-shadow(0 0 0 transparent); transform: scale(1); }
+}
+
+.progress-ring-power {
+  animation: progress-ring-power 620ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 @keyframes progress-charge-sweep {
   to { transform: translateX(110%); }
 }
@@ -503,8 +517,13 @@ textarea:focus-visible,
 }
 
 .habit-card {
+  position: relative;
   animation: habit-card-arrive 280ms cubic-bezier(0.16, 1, 0.3, 1) both;
   transition: border-color var(--motion-snappy), box-shadow var(--motion-snappy), transform var(--motion-snappy);
+}
+
+.habit-card:has([aria-expanded="true"]) {
+  z-index: 50;
 }
 
 .habit-card:nth-child(2) { animation-delay: 28ms; }
@@ -567,5 +586,9 @@ textarea:focus-visible,
 
   .habit-gesture-row.is-long-pressing {
     transform: none;
+  }
+
+  .progress-ring-power {
+    animation: none;
   }
 }
