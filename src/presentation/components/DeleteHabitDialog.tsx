@@ -40,7 +40,7 @@ export function DeleteHabitDialog({ habit, onCancel, onConfirm }: DeleteHabitDia
         tabIndex={-1}
       >
         <div className="flex items-start justify-between gap-4">
-          <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400">
+          <span className="grid size-10 shrink-0 place-items-center rounded-full bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400">
             <AlertTriangle size={19} aria-hidden="true" />
           </span>
           <Button variant="ghost" size="icon" onClick={onCancel} aria-label="Close delete warning">
@@ -53,11 +53,11 @@ export function DeleteHabitDialog({ habit, onCancel, onConfirm }: DeleteHabitDia
         <p id="delete-habit-description" className="mt-2 text-sm leading-6 text-ink-600">
           This removes the habit. If you want to track it again later, you’ll have to set the habit up again from the start.
         </p>
-        <p className="mt-3 rounded-xl border border-red-100 bg-red-50 px-3 py-2.5 text-xs leading-5 text-red-700 dark:border-red-900/50 dark:bg-red-950/25 dark:text-red-300">
+        <p className="mt-3 rounded-2xl border border-red-100 bg-red-50 px-3 py-2.5 text-xs leading-5 text-red-700 dark:border-red-900/50 dark:bg-red-950/25 dark:text-red-300">
           Existing completion history is retained locally for accurate analytics,
           but the habit will be removed from your active lists.
         </p>
-        <label className="mt-4 flex cursor-pointer items-center gap-3 rounded-xl border border-line px-3 py-3 text-sm text-ink-600">
+        <label className="mt-4 flex cursor-pointer items-center gap-3 rounded-2xl border border-line px-3 py-3 text-sm text-ink-600">
           <input
             className="size-4 rounded border-line accent-red-600"
             type="checkbox"
@@ -69,7 +69,8 @@ export function DeleteHabitDialog({ habit, onCancel, onConfirm }: DeleteHabitDia
         <div className="mt-6 flex justify-end gap-3">
           <Button variant="secondary" onClick={onCancel} data-dialog-autofocus>Cancel</Button>
           <button
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-red-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-red-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-red-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-red-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+            data-haptic="warning"
             onClick={() => onConfirm(dontShowAgain)}
           >
             <Trash2 size={16} aria-hidden="true" />

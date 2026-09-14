@@ -118,7 +118,7 @@ export function TodayPage({
                 isDailyView && isToday ? "text-[1.9rem]" : "text-[1.05rem]",
               )}>
               <button
-                className="whitespace-nowrap rounded-lg px-1.5 py-1 text-left text-ink-950 transition hover:bg-leaf-50 focus:outline-none focus:ring-2 focus:ring-leaf-500"
+                className="whitespace-nowrap rounded-full px-2.5 py-1 text-left text-ink-950 transition hover:bg-leaf-50 focus:outline-none focus:ring-2 focus:ring-leaf-500"
                 type="button"
                 onClick={() => setDatePickerOpen((open) => !open)}
                 title="Choose a date"
@@ -173,20 +173,20 @@ export function TodayPage({
         </div>
 
         <div className="hidden flex-wrap items-center gap-2 lg:flex lg:pt-1">
-          <Button className="h-[60px] rounded-xl px-6 text-base" onClick={onAddHabit} aria-keyshortcuts="Meta+N Control+N">
+          <Button className="h-[60px] px-6 text-base" onClick={onAddHabit} aria-keyshortcuts="Meta+N Control+N">
             <Plus size={17} strokeWidth={2.5} aria-hidden="true" />
             Add habit
-            <kbd className="ml-1 rounded-md bg-white/15 px-1.5 py-0.5 font-sans text-[10px]">⌘N</kbd>
+            <kbd className="ml-1 rounded-full bg-white/15 px-1.5 py-0.5 font-sans text-[10px]">⌘N</kbd>
           </Button>
         </div>
       </header>
 
-      <div className="mt-4 inline-flex w-full rounded-2xl border border-line bg-canvas p-1 sm:mt-7 sm:w-auto" role="tablist" aria-label="Home habit view">
+      <div className="mt-4 inline-flex w-full rounded-full border border-line bg-canvas p-1 sm:mt-7 sm:w-auto" role="tablist" aria-label="Home habit view">
         {([['daily', 'Today’s habits'], ['weekly', 'Weekly habits']] as const).map(([view, label]) => (
           <button
             key={view}
             className={cn(
-              "flex-1 rounded-xl px-5 py-2 text-sm font-semibold transition sm:flex-none",
+              "flex-1 rounded-full px-5 py-2 text-sm font-semibold transition sm:flex-none",
               activeView === view
                 ? "bg-surface text-ink-950 shadow-sm"
                 : "text-ink-600 hover:text-ink-950",
@@ -237,9 +237,9 @@ export function TodayPage({
 
           {isDailyView ? (
             <section aria-label="Today’s habits" role="tabpanel">
-              <div className="space-y-2.5">
+              <div className="space-y-2">
                 {allHabits.map((habit) => (
-                  <Card key={habit.id} className="habit-card overflow-visible rounded-2xl shadow-none">
+                  <Card key={habit.id} className="habit-card overflow-visible rounded-[1.75rem] shadow-none">
                     {renderHabit(habit)}
                   </Card>
                 ))}
@@ -248,18 +248,18 @@ export function TodayPage({
           ) : (
             <section aria-label="Weekly habits" role="tabpanel">
               {weeklyHabits.length === 0 ? (
-                <Card className="rounded-2xl shadow-none">
+                <Card className="rounded-[1.75rem] shadow-none">
                   <div className="px-5 py-7 text-center">
                     <p className="text-sm font-semibold">No weekly habits yet</p>
                     <p className="mt-1 text-xs text-ink-400">Add a weekly habit to start tracking one.</p>
                   </div>
                 </Card>
               ) : (
-                <div className="space-y-2.5">
+                <div className="space-y-2">
                   {weeklyHabits.map((habit) => {
                   const goal = weeklyGoals.find((candidate) => candidate.id === habit.id);
                   return goal ? (
-                    <Card key={habit.id} className="habit-card overflow-visible rounded-2xl shadow-none">
+                    <Card key={habit.id} className="habit-card overflow-visible rounded-[1.75rem] shadow-none">
                       <WeeklyHabitRow
                         habit={habit}
                         goal={goal}

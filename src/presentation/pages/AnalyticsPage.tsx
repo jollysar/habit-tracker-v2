@@ -107,12 +107,12 @@ export function AnalyticsPage({
           <p className="mt-1 text-[10px] leading-4 text-ink-600 sm:text-xs">Current streak</p>
         </Card>
         <Card className="p-3 sm:p-5">
-          <span className="grid size-9 place-items-center rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400"><Trophy size={18} /></span>
+          <span className="grid size-9 place-items-center rounded-full bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400"><Trophy size={18} /></span>
           <p className="mt-2 text-xl font-bold tracking-[-0.04em] sm:mt-4 sm:text-2xl">{dashboard.bestStreak}</p>
           <p className="mt-1 text-[10px] leading-4 text-ink-600 sm:text-xs">Best streak</p>
         </Card>
         <Card className="p-3 sm:p-5">
-          <span className="grid size-9 place-items-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/30 dark:text-blue-400"><History size={18} /></span>
+          <span className="grid size-9 place-items-center rounded-full bg-blue-50 text-blue-600 dark:bg-blue-950/30 dark:text-blue-400"><History size={18} /></span>
           <p className="mt-2 text-xl font-bold tracking-[-0.04em] sm:mt-4 sm:text-2xl">{dashboard.totalCompletions}</p>
           <p className="mt-1 text-[10px] leading-4 text-ink-600 sm:text-xs">Completed</p>
         </Card>
@@ -128,7 +128,7 @@ export function AnalyticsPage({
               <h2 className="mt-1 text-lg font-bold tracking-[-0.025em]">Six-month consistency</h2>
             </div>
             <span className={cn(
-              "inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-bold",
+              "inline-flex items-center gap-1 rounded-full px-2.5 py-1.5 text-xs font-bold",
               monthlyChange > 0 && "bg-leaf-50 text-leaf-700",
               monthlyChange < 0 && "bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-400",
               monthlyChange === 0 && "bg-canvas text-ink-400",

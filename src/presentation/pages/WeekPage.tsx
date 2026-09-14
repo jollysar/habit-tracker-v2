@@ -157,7 +157,7 @@ export function WeekPage({
       </header>
 
       <div
-        className="mt-4 inline-flex w-full rounded-2xl border border-line bg-canvas p-1 sm:mt-5 sm:w-auto lg:mt-7"
+        className="mt-4 inline-flex w-full rounded-full border border-line bg-canvas p-1 sm:mt-5 sm:w-auto lg:mt-7"
         role="tablist"
         aria-label="Week habit type"
       >
@@ -165,7 +165,7 @@ export function WeekPage({
           <button
             key={view}
             className={cn(
-              "flex-1 rounded-xl px-5 py-2.5 text-sm font-semibold transition sm:flex-none",
+              "flex-1 rounded-full px-5 py-2.5 text-sm font-semibold transition sm:flex-none",
               habitView === view
                 ? "bg-surface text-ink-950 shadow-sm"
                 : "text-ink-600 hover:text-ink-950",
@@ -237,15 +237,16 @@ export function WeekPage({
               <div className="mt-4 grid grid-cols-7 gap-1.5">
                 {dashboard.days.map((day, index) => {
                   const cell = row.cells[index];
+                  const cellStatus = cell.status;
                   return (
                     <div key={day.date} className="min-w-0 text-center">
                       <span className={cn("block text-[9px] font-bold uppercase tracking-[0.08em] text-ink-400", day.isToday && "text-leaf-700")}>{day.dayLabel.slice(0, 1)}</span>
-                      {cell.status === "not_scheduled" ? (
-                        <span className="mt-1 grid aspect-square w-full place-items-center rounded-xl bg-canvas text-line" aria-label={`${day.dayLabel}: not scheduled`}>—</span>
+                      {cellStatus === "not_scheduled" ? (
+                        <span className="mt-1 grid aspect-square w-full place-items-center rounded-full bg-canvas text-line" aria-label={`${day.dayLabel}: not scheduled`}>—</span>
                       ) : (
                         <button
                           className={cn(
-                            "mt-1 grid aspect-square w-full place-items-center rounded-xl border text-ink-400 transition",
+                            "mt-1 grid aspect-square w-full place-items-center rounded-full border text-ink-400 transition",
                             cell.status === "completed" && "border-leaf-500 bg-leaf-500 text-white",
                             cell.status === "missed" && "border-red-200 bg-red-50 text-red-500 dark:border-red-900 dark:bg-red-950/30",
                             cell.status === "skipped" && "border-line bg-canvas",
@@ -254,7 +255,7 @@ export function WeekPage({
                           )}
                           type="button"
                           disabled={!cell.canCorrect}
-                          onClick={() => setCorrection({ habit: row.habit, date: cell.date, status: cell.status, value: cell.value })}
+                          onClick={() => setCorrection({ habit: row.habit, date: cell.date, status: cellStatus, value: cell.value })}
                           aria-label={`${row.habit.name}, ${cell.date}: ${cell.status}`}
                         >
                           <CellIcon cell={cell} />
@@ -321,7 +322,7 @@ export function WeekPage({
                       ) : (
                         <button
                           className={cn(
-                            "grid size-9 place-items-center rounded-xl border text-ink-400 transition",
+                            "grid size-9 place-items-center rounded-full border text-ink-400 transition",
                             cell.status === "completed" && "border-leaf-500 bg-leaf-500 text-white",
                             cell.status === "missed" && "border-red-200 bg-red-50 text-red-500 dark:border-red-900 dark:bg-red-950/30",
                             cell.status === "skipped" && "border-line bg-canvas text-ink-400",

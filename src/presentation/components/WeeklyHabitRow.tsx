@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { ArrowUpRight, Pencil, Trash2 } from "lucide-react";
 import type { TodayHabit, WeeklyGoal } from "../../domain/habits/models";
 import { cn } from "../../lib/cn";
+import { playHaptic } from "../../infrastructure/native/haptics";
 import { useHabitRowGestures } from "../hooks/useHabitRowGestures";
 import { HabitStreakButton } from "./HabitStreakButton";
 
@@ -63,7 +64,10 @@ export function WeeklyHabitRow({ habit, goal, onSaveValue, onEdit, onDelete, onV
       return;
     }
     setError("");
-    if (parsed !== goal.completed) onSaveValue(parsed);
+    if (parsed !== goal.completed) {
+      void playHaptic(parsed >= goal.target ? "success" : "complete");
+      onSaveValue(parsed);
+    }
     setEditing(false);
   };
 
@@ -79,7 +83,11 @@ export function WeeklyHabitRow({ habit, goal, onSaveValue, onEdit, onDelete, onV
   return (
     <div
       ref={gestures.rootRef}
-      className={cn("habit-gesture-row group relative border-t border-line first:border-t-0 first:rounded-t-[15px] last:rounded-b-[15px]", menuOpen ? "overflow-visible" : "overflow-hidden lg:overflow-visible")}
+      className={cn(
+        "habit-gesture-row group relative rounded-[1.75rem] transition-transform duration-200",
+        gestures.longPressActive && "is-long-pressing",
+        menuOpen ? "overflow-visible" : "overflow-hidden lg:overflow-visible",
+      )}
       data-habit-row
       onTouchStart={gestures.onTouchStart}
       onTouchMove={gestures.onTouchMove}
@@ -88,7 +96,7 @@ export function WeeklyHabitRow({ habit, goal, onSaveValue, onEdit, onDelete, onV
       onClickCapture={gestures.onClickCapture}
     >
       <button
-        className="absolute inset-y-0 right-0 flex w-24 items-center justify-center gap-1.5 bg-red-600 text-sm font-semibold text-white lg:hidden"
+        className="absolute inset-y-0 right-0 flex w-24 items-center justify-center gap-1.5 rounded-r-[1.75rem] bg-red-600 text-sm font-semibold text-white lg:hidden"
         type="button"
         data-delete-action
         data-habit-gesture="ignore"
@@ -96,20 +104,21 @@ export function WeeklyHabitRow({ habit, goal, onSaveValue, onEdit, onDelete, onV
         aria-hidden={!gestures.deleteRevealed}
         inert={!gestures.deleteRevealed}
         tabIndex={gestures.deleteRevealed ? 0 : -1}
+        data-haptic="warning"
         onClick={() => { gestures.closeDelete(); onDelete(); }}
       >
         <Trash2 size={17} aria-hidden="true" />
         Delete
       </button>
       <div className={cn(
-        "habit-row-surface relative flex min-h-16 items-center gap-4 bg-surface px-5 py-4 transition-transform duration-200 ease-out lg:translate-x-0",
+        "habit-row-surface relative flex min-h-14 items-center gap-3 bg-surface px-3.5 py-2.5 transition-transform duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] sm:px-5 sm:py-3 lg:translate-x-0",
         gestures.deleteRevealed && "-translate-x-24",
       )}>
-      <div className="flex w-24 shrink-0 items-baseline gap-1.5" aria-label={`${goal.completed} of ${goal.target} ${goal.unit}`}>
+      <div className="flex w-20 shrink-0 items-baseline gap-1.5 sm:w-24" aria-label={`${goal.completed} of ${goal.target} ${goal.unit}`}>
         {editing ? (
           <input
             ref={inputRef}
-            className="h-9 w-14 rounded-lg border border-leaf-500 bg-surface px-2 text-left text-lg font-bold tabular-nums outline-none ring-2 ring-leaf-100"
+            className="h-9 w-14 rounded-full border border-leaf-500 bg-surface px-2 text-left text-lg font-bold tabular-nums outline-none ring-2 ring-leaf-100"
             type="number"
             min="0"
             step={requiresWholeNumber ? "1" : "any"}
@@ -123,26 +132,26 @@ export function WeeklyHabitRow({ habit, goal, onSaveValue, onEdit, onDelete, onV
           />
         ) : (
           <button
-            className="min-w-7 rounded-lg py-1 text-left text-lg font-bold tabular-nums text-leaf-700 underline decoration-leaf-300 underline-offset-4 transition hover:bg-leaf-50"
+            className="min-w-7 rounded-full py-1 text-left text-lg font-bold tabular-nums text-leaf-700 underline decoration-leaf-300 underline-offset-4 transition hover:bg-leaf-50"
             type="button"
             onClick={() => setEditing(true)}
             aria-label={`Edit current weekly value for ${habit.name}`}
           >
-            {goal.completed}
+            <span key={goal.completed} className="number-pop inline-block">{goal.completed}</span>
           </button>
         )}
         <span className="text-sm font-semibold tabular-nums text-ink-600">/ {goal.target}</span>
       </div>
       <div className="min-w-0 flex-1">
         <p className="truncate text-base font-semibold">{habit.name}</p>
-        {habit.description && <p className="mt-0.5 truncate text-xs text-ink-400">{habit.description}</p>}
+        {habit.description && <p className="mt-0.5 hidden truncate text-xs text-ink-400 sm:block">{habit.description}</p>}
         {error && <p id={`weekly-value-error-${habit.id}`} className="mt-1 text-xs font-medium text-red-600" role="alert">{error}</p>}
       </div>
       <div className="hidden shrink-0 items-center opacity-55 transition group-hover:opacity-100 group-focus-within:opacity-100 lg:flex">
-        <button className="grid size-8 place-items-center rounded-lg text-ink-400 hover:bg-leaf-50 hover:text-ink-800" type="button" onClick={onEdit} aria-label={`Edit ${habit.name}`}>
+        <button className="grid size-8 place-items-center rounded-full text-ink-400 hover:bg-leaf-50 hover:text-ink-800" type="button" onClick={onEdit} aria-label={`Edit ${habit.name}`}>
           <Pencil size={14} aria-hidden="true" />
         </button>
-        <button className="grid size-8 place-items-center rounded-lg text-ink-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30" type="button" onClick={onDelete} aria-label={`Delete ${habit.name}`}>
+        <button className="grid size-8 place-items-center rounded-full text-ink-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30" type="button" data-haptic="warning" onClick={onDelete} aria-label={`Delete ${habit.name}`}>
           <Trash2 size={14} aria-hidden="true" />
         </button>
       </div>
@@ -160,7 +169,7 @@ export function WeeklyHabitRow({ habit, goal, onSaveValue, onEdit, onDelete, onV
         {menuOpen && (
           <div
             id={`weekly-habit-menu-${habit.id}`}
-            className="menu-popover absolute right-0 top-8 z-30 w-44 rounded-lg border border-line bg-surface p-1.5 shadow-xl"
+            className="menu-popover absolute right-0 top-8 z-30 w-44 rounded-2xl border border-line bg-surface p-1.5 shadow-xl"
             role="menu"
             aria-label={`Actions for ${habit.name}`}
             onKeyDown={(event) => {
@@ -181,15 +190,15 @@ export function WeeklyHabitRow({ habit, goal, onSaveValue, onEdit, onDelete, onV
               <span>Current streak</span>
               <strong className="text-sm tabular-nums text-ink-950">{habit.streak} {habit.streak === 1 ? "week" : "weeks"}</strong>
             </div>
-            <button className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-ink-800 hover:bg-leaf-50" role="menuitem" onClick={() => { setMenuOpen(false); onViewStreakHistory(); }}>
+            <button className="flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-left text-xs font-medium text-ink-800 hover:bg-leaf-50" role="menuitem" onClick={() => { setMenuOpen(false); onViewStreakHistory(); }}>
               <ArrowUpRight size={14} aria-hidden="true" />
               View streak history
             </button>
-            <button className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-ink-800 hover:bg-leaf-50" role="menuitem" onClick={() => { setMenuOpen(false); onEdit(); }}>
+            <button className="flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-left text-xs font-medium text-ink-800 hover:bg-leaf-50" role="menuitem" onClick={() => { setMenuOpen(false); onEdit(); }}>
               <Pencil size={14} aria-hidden="true" />
               Edit details
             </button>
-            <button className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-semibold text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30" role="menuitem" onClick={() => { setMenuOpen(false); onDelete(); }}>
+            <button className="flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-left text-xs font-semibold text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30" role="menuitem" data-haptic="warning" onClick={() => { setMenuOpen(false); onDelete(); }}>
               <Trash2 size={14} aria-hidden="true" />
               Delete habit
             </button>

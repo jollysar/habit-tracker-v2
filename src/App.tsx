@@ -889,7 +889,7 @@ function App() {
     >
       {dataError && (
         <div
-          className="fixed right-4 top-4 z-[80] max-w-sm rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800 shadow-lg dark:border-red-900/60 dark:bg-red-950 dark:text-red-200"
+          className="fixed right-4 top-4 z-[80] max-w-sm rounded-3xl border border-red-200 bg-red-50 p-4 text-sm text-red-800 shadow-lg dark:border-red-900/60 dark:bg-red-950 dark:text-red-200"
           role="alert"
         >
           <p className="font-semibold">Local data problem</p>

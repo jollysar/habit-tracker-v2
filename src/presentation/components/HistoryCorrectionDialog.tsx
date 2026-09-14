@@ -67,7 +67,7 @@ export function HistoryCorrectionDialog({
         tabIndex={-1}
       >
         <div className="flex items-start justify-between gap-4">
-          <span className="grid size-10 place-items-center rounded-xl bg-leaf-50 text-leaf-700">
+          <span className="grid size-10 place-items-center rounded-full bg-leaf-50 text-leaf-700">
             <CalendarCheck size={19} aria-hidden="true" />
           </span>
           <Button variant="ghost" size="icon" onClick={onCancel} aria-label="Close history correction">
@@ -83,7 +83,7 @@ export function HistoryCorrectionDialog({
         {needsValue && (
           <label className="mt-5 block text-xs font-semibold text-ink-600">
             Completed value
-            <div className="mt-1.5 flex items-center rounded-xl border border-line focus-within:border-leaf-500 focus-within:ring-2 focus-within:ring-leaf-100">
+            <div className="mt-1.5 flex items-center rounded-full border border-line focus-within:border-leaf-500 focus-within:ring-2 focus-within:ring-leaf-100">
               <input
                 className="h-11 min-w-0 flex-1 bg-transparent px-3 text-sm outline-none"
                 type="number"
@@ -100,7 +100,8 @@ export function HistoryCorrectionDialog({
         <div className="mt-5 grid grid-cols-2 gap-2">
           <button
             data-dialog-autofocus
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-ink-950 px-3 text-sm font-semibold text-surface transition-all duration-150 ease-out hover:bg-ink-800 active:scale-[0.98]"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-ink-950 px-3 text-sm font-semibold text-surface transition-all duration-200 ease-out hover:bg-ink-800 active:scale-[0.98]"
+            data-haptic="complete"
             type="button"
             onClick={saveCompleted}
           >
@@ -109,7 +110,7 @@ export function HistoryCorrectionDialog({
           <Button className="h-11" variant="secondary" onClick={() => onSave("skipped")}>
             <CircleMinus size={16} /> Skipped
           </Button>
-          <Button className="h-11 text-red-600 dark:text-red-400" variant="secondary" onClick={() => onSave("missed")}>
+          <Button className="h-11 text-red-600 dark:text-red-400" variant="secondary" data-haptic="warning" onClick={() => onSave("missed")}>
             <XCircle size={16} /> Missed
           </Button>
           <Button className="h-11" variant="secondary" onClick={() => onSave("incomplete")}>

@@ -32,7 +32,7 @@ export const HabitStreakButton = forwardRef<HTMLButtonElement, HabitStreakButton
       <button
         ref={ref}
         className={cn(
-          "grid h-11 shrink-0 place-items-center rounded-lg px-1 text-ink-600 transition hover:bg-leaf-50 hover:text-ink-950 focus:outline-none focus:ring-2 focus:ring-leaf-500",
+          "grid h-10 shrink-0 place-items-center rounded-full px-1 text-ink-600 transition hover:bg-leaf-50 hover:text-ink-950 focus:outline-none focus:ring-2 focus:ring-leaf-500",
           className,
         )}
         type="button"

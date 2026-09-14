@@ -135,17 +135,17 @@ export function CalendarPage({
           </div>
         </Card>
         <Card className="p-5">
-          <span className="grid size-9 place-items-center rounded-xl bg-leaf-50 text-leaf-700"><History size={18} /></span>
+          <span className="grid size-9 place-items-center rounded-full bg-leaf-50 text-leaf-700"><History size={18} /></span>
           <p className="mt-4 text-2xl font-bold tracking-[-0.04em]">{dashboard.totalCheckIns}</p>
           <p className="mt-1 text-xs text-ink-600">Total completions</p>
         </Card>
         <Card className="p-5">
-          <span className="grid size-9 place-items-center rounded-xl bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-400"><X size={18} /></span>
+          <span className="grid size-9 place-items-center rounded-full bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-400"><X size={18} /></span>
           <p className="mt-4 text-2xl font-bold tracking-[-0.04em]">{dashboard.missedCount}</p>
           <p className="mt-1 text-xs text-ink-600">Missed check-ins</p>
         </Card>
         <Card className="p-5">
-          <span className="grid size-9 place-items-center rounded-xl bg-canvas text-ink-600"><CircleMinus size={18} /></span>
+          <span className="grid size-9 place-items-center rounded-full bg-canvas text-ink-600"><CircleMinus size={18} /></span>
           <p className="mt-4 text-2xl font-bold tracking-[-0.04em]">{dashboard.skippedCount}</p>
           <p className="mt-1 text-xs text-ink-600">Skipped check-ins</p>
         </Card>
@@ -165,7 +165,7 @@ export function CalendarPage({
               <div
                 key={day.date}
                 className={cn(
-                  "relative min-h-14 rounded-xl border p-1.5 transition sm:min-h-[72px] sm:p-2",
+                  "relative min-h-14 rounded-2xl border p-1.5 transition sm:min-h-[72px] sm:p-2",
                   !day.isInMonth && "border-transparent opacity-25",
                   day.isInMonth && "border-line bg-surface",
                   day.isToday && "border-leaf-500 ring-2 ring-leaf-100",
@@ -225,11 +225,11 @@ export function CalendarPage({
                   <div key={cell.date} className="min-w-0 text-center">
                     <span className="block text-[8px] font-semibold text-ink-400">{Number(cell.date.slice(-2))}</span>
                     {cell.status === "not_scheduled" && !cell.isFlexible ? (
-                      <span className="mt-1 grid aspect-square w-full place-items-center rounded-lg bg-canvas text-line" aria-label={`${cell.date}: not scheduled`}>·</span>
+                      <span className="mt-1 grid aspect-square w-full place-items-center rounded-full bg-canvas text-line" aria-label={`${cell.date}: not scheduled`}>·</span>
                     ) : (
                       <button
                         className={cn(
-                          "mt-1 grid aspect-square w-full place-items-center rounded-lg border transition",
+                          "mt-1 grid aspect-square w-full place-items-center rounded-full border transition",
                           cell.status === "completed" && "border-leaf-500 bg-leaf-500 text-white",
                           cell.status === "missed" && "border-red-200 bg-red-50 text-red-500 dark:border-red-900 dark:bg-red-950/30",
                           cell.status === "skipped" && "border-line bg-canvas text-ink-400",

@@ -54,7 +54,7 @@ export function ProgressDialog({ habit, onCancel, onSave }: ProgressDialogProps)
         tabIndex={-1}
       >
         <div className="flex items-start justify-between gap-4">
-          <span className="grid size-10 place-items-center rounded-xl bg-leaf-50 text-leaf-700">
+          <span className="grid size-10 place-items-center rounded-full bg-leaf-50 text-leaf-700">
             <Gauge size={19} aria-hidden="true" />
           </span>
           <Button variant="ghost" size="icon" onClick={onCancel} aria-label="Close progress dialog">
@@ -71,7 +71,7 @@ export function ProgressDialog({ habit, onCancel, onSave }: ProgressDialogProps)
         <form className="mt-5" onSubmit={handleSubmit}>
           <label className="block text-xs font-semibold text-ink-600">
             {isWeeklyTarget ? "Progress for today" : "Today’s progress"}
-            <div className="mt-1.5 flex items-center rounded-xl border border-line bg-surface focus-within:border-leaf-500 focus-within:ring-2 focus-within:ring-leaf-100">
+            <div className="mt-1.5 flex items-center rounded-full border border-line bg-surface focus-within:border-leaf-500 focus-within:ring-2 focus-within:ring-leaf-100">
               <input
                 className="h-11 min-w-0 flex-1 bg-transparent px-3 text-sm outline-none"
                 type="number"

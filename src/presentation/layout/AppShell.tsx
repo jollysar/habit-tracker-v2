@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { cn } from "../../lib/cn";
 import { AnimatedPlant } from "../components/AnimatedPlant";
+import { useGlobalHaptics } from "../hooks/useGlobalHaptics";
 
 export type AppSection = "today" | "habits" | "week" | "calendar" | "analytics" | "settings";
 
@@ -53,6 +54,7 @@ export function AppShell({
   onAddHabit,
   children,
 }: AppShellProps) {
+  useGlobalHaptics();
   const [sidebarWidth, setSidebarWidth] = useState(getSavedSidebarWidth);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(
     () => localStorage.getItem("habit-tracker-sidebar-collapsed") === "true",
@@ -134,7 +136,7 @@ export function AppShell({
       style={{ "--sidebar-width": `${effectiveSidebarWidth}px` } as CSSProperties}
     >
       <a
-        className="fixed left-3 top-3 z-[100] -translate-y-20 rounded-lg bg-ink-950 px-4 py-2 text-sm font-semibold text-surface shadow-lg transition-transform focus:translate-y-0"
+        className="fixed left-3 top-3 z-[100] -translate-y-20 rounded-full bg-ink-950 px-4 py-2 text-sm font-semibold text-surface shadow-lg transition-transform focus:translate-y-0"
         href="#main-content"
       >
         Skip to main content
@@ -170,7 +172,7 @@ export function AppShell({
               <button
                 key={item.id}
                 className={cn(
-                  "group flex min-w-max items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-150 lg:w-full",
+                  "group flex min-w-max items-center gap-3 rounded-full px-3 py-2.5 text-sm font-medium transition-[color,background-color,transform] duration-200 lg:w-full",
                   sidebarCollapsed && "lg:justify-center lg:px-0",
                   isActive
                     ? "bg-ink-950 text-surface"
@@ -256,7 +258,7 @@ export function AppShell({
               key={item.id}
               className={cn(
                 "grid size-11 shrink-0 place-items-center rounded-full text-ink-600 transition-[color,background-color,transform] duration-150 active:scale-90",
-                isActive && "bg-ink-950 text-surface",
+                isActive && "nav-active bg-ink-950 text-surface",
               )}
               type="button"
               onClick={() => navigate(item.id)}
@@ -280,7 +282,7 @@ export function AppShell({
         tabIndex={-1}
         aria-label={`${navigation.find((item) => item.id === activeSection)?.label ?? "Habitree"} page`}
       >
-        {children}
+        <div key={activeSection} className="app-page-enter">{children}</div>
       </main>
     </div>
   );

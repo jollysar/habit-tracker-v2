@@ -158,7 +158,7 @@ export function HabitsPage({
         {filteredHabits.length === 0 ? (
           <Card className="grid min-h-44 place-items-center p-8 text-center shadow-none">
             <div>
-              <span className="mx-auto grid size-11 place-items-center rounded-2xl bg-leaf-50 text-leaf-600">
+              <span className="mx-auto grid size-11 place-items-center rounded-full bg-leaf-50 text-leaf-600">
                 <Search size={19} aria-hidden="true" />
               </span>
               <p className="mt-3 text-sm font-semibold">No matching habits</p>
@@ -168,9 +168,9 @@ export function HabitsPage({
           const Icon = icons[habit.icon as keyof typeof icons] ?? Check;
           const activeIndex = activeHabits.findIndex((item) => item.id === habit.id);
           return (
-            <article key={habit.id} className="flex flex-col gap-3 rounded-2xl border border-line bg-surface p-4 shadow-soft sm:flex-row sm:items-center sm:gap-4 sm:px-5">
+            <article key={habit.id} className="flex flex-col gap-3 rounded-3xl border border-line bg-surface p-4 shadow-soft transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-px hover:border-leaf-500/40 sm:flex-row sm:items-center sm:gap-4 sm:px-5">
               <span
-                className="grid size-10 shrink-0 place-items-center rounded-xl text-white shadow-sm"
+                className="grid size-10 shrink-0 place-items-center rounded-full text-white shadow-sm"
                 style={{ backgroundColor: habit.colour ?? "#73bd8c" }}
                 aria-hidden="true"
               >
@@ -222,7 +222,7 @@ export function HabitsPage({
                     <Button variant="ghost" size="icon" className="size-9" onClick={() => onEditHabit(habit.id)} aria-label={`Edit ${habit.name}`}>
                       <Pencil size={15} />
                     </Button>
-                    <Button variant="ghost" size="icon" className="size-9" onClick={() => onArchiveHabit(habit.id)} aria-label={`Archive ${habit.name}`}>
+                    <Button variant="ghost" size="icon" className="size-9" data-haptic="warning" onClick={() => onArchiveHabit(habit.id)} aria-label={`Archive ${habit.name}`}>
                       <Archive size={15} />
                     </Button>
                   </>

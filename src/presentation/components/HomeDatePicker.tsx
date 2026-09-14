@@ -102,16 +102,16 @@ export function HomeDatePicker({
     <div
       ref={pickerRef}
       id="home-date-picker"
-      className="pointer-events-auto fixed left-5 right-5 top-[calc(env(safe-area-inset-top,0px)+4.5rem)] z-50 w-auto rounded-2xl border border-line bg-surface p-4 shadow-2xl sm:absolute sm:left-0 sm:right-auto sm:top-full sm:mt-2 sm:w-72"
+      className="pointer-events-auto fixed left-5 right-5 top-[calc(env(safe-area-inset-top,0px)+4.5rem)] z-50 w-auto rounded-3xl border border-line bg-surface p-4 shadow-2xl sm:absolute sm:left-0 sm:right-auto sm:top-full sm:mt-2 sm:w-72"
       role="dialog"
       aria-label="Choose a date"
     >
       <div className="flex items-center justify-between">
-        <button className="grid size-8 place-items-center rounded-lg text-ink-600 hover:bg-leaf-50" type="button" onClick={() => showMonth(-1)} aria-label="Previous month">
+        <button className="grid size-8 place-items-center rounded-full text-ink-600 hover:bg-leaf-50" type="button" onClick={() => showMonth(-1)} aria-label="Previous month">
           <ChevronLeft size={17} aria-hidden="true" />
         </button>
         <strong className="text-sm tracking-[-0.01em]">{monthLabel}</strong>
-        <button className="grid size-8 place-items-center rounded-lg text-ink-600 hover:bg-leaf-50 disabled:opacity-30" type="button" onClick={() => showMonth(1)} disabled={nextMonth > monthStart(maxDate)} aria-label="Next month">
+        <button className="grid size-8 place-items-center rounded-full text-ink-600 hover:bg-leaf-50 disabled:opacity-30" type="button" onClick={() => showMonth(1)} disabled={nextMonth > monthStart(maxDate)} aria-label="Next month">
           <ChevronRight size={17} aria-hidden="true" />
         </button>
       </div>

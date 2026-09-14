@@ -54,7 +54,7 @@ const colours = ["#73bd8c", "#62a5d8", "#9c7bd8", "#d99a63", "#d86f7f", "#7c8b9b
 const icons = ["check", "heart", "book", "activity", "droplet", "sparkles"];
 
 const inputClass =
-  "mt-1.5 h-10 w-full rounded-xl border border-line bg-surface px-3 text-sm text-ink-950 outline-none transition focus:border-leaf-500 focus:ring-2 focus:ring-leaf-100";
+  "mt-1.5 h-10 w-full rounded-full border border-line bg-surface px-3 text-sm text-ink-950 outline-none transition focus:border-leaf-500 focus:ring-2 focus:ring-leaf-100";
 
 const scheduleOptions = [
   ["daily", "Every day", "A daily check-in"],
@@ -252,21 +252,21 @@ export function HabitDialog({
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
             <button
               data-dialog-autofocus
-              className="group rounded-2xl border border-line p-5 text-left transition hover:border-leaf-500 hover:bg-leaf-50 focus:outline-none focus:ring-2 focus:ring-leaf-500"
+              className="group rounded-3xl border border-line p-5 text-left transition hover:border-leaf-500 hover:bg-leaf-50 focus:outline-none focus:ring-2 focus:ring-leaf-500"
               type="button"
               onClick={() => {
                 setCreationCadence("daily");
                 setScheduleType("daily");
               }}
             >
-              <span className="grid size-10 place-items-center rounded-xl bg-leaf-100 text-leaf-700">
+              <span className="grid size-10 place-items-center rounded-full bg-leaf-100 text-leaf-700">
                 <CalendarDays size={20} aria-hidden="true" />
               </span>
               <span className="mt-4 block text-base font-bold">Daily habit</span>
               <span className="mt-1 block text-sm leading-5 text-ink-400">Check in every day or on selected weekdays.</span>
             </button>
             <button
-              className="group rounded-2xl border border-line p-5 text-left transition hover:border-leaf-500 hover:bg-leaf-50 focus:outline-none focus:ring-2 focus:ring-leaf-500"
+              className="group rounded-3xl border border-line p-5 text-left transition hover:border-leaf-500 hover:bg-leaf-50 focus:outline-none focus:ring-2 focus:ring-leaf-500"
               type="button"
               onClick={() => {
                 setCreationCadence("weekly");
@@ -274,7 +274,7 @@ export function HabitDialog({
                 setWeeklyAmount("1");
               }}
             >
-              <span className="grid size-10 place-items-center rounded-xl bg-leaf-100 text-leaf-700">
+              <span className="grid size-10 place-items-center rounded-full bg-leaf-100 text-leaf-700">
                 <CalendarRange size={20} aria-hidden="true" />
               </span>
               <span className="mt-4 block text-base font-bold">Weekly habit</span>
@@ -306,7 +306,7 @@ export function HabitDialog({
                 <button
                   key={plant.id}
                   className={cn(
-                    "flex items-center gap-3 rounded-xl border p-3 text-left transition sm:block sm:text-center",
+                    "flex items-center gap-3 rounded-3xl border p-3 text-left transition sm:block sm:text-center",
                     plantType === plant.id
                       ? "border-leaf-500 bg-leaf-50 ring-1 ring-leaf-500"
                       : "border-line hover:bg-leaf-50/60",
@@ -347,7 +347,7 @@ export function HabitDialog({
           </div>
 
           {type !== "binary" && (
-            <div className="grid grid-cols-2 gap-4 rounded-xl border border-line bg-canvas/50 p-4">
+            <div className="grid grid-cols-2 gap-4 rounded-3xl border border-line bg-canvas/50 p-4">
               <label className="block text-xs font-semibold text-ink-600">
                 Habit target
                 <input
@@ -378,7 +378,7 @@ export function HabitDialog({
                 <button
                   key={id}
                   className={cn(
-                    "rounded-xl border p-3 text-left transition",
+                    "rounded-2xl border p-3 text-left transition",
                     scheduleType === id
                       ? "border-leaf-500 bg-leaf-50 ring-1 ring-leaf-500"
                       : "border-line hover:bg-leaf-50/60",
@@ -402,7 +402,7 @@ export function HabitDialog({
                   <button
                     key={weekday.id}
                     className={cn(
-                      "grid size-9 place-items-center rounded-lg border text-xs font-bold transition",
+                      "grid size-9 place-items-center rounded-full border text-xs font-bold transition",
                       daysOfWeek.includes(weekday.id)
                         ? "border-ink-950 bg-ink-950 text-surface"
                         : "border-line text-ink-600 hover:bg-leaf-50",
@@ -445,7 +445,7 @@ export function HabitDialog({
           </button>
 
           {advancedOpen && (
-            <div className="space-y-4 rounded-xl border border-line bg-canvas/50 p-4">
+            <div className="space-y-4 rounded-3xl border border-line bg-canvas/50 p-4">
               <label className="block text-xs font-semibold text-ink-600">
                 Category <span className="font-normal text-ink-400">(optional)</span>
                 <select className={inputClass} value={categoryId} onChange={(event) => setCategoryId(event.currentTarget.value)}>

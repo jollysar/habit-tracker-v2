@@ -276,6 +276,8 @@ pub fn run() {
             stage_database_restore
         ])
         .setup(|app| {
+            #[cfg(mobile)]
+            app.handle().plugin(tauri_plugin_haptics::init())?;
             apply_pending_restore(&app.handle())
                 .map_err(|error| -> Box<dyn std::error::Error> { error.into() })?;
             Ok(())

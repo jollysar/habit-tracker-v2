@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type MouseEvent, type TouchEventHandler } from "react";
+import { playHaptic } from "../../infrastructure/native/haptics";
 
 interface TouchPoint {
   readonly x: number;
@@ -30,6 +31,7 @@ interface HabitRowGestureOptions {
 
 export function useHabitRowGestures({ onLongPress }: HabitRowGestureOptions) {
   const [deleteRevealed, setDeleteRevealed] = useState(false);
+  const [longPressActive, setLongPressActive] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const startPoint = useRef<TouchPoint | undefined>(undefined);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -46,9 +48,11 @@ export function useHabitRowGestures({ onLongPress }: HabitRowGestureOptions) {
 
   const brieflySuppressClick = () => {
     suppressNextClick.current = true;
+    rootRef.current?.setAttribute("data-suppress-haptic", "true");
     if (suppressionTimer.current) clearTimeout(suppressionTimer.current);
     suppressionTimer.current = setTimeout(() => {
       suppressNextClick.current = false;
+      rootRef.current?.removeAttribute("data-suppress-haptic");
     }, 450);
   };
 
@@ -64,6 +68,7 @@ export function useHabitRowGestures({ onLongPress }: HabitRowGestureOptions) {
   useEffect(() => () => {
     clearLongPress();
     if (suppressionTimer.current) clearTimeout(suppressionTimer.current);
+    rootRef.current?.removeAttribute("data-suppress-haptic");
   }, []);
 
   const onTouchStart: TouchEventHandler<HTMLDivElement> = (event) => {
@@ -76,11 +81,14 @@ export function useHabitRowGestures({ onLongPress }: HabitRowGestureOptions) {
     if (!touch) return;
     startPoint.current = { x: touch.clientX, y: touch.clientY };
     longPressTriggered.current = false;
+    setLongPressActive(true);
     clearLongPress();
     longPressTimer.current = setTimeout(() => {
       longPressTriggered.current = true;
       brieflySuppressClick();
       setDeleteRevealed(false);
+      setLongPressActive(false);
+      void playHaptic("longPress");
       onLongPressRef.current();
     }, LONG_PRESS_DELAY);
   };
@@ -92,11 +100,15 @@ export function useHabitRowGestures({ onLongPress }: HabitRowGestureOptions) {
     if (
       Math.abs(touch.clientX - start.x) > LONG_PRESS_MOVE_TOLERANCE
       || Math.abs(touch.clientY - start.y) > LONG_PRESS_MOVE_TOLERANCE
-    ) clearLongPress();
+    ) {
+      clearLongPress();
+      setLongPressActive(false);
+    }
   };
 
   const onTouchEnd: TouchEventHandler<HTMLDivElement> = (event) => {
     clearLongPress();
+    setLongPressActive(false);
     const start = startPoint.current;
     startPoint.current = undefined;
     const touch = event.changedTouches[0];
@@ -109,6 +121,7 @@ export function useHabitRowGestures({ onLongPress }: HabitRowGestureOptions) {
 
   const onTouchCancel: TouchEventHandler<HTMLDivElement> = () => {
     clearLongPress();
+    setLongPressActive(false);
     startPoint.current = undefined;
     longPressTriggered.current = false;
   };
@@ -130,6 +143,7 @@ export function useHabitRowGestures({ onLongPress }: HabitRowGestureOptions) {
   return {
     rootRef,
     deleteRevealed,
+    longPressActive,
     closeDelete: () => setDeleteRevealed(false),
     onTouchStart,
     onTouchMove,

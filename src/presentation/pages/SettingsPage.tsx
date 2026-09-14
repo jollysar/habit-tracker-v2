@@ -151,7 +151,7 @@ export function SettingsPage({
       {status && (
         <div
           className={cn(
-            "mt-5 flex items-start gap-3 rounded-2xl border px-4 py-3 text-sm sm:mt-6",
+            "mt-5 flex items-start gap-3 rounded-3xl border px-4 py-3 text-sm sm:mt-6",
             status.tone === "success"
               ? "border-leaf-100 bg-leaf-50 text-leaf-700"
               : "border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300",
@@ -168,7 +168,7 @@ export function SettingsPage({
         <div className="space-y-4 sm:space-y-6">
           <Card className="p-4 sm:p-6">
             <div className="flex items-start gap-3">
-              <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-leaf-50 text-leaf-700"><Sun size={17} /></span>
+              <span className="grid size-9 shrink-0 place-items-center rounded-full bg-leaf-50 text-leaf-700"><Sun size={17} /></span>
               <div>
                 <h2 className="font-bold tracking-[-0.02em]">Appearance</h2>
                 <p className="mt-1 hidden text-xs leading-5 text-ink-400 sm:block">Choose the brightness and accent colour of the app.</p>
@@ -182,7 +182,7 @@ export function SettingsPage({
                   <button
                     key={option.id}
                     className={cn(
-                      "flex items-center gap-3 rounded-2xl border p-3.5 text-left transition sm:rounded-xl sm:p-4",
+                      "flex items-center gap-3 rounded-3xl border p-3.5 text-left transition sm:p-4",
                       selected ? "border-leaf-500 bg-leaf-50 ring-2 ring-leaf-100" : "border-line hover:bg-leaf-50/50",
                     )}
                     type="button"
@@ -212,7 +212,7 @@ export function SettingsPage({
                     <button
                       key={option.id}
                       className={cn(
-                        "flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-xs font-semibold transition",
+                        "flex items-center gap-2 rounded-full border px-3 py-2.5 text-left text-xs font-semibold transition",
                         selected
                           ? "border-leaf-500 bg-leaf-50 ring-2 ring-leaf-100"
                           : "border-line hover:bg-leaf-50/50",
@@ -232,14 +232,14 @@ export function SettingsPage({
 
           <Card className="p-4 sm:p-6">
             <div className="flex items-start gap-3">
-              <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-leaf-50 text-leaf-700"><ShieldCheck size={17} /></span>
+              <span className="grid size-9 shrink-0 place-items-center rounded-full bg-leaf-50 text-leaf-700"><ShieldCheck size={17} /></span>
               <div>
                 <h2 className="font-bold tracking-[-0.02em]">Safety</h2>
                 <p className="mt-1 hidden text-xs leading-5 text-ink-400 sm:block">Control safeguards around destructive actions.</p>
               </div>
             </div>
             <button
-              className="mt-5 flex w-full items-center justify-between gap-4 rounded-2xl border border-line p-4 text-left transition hover:bg-leaf-50/50"
+              className="mt-5 flex w-full items-center justify-between gap-4 rounded-3xl border border-line p-4 text-left transition hover:bg-leaf-50/50"
               type="button"
               role="switch"
               aria-checked={confirmBeforeDelete}
@@ -271,7 +271,7 @@ export function SettingsPage({
 
           <Card className="p-4 sm:p-6">
             <div className="flex items-start gap-3">
-              <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-leaf-50 text-leaf-700"><MessageSquareText size={17} /></span>
+              <span className="grid size-9 shrink-0 place-items-center rounded-full bg-leaf-50 text-leaf-700"><MessageSquareText size={17} /></span>
               <div>
                 <h2 className="font-bold tracking-[-0.02em]">Send feedback</h2>
                 <p className="mt-1 hidden text-xs leading-5 text-ink-400 sm:block">Share an idea or report a problem.</p>
@@ -310,7 +310,7 @@ export function SettingsPage({
 
           <Card className="p-4 sm:p-6">
             <div className="flex items-start gap-3">
-              <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/30 dark:text-blue-400"><CalendarRange size={17} /></span>
+              <span className="grid size-9 shrink-0 place-items-center rounded-full bg-blue-50 text-blue-600 dark:bg-blue-950/30 dark:text-blue-400"><CalendarRange size={17} /></span>
               <div>
                 <h2 className="font-bold tracking-[-0.02em]">Calendar</h2>
                 <p className="mt-1 hidden text-xs leading-5 text-ink-400 sm:block">This changes week boundaries everywhere.</p>
@@ -325,7 +325,7 @@ export function SettingsPage({
                     <button
                       key={day}
                       className={cn(
-                        "rounded-xl border px-4 py-3 text-sm font-semibold transition",
+                        "rounded-full border px-4 py-3 text-sm font-semibold transition",
                         selected ? "border-leaf-500 bg-leaf-50 text-leaf-700 ring-2 ring-leaf-100" : "border-line text-ink-600 hover:bg-leaf-50/50",
                       )}
                       type="button"
@@ -343,7 +343,7 @@ export function SettingsPage({
           <Card className="overflow-hidden">
             <div className="border-b border-line px-5 py-5 sm:px-6">
               <div className="flex items-start gap-3">
-                <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-leaf-50 text-leaf-700"><Download size={17} /></span>
+                <span className="grid size-9 shrink-0 place-items-center rounded-full bg-leaf-50 text-leaf-700"><Download size={17} /></span>
                 <div>
                   <h2 className="font-bold tracking-[-0.02em]">Export your data</h2>
                   <p className="mt-1 hidden text-xs leading-5 text-ink-400 sm:block">Exports never alter your database or completion history.</p>
@@ -375,7 +375,7 @@ export function SettingsPage({
           <Card className="overflow-hidden">
             <div className="border-b border-line px-5 py-5 sm:px-6">
               <div className="flex items-start gap-3">
-                <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400"><Database size={17} /></span>
+                <span className="grid size-9 shrink-0 place-items-center rounded-full bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400"><Database size={17} /></span>
                 <div>
                   <h2 className="font-bold tracking-[-0.02em]">Backup and restore</h2>
                   <p className="mt-1 hidden text-xs leading-5 text-ink-400 sm:block">Create an exact SQLite backup or stage a validated restore.</p>
@@ -383,7 +383,7 @@ export function SettingsPage({
               </div>
             </div>
             <div className="grid gap-4 p-5 sm:grid-cols-2 sm:p-6">
-              <div className="rounded-2xl border border-line p-4">
+              <div className="rounded-3xl border border-line p-4">
                 <HardDriveDownload className="text-leaf-700" size={20} />
                 <p className="mt-3 text-sm font-semibold">Database backup</p>
                 <p className="mt-1 hidden min-h-10 text-xs leading-5 text-ink-400 sm:block">Save a restorable copy of every habit, schedule and check-in.</p>
@@ -391,7 +391,7 @@ export function SettingsPage({
                   {busyAction === "Backup" ? "Backing up…" : "Create backup"}
                 </Button>
               </div>
-              <div className="rounded-2xl border border-line p-4">
+              <div className="rounded-3xl border border-line p-4">
                 <RotateCcw className="text-ink-600" size={20} />
                 <p className="mt-3 text-sm font-semibold">Restore backup</p>
                 <p className="mt-1 hidden min-h-10 text-xs leading-5 text-ink-400 sm:block">Validate a database and apply it safely on the next restart.</p>
@@ -445,13 +445,13 @@ export function SettingsPage({
       {confirmRestore && (
         <div className="mobile-dialog-layer fixed inset-0 z-[70] grid place-items-center bg-ink-950/50 p-4 backdrop-blur-[2px]" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && setConfirmRestore(false)}>
           <section ref={restoreDialogRef} className="max-h-full w-full max-w-md overflow-y-auto rounded-3xl border border-line bg-surface p-5 shadow-2xl sm:p-6" role="alertdialog" aria-modal="true" aria-labelledby="restore-title" aria-describedby="restore-description" tabIndex={-1}>
-            <span className="grid size-10 place-items-center rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400"><AlertTriangle size={19} /></span>
+            <span className="grid size-10 place-items-center rounded-full bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400"><AlertTriangle size={19} /></span>
             <h2 id="restore-title" className="mt-4 text-xl font-bold tracking-[-0.03em]">Restore from a backup?</h2>
             <p id="restore-description" className="mt-2 text-sm leading-6 text-ink-600">The selected database will be validated and staged. Nothing changes until you restart Habitree.</p>
-            <p className="mt-3 rounded-xl border border-line bg-canvas px-3 py-2.5 text-xs leading-5 text-ink-600">Your current database is preserved automatically before the staged backup is applied.</p>
+            <p className="mt-3 rounded-2xl border border-line bg-canvas px-3 py-2.5 text-xs leading-5 text-ink-600">Your current database is preserved automatically before the staged backup is applied.</p>
             <div className="mt-6 flex justify-end gap-3">
               <Button variant="secondary" onClick={() => setConfirmRestore(false)} data-dialog-autofocus>Cancel</Button>
-              <Button onClick={() => {
+              <Button data-haptic="warning" onClick={() => {
                 setConfirmRestore(false);
                 void run("Restore", onRestore);
               }}>Choose backup</Button>
