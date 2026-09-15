@@ -3,6 +3,7 @@ import type {
   CompletionRecord,
   HabitCategory,
   HabitProgressRecord,
+  HabitReminder,
   HabitScheduleRecord,
   ManagedHabit,
   MissedCompletion,
@@ -20,6 +21,8 @@ export interface HabitRepository {
   listAll(): Promise<readonly ManagedHabit[]>;
   listCategories(): Promise<readonly HabitCategory[]>;
   listSchedules(): Promise<readonly HabitScheduleRecord[]>;
+  listReminders(): Promise<readonly HabitReminder[]>;
+  setHabitReminder(habitId: string, reminder: Omit<HabitReminder, "habitId"> | null): Promise<void>;
   listSettings(): Promise<Readonly<Record<string, string>>>;
   setSetting(key: string, value: string): Promise<void>;
   listCompletions(

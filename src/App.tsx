@@ -30,6 +30,14 @@ import {
   weeklyProgressSettingKey,
   type WeeklyProgressOverrides,
 } from "./application/week/weeklyProgress";
+import { buildNotificationPlan } from "./application/notifications/buildNotificationPlan";
+import type { PlannedNotification } from "./application/notifications/buildNotificationPlan";
+import {
+  defaultNotificationPreferences,
+  NOTIFICATION_SETTINGS_KEY,
+  notificationPreferencesFromSettings,
+  serializeNotificationPreferences,
+} from "./application/notifications/notificationPreferences";
 import type { HabitRepository } from "./domain/habits/HabitRepository";
 import type {
   CompletionRecord,
@@ -37,8 +45,10 @@ import type {
   AppTone,
   HabitCategory,
   HabitProgressRecord,
+  HabitReminder,
   HabitScheduleRecord,
   ManagedHabit,
+  NotificationPreferences,
   ThemePreference,
   TodayHabit,
 } from "./domain/habits/models";
@@ -52,6 +62,13 @@ import {
   saveDatabaseBackup,
   saveTextExport,
 } from "./infrastructure/native/dataFiles";
+import {
+  COMPLETE_ACTION,
+  listenForNotificationActions,
+  requestNotificationPermission,
+  showExternalCompletionConfirmation,
+  syncNativeNotifications,
+} from "./infrastructure/native/notifications";
 import { DeleteHabitDialog } from "./presentation/components/DeleteHabitDialog";
 import { ProgressDialog } from "./presentation/components/ProgressDialog";
 import {
@@ -145,11 +162,12 @@ async function readPersistentHabitData(
   weekStartsOn: WeekStart,
   selectedDate: string = localDate,
 ) {
-  const [savedAll, savedCategories, schedules, settings] = await Promise.all([
+  const [savedAll, savedCategories, schedules, settings, reminders] = await Promise.all([
     repository.listAll(),
     repository.listCategories(),
     repository.listSchedules(),
     repository.listSettings(),
+    repository.listReminders(),
   ]);
   const earliestStartDate = savedAll.reduce(
     (earliest, habit) => habit.startDate < earliest ? habit.startDate : earliest,
@@ -181,6 +199,7 @@ async function readPersistentHabitData(
     progress,
     settings,
     weeklyProgress,
+    reminders,
   };
 }
 
@@ -197,6 +216,10 @@ function App() {
   const [appTone, setAppTone] = useState<AppTone>(getInitialAppTone);
   const [confirmBeforeDelete, setConfirmBeforeDelete] = useState(getInitialDeleteConfirmation);
   const [savedSettings, setSavedSettings] = useState<Readonly<Record<string, string>>>({});
+  const [reminders, setReminders] = useState<readonly HabitReminder[]>([]);
+  const [notificationPreferences, setNotificationPreferences] = useState<NotificationPreferences>(
+    defaultNotificationPreferences,
+  );
   const [weeklyProgress, setWeeklyProgress] = useState<WeeklyProgressOverrides>({});
   const theme: "light" | "dark" = themePreference === "system"
     ? systemDark ? "dark" : "light"
@@ -205,6 +228,7 @@ function App() {
   const [localDate, setLocalDate] = useState(() => toLocalDateKey(new Date()));
   const [selectedHomeDate, setSelectedHomeDate] = useState(localDate);
   const localDateRef = useRef(localDate);
+  const notificationPlanRef = useRef<readonly PlannedNotification[]>([]);
   const [habits, setHabits] = useState<readonly TodayHabit[]>(
     () => createDemoManagedHabits(localDate),
   );
@@ -354,6 +378,8 @@ function App() {
           setCompletionHistory(saved.completions);
           setProgressHistory(saved.progress);
           setSavedSettings(saved.settings);
+          setReminders(saved.reminders);
+          setNotificationPreferences(notificationPreferencesFromSettings(saved.settings));
           setWeeklyProgress(saved.weeklyProgress);
           if (
             saved.settings.theme === "system" ||
@@ -436,6 +462,8 @@ function App() {
     setCompletionHistory(saved.completions);
     setProgressHistory(saved.progress);
     setSavedSettings(saved.settings);
+    setReminders(saved.reminders);
+    setNotificationPreferences(notificationPreferencesFromSettings(saved.settings));
     setWeeklyProgress(saved.weeklyProgress);
   };
 
@@ -470,6 +498,13 @@ function App() {
   };
 
   const handleSaveHabit = (draft: HabitDraft) => {
+    const { reminder, ...habitDraft } = draft;
+    if (reminder && !notificationPreferences.enabled) {
+      void handleNotificationPreferencesChange({
+        ...notificationPreferences,
+        enabled: true,
+      });
+    }
     const categoryName = categories.find(
       (category) => category.id === draft.categoryId,
     )?.name;
@@ -481,9 +516,9 @@ function App() {
       if (!currentHabit) return;
       const updatedHabit: ManagedHabit = {
         ...currentHabit,
-        ...draft,
+        ...habitDraft,
         categoryName,
-        schedule: draft.schedule,
+        schedule: habitDraft.schedule,
       };
       setManagedHabits((current) =>
         current.map((habit) => habit.id === updatedHabit.id ? updatedHabit : habit),
@@ -491,12 +526,15 @@ function App() {
       setHabits((current) =>
         current.map((habit) =>
           habit.id === updatedHabit.id
-            ? { ...habit, ...draft, categoryName, schedule: draft.schedule }
+            ? { ...habit, ...habitDraft, categoryName, schedule: habitDraft.schedule }
             : habit,
         ),
       );
       if (habitRepository) {
-        void habitRepository.updateHabit(updatedHabit, localDate)
+        void Promise.all([
+          habitRepository.updateHabit(updatedHabit, localDate),
+          habitRepository.setHabitReminder(updatedHabit.id, reminder),
+        ])
           .then(refreshPersistentData)
           .catch((error) => recoverFromPersistenceFailure(
             "The habit could not be updated. Your saved data has been restored.",
@@ -506,7 +544,7 @@ function App() {
     } else {
       const activeCount = managedHabits.filter((habit) => !habit.isArchived).length;
       const newHabit: ManagedHabit = {
-        ...draft,
+        ...habitDraft,
         id: crypto.randomUUID(),
         categoryName,
         status: "incomplete",
@@ -521,6 +559,7 @@ function App() {
       }
       if (habitRepository) {
         void habitRepository.createHabit(newHabit, localDate)
+          .then(() => habitRepository.setHabitReminder(newHabit.id, reminder))
           .then(refreshPersistentData)
           .catch((error) => recoverFromPersistenceFailure(
             "The habit could not be created. Your saved data has been restored.",
@@ -744,6 +783,92 @@ function App() {
     }
   };
 
+  const handleNotificationPreferencesChange = async (
+    preferences: NotificationPreferences,
+  ): Promise<boolean> => {
+    if (preferences.enabled && !notificationPreferences.enabled) {
+      const granted = await requestNotificationPermission().catch((error) => {
+        console.error("Unable to request notification permission", error);
+        return false;
+      });
+      if (!granted) return false;
+    }
+    setNotificationPreferences(preferences);
+    persistSetting(
+      NOTIFICATION_SETTINGS_KEY,
+      serializeNotificationPreferences(preferences),
+    );
+    return true;
+  };
+
+  useEffect(() => {
+    const plan = buildNotificationPlan({
+      now: new Date(),
+      habits: managedHabits,
+      schedules: scheduleHistory,
+      completions: completionHistory,
+      progress: progressHistory,
+      reminders,
+      preferences: notificationPreferences,
+      weekStartsOn,
+      weeklyProgress,
+    });
+    notificationPlanRef.current = plan;
+    void syncNativeNotifications(plan).catch((error) => {
+      console.error("Unable to schedule notifications", error);
+    });
+  }, [
+    completionHistory,
+    managedHabits,
+    notificationPreferences,
+    progressHistory,
+    reminders,
+    scheduleHistory,
+    weekStartsOn,
+    weeklyProgress,
+  ]);
+
+  useEffect(() => {
+    let stop: (() => void) | undefined;
+    let cancelled = false;
+    void listenForNotificationActions((action) => {
+      if (action.actionId !== COMPLETE_ACTION) return;
+      const planned = notificationPlanRef.current.find(
+        (item) => item.id === action.notificationId,
+      );
+      const habitId = action.habitId ?? planned?.habitId;
+      const date = action.date || planned?.date || toLocalDateKey(new Date());
+      const habit = managedHabits.find((item) =>
+        habitId ? item.id === habitId : item.name === action.title
+      );
+      if (date > toLocalDateKey(new Date())) return;
+      if (!habit || habit.isArchived || !habitRepository) return;
+      const completedHabit = {
+        ...habit,
+        status: "completed" as const,
+        value: habit.type === "binary" ? undefined : habit.targetValue,
+      };
+      void habitRepository.setCheckIn(completedHabit, date, "completed")
+        .then(async () => {
+          await refreshPersistentData();
+          setSelectedHomeDate(date);
+          setActiveSection("today");
+          showExternalCompletionConfirmation(habit.name);
+        })
+        .catch((error) => recoverFromPersistenceFailure(
+          "That notification check-in could not be saved.",
+          error,
+        ));
+    }).then((cleanup) => {
+      if (cancelled) cleanup();
+      else stop = cleanup;
+    });
+    return () => {
+      cancelled = true;
+      stop?.();
+    };
+  }, [habitRepository, managedHabits]);
+
   const handleThemePreferenceChange = (preference: ThemePreference) => {
     setThemePreference(preference);
     persistSetting("theme", preference);
@@ -919,10 +1044,12 @@ function App() {
           completionCount={completionHistory.length}
           scheduleCount={scheduleHistory.length}
           confirmBeforeDelete={confirmBeforeDelete}
+          notificationPreferences={notificationPreferences}
           onThemeChange={handleThemePreferenceChange}
           onAppToneChange={handleAppToneChange}
           onWeekStartsOnChange={handleWeekStartChange}
           onConfirmBeforeDeleteChange={handleConfirmBeforeDeleteChange}
+          onNotificationPreferencesChange={handleNotificationPreferencesChange}
           onExport={handleExport}
           onBackup={handleBackup}
           onRestore={chooseAndStageDatabaseRestore}
@@ -934,6 +1061,7 @@ function App() {
         habit={editingHabit}
         categories={categories}
         defaultStartDate={localDate}
+        reminder={editingHabit ? reminders.find((item) => item.habitId === editingHabit.id) : undefined}
         onClose={() => setHabitDialog(null)}
         onSave={handleSaveHabit}
       />

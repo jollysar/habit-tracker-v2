@@ -20,7 +20,7 @@ describe("production security configuration", () => {
     expect(config.app.security.freezePrototype).toBe(true);
   });
 
-  it("grants the local main window only the SQL commands it uses", () => {
+  it("grants the local main window only the SQL and notification commands it uses", () => {
     const capability = readJson("../../../src-tauri/capabilities/default.json") as {
       local: boolean;
       remote?: unknown;
@@ -35,6 +35,7 @@ describe("production security configuration", () => {
       "sql:allow-load",
       "sql:allow-select",
       "sql:allow-execute",
+      "notification:default",
     ]);
   });
 });

@@ -9,6 +9,7 @@ import type {
   CompletionRecord,
   HabitCategory,
   HabitProgressRecord,
+  HabitReminder,
   HabitSchedule,
   HabitScheduleRecord,
   HabitType,
@@ -94,6 +95,12 @@ interface ProgressRow {
   readonly habit_id: string;
   readonly date: string;
   readonly value: number;
+}
+
+interface ReminderRow {
+  readonly habit_id: string;
+  readonly enabled: number;
+  readonly time: string;
 }
 
 interface CountRow {
@@ -316,6 +323,40 @@ export class TauriHabitRepository implements HabitRepository {
       effectiveFrom: row.effective_from,
       effectiveTo: row.effective_to ?? undefined,
     }));
+  }
+
+  async listReminders(): Promise<readonly HabitReminder[]> {
+    const database = await this.database();
+    const rows = await database.select<ReminderRow[]>(
+      `SELECT habit_id, enabled, time
+       FROM reminders
+       ORDER BY created_at ASC`,
+    );
+    return rows.map((row) => ({
+      habitId: row.habit_id,
+      enabled: row.enabled === 1,
+      time: row.time,
+    }));
+  }
+
+  async setHabitReminder(
+    habitId: string,
+    reminder: Omit<HabitReminder, "habitId"> | null,
+  ): Promise<void> {
+    const database = await this.database();
+    if (!reminder) {
+      await database.execute("DELETE FROM reminders WHERE habit_id = $1", [habitId]);
+      return;
+    }
+    await database.execute(
+      `INSERT INTO reminders (id, habit_id, enabled, time, updated_at)
+       VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
+       ON CONFLICT(habit_id) DO UPDATE SET
+         enabled = excluded.enabled,
+         time = excluded.time,
+         updated_at = CURRENT_TIMESTAMP`,
+      [crypto.randomUUID(), habitId, reminder.enabled ? 1 : 0, reminder.time],
+    );
   }
 
   async listSettings(): Promise<Readonly<Record<string, string>>> {

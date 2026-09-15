@@ -196,4 +196,20 @@ describe("TauriHabitRepository with SQLite", () => {
 
     await expect(repository.prepareBackup()).resolves.toBeUndefined();
   });
+
+  it("creates, updates, and removes one reminder per habit", async () => {
+    await repository.createHabit(habit("water"), "2026-09-01");
+    await repository.setHabitReminder("water", { enabled: true, time: "09:15" });
+    expect(await repository.listReminders()).toEqual([
+      { habitId: "water", enabled: true, time: "09:15" },
+    ]);
+
+    await repository.setHabitReminder("water", { enabled: false, time: "10:30" });
+    expect(await repository.listReminders()).toEqual([
+      { habitId: "water", enabled: false, time: "10:30" },
+    ]);
+
+    await repository.setHabitReminder("water", null);
+    expect(await repository.listReminders()).toEqual([]);
+  });
 });

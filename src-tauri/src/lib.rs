@@ -252,10 +252,17 @@ pub fn run() {
             sql: include_str!("../migrations/0007_add_habit_plant_type.sql"),
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 8,
+            description: "one_reminder_per_habit",
+            sql: include_str!("../migrations/0008_one_reminder_per_habit.sql"),
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_notification::init())
         .plugin(
             tauri::plugin::Builder::<_, ()>::new("legacy-data-migration")
                 .setup(|app, _| {

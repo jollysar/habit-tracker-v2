@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState, type FormEvent, type MouseEvent } from "react";
-import { ArrowLeft, CalendarDays, CalendarRange, ChevronDown, ChevronUp, X } from "lucide-react";
+import { ArrowLeft, Bell, CalendarDays, CalendarRange, ChevronDown, ChevronUp, X } from "lucide-react";
 import { validateHabitConfiguration } from "../../application/habits/validateHabitConfiguration";
 import type {
   HabitCategory,
+  HabitReminder,
   HabitSchedule,
   HabitType,
   PlantType,
@@ -29,6 +30,7 @@ export interface HabitDraft {
   readonly plantType: PlantType;
   readonly startDate: string;
   readonly schedule: HabitSchedule;
+  readonly reminder: Omit<HabitReminder, "habitId"> | null;
 }
 
 interface HabitDialogProps {
@@ -36,6 +38,7 @@ interface HabitDialogProps {
   readonly habit?: TodayHabit;
   readonly categories: readonly HabitCategory[];
   readonly defaultStartDate: string;
+  readonly reminder?: HabitReminder;
   readonly onClose: () => void;
   readonly onSave: (habit: HabitDraft) => void;
 }
@@ -68,6 +71,7 @@ export function HabitDialog({
   habit,
   categories,
   defaultStartDate,
+  reminder,
   onClose,
   onSave,
 }: HabitDialogProps) {
@@ -93,6 +97,8 @@ export function HabitDialog({
   const [colour, setColour] = useState(colours[0]);
   const [plantType, setPlantType] = useState<PlantType>("oak");
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [reminderEnabled, setReminderEnabled] = useState(false);
+  const [reminderTime, setReminderTime] = useState("09:00");
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -126,8 +132,10 @@ export function HabitDialog({
     setColour(habit?.colour ?? colours[0]);
     setPlantType(habit?.plantType ?? "oak");
     setAdvancedOpen(Boolean(habit?.description || habit?.icon || habit?.colour));
+    setReminderEnabled(reminder?.enabled ?? false);
+    setReminderTime(reminder?.time ?? "09:00");
     setError("");
-  }, [defaultStartDate, habit, open]);
+  }, [defaultStartDate, habit, open, reminder]);
 
   useEffect(() => {
     if (!open || (!habit && !creationCadence)) return;
@@ -206,6 +214,7 @@ export function HabitDialog({
         targetUnit: scheduleType === "weekly_target" ? cleanUnit : undefined,
         effectiveFrom: startDate,
       },
+      reminder: reminderEnabled ? { enabled: true, time: reminderTime } : null,
     });
   };
 
@@ -344,6 +353,43 @@ export function HabitDialog({
                 <option value="anytime">Anytime</option>
               </select>
             </label>
+          </div>
+
+          <div className="rounded-3xl border border-line p-4">
+            <button
+              className="flex w-full items-center justify-between gap-4 text-left"
+              type="button"
+              role="switch"
+              aria-checked={reminderEnabled}
+              onClick={() => setReminderEnabled((current) => !current)}
+            >
+              <span className="flex items-center gap-3">
+                <span className="grid size-9 place-items-center rounded-full bg-leaf-50 text-leaf-700">
+                  <Bell size={17} aria-hidden="true" />
+                </span>
+                <span>
+                  <span className="block text-sm font-semibold">Habit reminder</span>
+                  <span className="mt-0.5 block text-xs text-ink-400">Only sent while this habit is incomplete.</span>
+                </span>
+              </span>
+              <span className={cn(
+                "inline-flex h-6 w-11 shrink-0 items-center rounded-full p-0.5 transition-colors",
+                reminderEnabled ? "justify-end bg-leaf-500" : "justify-start bg-line",
+              )} aria-hidden="true">
+                <span className="size-5 rounded-full bg-white shadow-sm" />
+              </span>
+            </button>
+            {reminderEnabled && (
+              <label className="mt-4 block max-w-44 text-xs font-semibold text-ink-600">
+                Reminder time
+                <input
+                  className={inputClass}
+                  type="time"
+                  value={reminderTime}
+                  onChange={(event) => setReminderTime(event.currentTarget.value)}
+                />
+              </label>
+            )}
           </div>
 
           {type !== "binary" && (

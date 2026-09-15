@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import {
   AlertTriangle,
+  Bell,
   CalendarRange,
   Check,
   Database,
@@ -22,7 +23,7 @@ import {
   Sun,
   X,
 } from "lucide-react";
-import type { AppTone, ThemePreference, Weekday } from "../../domain/habits/models";
+import type { AppTone, NotificationPreferences, ThemePreference, Weekday } from "../../domain/habits/models";
 import { cn } from "../../lib/cn";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
@@ -38,10 +39,12 @@ interface SettingsPageProps {
   readonly completionCount: number;
   readonly scheduleCount: number;
   readonly confirmBeforeDelete: boolean;
+  readonly notificationPreferences: NotificationPreferences;
   readonly onThemeChange: (theme: ThemePreference) => void;
   readonly onAppToneChange: (tone: AppTone) => void;
   readonly onWeekStartsOnChange: (weekday: WeekStart) => void;
   readonly onConfirmBeforeDeleteChange: (enabled: boolean) => void;
+  readonly onNotificationPreferencesChange: (preferences: NotificationPreferences) => Promise<boolean>;
   readonly onExport: (format: "json" | "csv") => Promise<string | null>;
   readonly onBackup: () => Promise<string | null>;
   readonly onRestore: () => Promise<string | null>;
@@ -64,10 +67,12 @@ export function SettingsPage({
   completionCount,
   scheduleCount,
   confirmBeforeDelete,
+  notificationPreferences,
   onThemeChange,
   onAppToneChange,
   onWeekStartsOnChange,
   onConfirmBeforeDeleteChange,
+  onNotificationPreferencesChange,
   onExport,
   onBackup,
   onRestore,
@@ -77,10 +82,24 @@ export function SettingsPage({
   const [confirmRestore, setConfirmRestore] = useState(false);
   const [feedbackType, setFeedbackType] = useState("Suggestion");
   const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [notificationBusy, setNotificationBusy] = useState(false);
   const restoreDialogRef = useDialogFocus<HTMLElement>(
     confirmRestore,
     () => setConfirmRestore(false),
   );
+
+  const updateNotifications = async (patch: Partial<NotificationPreferences>) => {
+    setNotificationBusy(true);
+    const next = { ...notificationPreferences, ...patch };
+    const applied = await onNotificationPreferencesChange(next);
+    if (!applied && patch.enabled) {
+      setStatus({
+        tone: "error",
+        message: "Notifications were not enabled. You can allow them in your device settings.",
+      });
+    }
+    setNotificationBusy(false);
+  };
 
   const run = async (label: string, operation: () => Promise<string | null>) => {
     setBusyAction(label);
@@ -166,6 +185,95 @@ export function SettingsPage({
 
       <div className="mt-5 grid gap-4 sm:mt-8 sm:gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="space-y-4 sm:space-y-6">
+          <Card className="p-4 sm:p-6">
+            <div className="flex items-start gap-3">
+              <span className="grid size-9 shrink-0 place-items-center rounded-full bg-leaf-50 text-leaf-700"><Bell size={17} /></span>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-4">
+                  <h2 className="font-bold tracking-[-0.02em]">Notifications</h2>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-label="Enable notifications"
+                    aria-checked={notificationPreferences.enabled}
+                    disabled={notificationBusy}
+                    className={cn(
+                      "inline-flex h-7 w-12 shrink-0 items-center rounded-full p-0.5 transition-colors disabled:opacity-50",
+                      notificationPreferences.enabled ? "justify-end bg-leaf-500" : "justify-start bg-line",
+                    )}
+                    onClick={() => void updateNotifications({ enabled: !notificationPreferences.enabled })}
+                  >
+                    <span className="size-6 rounded-full bg-white shadow-sm" />
+                  </button>
+                </div>
+                <p className="mt-1 text-xs leading-5 text-ink-400">Gentle, local reminders that stop when they are no longer useful.</p>
+              </div>
+            </div>
+
+            {notificationPreferences.enabled && (
+              <div className="mt-5 space-y-4 border-t border-line pt-5">
+                <div className="grid grid-cols-3 gap-3">
+                  <label className="text-xs font-semibold text-ink-600">
+                    Morning summary
+                    <input
+                      className="mt-1.5 h-11 w-full rounded-full border border-line bg-surface px-3 text-sm"
+                      type="time"
+                      value={notificationPreferences.dailyBriefingTime}
+                      onChange={(event) => void updateNotifications({ dailyBriefingTime: event.currentTarget.value })}
+                    />
+                  </label>
+                  <label className="text-xs font-semibold text-ink-600">
+                    Quiet from
+                    <input
+                      className="mt-1.5 h-11 w-full rounded-full border border-line bg-surface px-3 text-sm"
+                      type="time"
+                      value={notificationPreferences.quietHoursStart}
+                      onChange={(event) => void updateNotifications({ quietHoursStart: event.currentTarget.value })}
+                    />
+                  </label>
+                  <label className="text-xs font-semibold text-ink-600">
+                    Quiet until
+                    <input
+                      className="mt-1.5 h-11 w-full rounded-full border border-line bg-surface px-3 text-sm"
+                      type="time"
+                      value={notificationPreferences.quietHoursEnd}
+                      onChange={(event) => void updateNotifications({ quietHoursEnd: event.currentTarget.value })}
+                    />
+                  </label>
+                </div>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {([
+                    ["dailyBriefing", "Daily summary", "Yesterday’s result and today’s clearest focus"],
+                    ["endOfDay", "End-of-day nudge", "Only when daily habits remain open"],
+                    ["weeklyProgress", "Weekly progress", "A midweek note when a goal is behind pace"],
+                    ["weeklySummary", "Weekly summary", "A calm review at the end of your week"],
+                    ["freshStart", "Fresh starts", "A neutral next step after a missed habit"],
+                    ["inactivityCheckIn", "Gentle check-ins", "An invitation back after three quiet days"],
+                  ] as const).map(([key, label, description]) => (
+                    <button
+                      key={key}
+                      type="button"
+                      role="switch"
+                      aria-checked={notificationPreferences[key]}
+                      className="flex items-center justify-between gap-3 rounded-3xl border border-line px-4 py-3 text-left"
+                      onClick={() => void updateNotifications({ [key]: !notificationPreferences[key] })}
+                    >
+                      <span>
+                        <span className="block text-sm font-semibold">{label}</span>
+                        <span className="mt-0.5 block text-[11px] leading-4 text-ink-400">{description}</span>
+                      </span>
+                      <span className={cn(
+                        "inline-flex h-5 w-9 shrink-0 items-center rounded-full p-0.5",
+                        notificationPreferences[key] ? "justify-end bg-leaf-500" : "justify-start bg-line",
+                      )} aria-hidden="true"><span className="size-4 rounded-full bg-white" /></span>
+                    </button>
+                  ))}
+                </div>
+                <p className="text-[11px] leading-5 text-ink-400">Individual habit times are set when adding or editing a habit. Habitree groups reminders that occur together.</p>
+              </div>
+            )}
+          </Card>
+
           <Card className="p-4 sm:p-6">
             <div className="flex items-start gap-3">
               <span className="grid size-9 shrink-0 place-items-center rounded-full bg-leaf-50 text-leaf-700"><Sun size={17} /></span>

@@ -11,6 +11,25 @@ export type ThemePreference = "system" | "light" | "dark";
 export type AppTone = "blue" | "purple" | "green" | "yellow" | "orange" | "coral";
 export type PlantType = "oak" | "pine" | "cherry";
 
+export interface HabitReminder {
+  readonly habitId: string;
+  readonly enabled: boolean;
+  readonly time: string;
+}
+
+export interface NotificationPreferences {
+  readonly enabled: boolean;
+  readonly dailyBriefing: boolean;
+  readonly dailyBriefingTime: string;
+  readonly endOfDay: boolean;
+  readonly weeklyProgress: boolean;
+  readonly weeklySummary: boolean;
+  readonly freshStart: boolean;
+  readonly inactivityCheckIn: boolean;
+  readonly quietHoursStart: string;
+  readonly quietHoursEnd: string;
+}
+
 export interface HabitTrackerSettings {
   readonly theme: ThemePreference;
   readonly weekStartsOn: Extract<Weekday, "mon" | "sun">;
