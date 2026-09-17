@@ -86,10 +86,10 @@ export function CalendarPage({
   const canMoveForward = dashboard.monthEnd < localDate.slice(0, 7) + "-01";
 
   return (
-    <div className="mobile-page-safe mx-auto max-w-[1540px] px-5 pb-7 sm:px-8 sm:py-9 xl:px-12">
+    <div className="app-content-page mobile-page-safe mx-auto max-w-[1440px] px-5 pb-7 sm:px-8 sm:py-9 xl:px-12">
       <header className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-[-0.045em] sm:text-4xl">Calendar</h1>
+          <h1 className="app-section-title">Calendar</h1>
           <p className="mt-2 hidden text-sm text-ink-600 lg:block">See what happened, spot gaps, and correct past check-ins.</p>
         </div>
         <div className="grid grid-cols-[1fr_auto_auto_auto] gap-2">

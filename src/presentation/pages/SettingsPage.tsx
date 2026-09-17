@@ -161,9 +161,9 @@ export function SettingsPage({
   ];
 
   return (
-    <div className="mobile-page-safe mx-auto max-w-[1200px] px-5 pb-7 sm:px-8 sm:py-9 xl:px-12">
+    <div className="app-content-page mobile-page-safe mx-auto max-w-[1200px] px-5 pb-7 sm:px-8 sm:py-9 xl:px-12">
       <header>
-        <h1 className="text-3xl font-bold tracking-[-0.045em] sm:text-4xl">Settings</h1>
+        <h1 className="app-section-title">Settings</h1>
         <p className="mt-2 hidden text-sm text-ink-600 lg:block">Appearance, calendar preferences, and control of your local data.</p>
       </header>
 

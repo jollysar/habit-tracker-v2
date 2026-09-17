@@ -70,10 +70,10 @@ export function AnalyticsPage({
     : "All habits";
 
   return (
-    <div className="mobile-page-safe mx-auto max-w-[1540px] px-5 pb-7 sm:px-8 sm:py-9 xl:px-12">
+    <div className="app-content-page mobile-page-safe mx-auto max-w-[1440px] px-5 pb-7 sm:px-8 sm:py-9 xl:px-12">
       <header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-[-0.045em] sm:text-4xl">Analytics</h1>
+          <h1 className="app-section-title">Analytics</h1>
           <p className="mt-2 hidden text-sm text-ink-600 lg:block">Understand consistency using your real schedule and history.</p>
         </div>
         <label className="relative w-full self-start sm:w-auto sm:self-auto">

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Plus } from "lucide-react";
 import type { TodayDashboard } from "../../application/today/buildTodayDashboard";
 import type { TodayHabit, Weekday, WeeklyGoal } from "../../domain/habits/models";
@@ -64,22 +64,69 @@ export function TodayPage({
 }: TodayPageProps) {
   const [activeView, setActiveView] = useState<HomeView>("daily");
   const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const pageRef = useRef<HTMLDivElement>(null);
+  const dateTransitionInProgress = useRef(false);
 
   const isDailyView = activeView === "daily";
   const isToday = selectedDate === localDate;
   const allHabits = dashboard.sections.flatMap((section) => section.habits);
   const remainingWeeklyGoals = Math.max(0, weeklyGoals.length - completedWeeklyGoals);
 
-  const swipeHandlers = useHorizontalDateSwipe((direction) => {
+  const changeDateWithTransition = async (direction: "previous" | "next") => {
+    if (dateTransitionInProgress.current) return;
     const interval = isDailyView ? 1 : 7;
     const offset = direction === "previous" ? -interval : interval;
-    const candidate = addDaysToLocalDateKey(selectedDate, offset);
+    let candidate = addDaysToLocalDateKey(selectedDate, offset);
     if (direction === "next" && candidate > localDate) {
-      if (selectedDate < localDate) onSelectDate(localDate);
+      if (selectedDate >= localDate) return;
+      candidate = localDate;
+    }
+
+    setDatePickerOpen(false);
+    const page = pageRef.current;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!page || reducedMotion || typeof page.animate !== "function") {
+      onSelectDate(candidate);
       return;
     }
-    onSelectDate(candidate);
-    setDatePickerOpen(false);
+
+    dateTransitionInProgress.current = true;
+    const outgoingX = direction === "previous" ? "12%" : "-12%";
+    const incomingX = direction === "previous" ? "-12%" : "12%";
+    let dateChanged = false;
+
+    try {
+      await page.animate(
+        [
+          { transform: "translate3d(0, 0, 0)", opacity: 1 },
+          { transform: `translate3d(${outgoingX}, 0, 0)`, opacity: 0.28 },
+        ],
+        { duration: 135, easing: "cubic-bezier(0.4, 0, 1, 1)", fill: "forwards" },
+      ).finished;
+
+      dateChanged = true;
+      onSelectDate(candidate);
+      await new Promise<void>((resolve) => {
+        window.requestAnimationFrame(() => window.requestAnimationFrame(() => resolve()));
+      });
+
+      await page.animate(
+        [
+          { transform: `translate3d(${incomingX}, 0, 0)`, opacity: 0.28 },
+          { transform: "translate3d(0, 0, 0)", opacity: 1 },
+        ],
+        { duration: 245, easing: "cubic-bezier(0.16, 1, 0.3, 1)", fill: "forwards" },
+      ).finished;
+    } catch {
+      if (!dateChanged) onSelectDate(candidate);
+    } finally {
+      page.getAnimations().forEach((animation) => animation.cancel());
+      dateTransitionInProgress.current = false;
+    }
+  };
+
+  const swipeHandlers = useHorizontalDateSwipe((direction) => {
+    void changeDateWithTransition(direction);
   });
 
   const renderHabit = (habit: TodayHabit) => (
@@ -98,7 +145,8 @@ export function TodayPage({
 
   return (
     <div
-      className="mx-auto max-w-[1440px] touch-pan-y px-5 pb-4 pt-[calc(max(0px,env(safe-area-inset-top,0px)-0.25rem)+0.5rem)] sm:px-8 sm:py-9 xl:px-12"
+      ref={pageRef}
+      className="app-content-page mx-auto max-w-[1440px] touch-pan-y px-5 pb-4 pt-[calc(max(0px,env(safe-area-inset-top,0px)-0.25rem)+0.5rem)] sm:px-8 sm:py-9 xl:px-12"
       {...swipeHandlers}
     >
       <header className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">

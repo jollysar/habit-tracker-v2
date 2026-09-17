@@ -27,7 +27,7 @@ export function HabitGarden({ rows }: HabitGardenProps) {
         <p className="hidden text-xs text-ink-400 sm:block">Each current streak grows its own tree.</p>
       </div>
 
-      <div className="habit-garden relative overflow-hidden rounded-3xl border border-line px-4 pb-5 pt-7 shadow-soft sm:px-6">
+      <div className="habit-garden relative overflow-hidden rounded-[1.75rem] border border-line px-4 pb-5 pt-7 sm:px-6">
         <div className="garden-horizon pointer-events-none absolute inset-x-0 bottom-0 h-[62%]" aria-hidden="true" />
         {growingRows.length === 0 ? (
           <div className="relative grid min-h-40 place-items-center text-center">

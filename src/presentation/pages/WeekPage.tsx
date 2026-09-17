@@ -119,12 +119,12 @@ export function WeekPage({
 
   return (
     <div
-      className="mobile-page-safe mx-auto max-w-[1540px] touch-pan-y px-5 pb-7 sm:px-8 sm:py-9 xl:px-12"
+      className="app-content-page mobile-page-safe mx-auto max-w-[1440px] touch-pan-y px-5 pb-7 sm:px-8 sm:py-9 xl:px-12"
       {...swipeHandlers}
     >
       <header className="lg:hidden">
         <div className="flex items-center justify-between gap-4">
-          <h1 className="min-w-0 text-2xl font-bold tracking-[-0.035em]">Week</h1>
+          <h1 className="app-section-title min-w-0">Week</h1>
           <ProgressRing percentage={dashboard.completionPercentage} minimal />
         </div>
         <p className="mt-1 text-sm font-medium text-ink-400">{dashboard.dateLabel}</p>
@@ -134,7 +134,7 @@ export function WeekPage({
       <header className="hidden flex-col gap-5 lg:flex lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="mb-2 text-sm font-medium text-ink-400">{dashboard.dateLabel}</p>
-          <h1 className="text-3xl font-bold tracking-[-0.045em] sm:text-4xl">Your week</h1>
+          <h1 className="app-section-title">Your week</h1>
           <p className="mt-2 text-sm text-ink-600">Review progress and select any past cell to correct it.</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -225,12 +225,24 @@ export function WeekPage({
           </Card>
         ) : dashboard.habits.map((row) => {
           const percentage = row.target === 0 ? 0 : Math.min(100, Math.round((row.completed / row.target) * 100));
+          const streakUnit = habitView === "weekly" ? "week" : "day";
           return (
             <Card key={row.habit.id} className="p-4 shadow-none">
               <div className="flex min-w-0 items-center justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-2.5">
-                  <span className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: row.habit.colour ?? "#777872" }} />
-                  <h2 className="truncate text-base font-bold">{row.habit.name}</h2>
+                  <span className="flex size-10 shrink-0 items-end justify-center" aria-hidden="true">
+                    <AnimatedPlant
+                      plantType={row.habit.plantType}
+                      streak={row.statistics.currentStreak}
+                      size={38}
+                    />
+                  </span>
+                  <div className="min-w-0">
+                    <h2 className="truncate text-base font-bold">{row.habit.name}</h2>
+                    <span className="sr-only">
+                      Current streak: {row.statistics.currentStreak} {row.statistics.currentStreak === 1 ? streakUnit : `${streakUnit}s`}
+                    </span>
+                  </div>
                 </div>
                 <span className="shrink-0 text-sm font-bold text-ink-600">{row.completed}/{row.target}</span>
               </div>
