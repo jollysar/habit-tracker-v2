@@ -41,6 +41,8 @@ targets:
       properties:
         LSRequiresIPhoneOS: true
         UILaunchStoryboardName: LaunchScreen
+        CFBundleDisplayName: Habitree
+        ITSAppUsesNonExemptEncryption: false
         UIRequiredDeviceCapabilities: [arm64, metal]
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait

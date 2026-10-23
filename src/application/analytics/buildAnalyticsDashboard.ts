@@ -53,6 +53,8 @@ export interface AnalyticsDashboard {
   readonly currentStreak: number;
   readonly bestStreak: number;
   readonly totalCompletions: number;
+  readonly missedCount: number;
+  readonly skippedCount: number;
   readonly weeklyPerformance: readonly AnalyticsPeriod[];
   readonly monthlyPerformance: readonly AnalyticsPeriod[];
   readonly habitPerformance: readonly HabitAnalyticsRow[];
@@ -383,6 +385,12 @@ export function buildAnalyticsDashboard(
     bestStreak: allStatistics.reduce((max, item) => Math.max(max, item.bestStreak), 0),
     totalCompletions: completions.filter((record) =>
       record.status === "completed" && selectedHabits.some((habit) => habit.id === record.habitId)
+    ).length,
+    missedCount: completions.filter((record) =>
+      record.status === "missed" && selectedHabits.some((habit) => habit.id === record.habitId)
+    ).length,
+    skippedCount: completions.filter((record) =>
+      record.status === "skipped" && selectedHabits.some((habit) => habit.id === record.habitId)
     ).length,
     weeklyPerformance,
     monthlyPerformance,

@@ -1019,7 +1019,6 @@ function App() {
           progress={progressHistory}
           localDate={localDate}
           weekStartsOn={weekStartsOn}
-          onCorrectHistory={handleCorrectHistory}
         />
       )}
 

@@ -1,0 +1,5 @@
+[advisories]
+# `rsa` is retained in Cargo.lock through sqlx-postgres metadata, but it is not
+# present in Habitree's dependency graph for iOS, macOS, Windows, or the
+# all-target graph. Habitree enables SQLite only and performs no RSA operation.
+ignore = ["RUSTSEC-2023-0071"]

@@ -97,3 +97,16 @@ for every schema change.
 
 See [`HABIT_TRACKER_PROJECT_ROADMAP.md`](./HABIT_TRACKER_PROJECT_ROADMAP.md)
 for release phases, scope boundaries and exit criteria.
+
+## Release pages and listing
+
+The static launch site lives in [`docs`](./docs) and is published by GitHub
+Pages. Once Pages is enabled with GitHub Actions as its source, the expected
+public URLs are:
+
+- `https://jollysar.github.io/habit-tracker-v2/`
+- `https://jollysar.github.io/habit-tracker-v2/privacy.html`
+- `https://jollysar.github.io/habit-tracker-v2/support.html`
+
+Draft App Store copy, privacy answers, and review notes are in
+[`APP_STORE_LISTING.md`](./APP_STORE_LISTING.md).

@@ -13,7 +13,9 @@
 		45E6800821BDCCB79C6722B5 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88CDB2DA667C10425871651B /* Security.framework */; };
 		47735A2CA28F81B9695ECA50 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F24B65AF5E3C95640465AFF0 /* Metal.framework */; };
 		971040BDF39B9FADBDA41021 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = A50A93F3CFFF84FF52E123D9 /* main.mm */; };
+		A65A48960051710AEDCCEE21 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 0C8D96B6FD01E38085EE058D /* PrivacyInfo.xcprivacy */; };
 		B9446B83F6ECC363CECB84D6 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F706367EBCFA8FE424720218 /* MetalKit.framework */; };
+		E11D9FAE2CF1330475C1CB6C /* libapp.a in Resources */ = {isa = PBXBuildFile; fileRef = F72653347C736B0625D89C57 /* libapp.a */; };
 		E4E05A53404549635A950652 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ADF810466B6CE164AC77DFF9 /* Assets.xcassets */; };
 		E52AD60BA1B2E7D1C29F5216 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DA683147B760AF0E00754137 /* LaunchScreen.storyboard */; };
 		E6BC7CB3D1F3FFC4C34BB59B /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29D24A3EFCE81C0D78B4B238 /* UIKit.framework */; };
@@ -24,7 +26,8 @@
 /* Begin PBXFileReference section */
 		0286A360E3B20460EBA255DC /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		08F18132C5B8539F5940FE29 /* libapp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libapp.a; sourceTree = "<group>"; };
-		1A17823871F2A9C726D65F18 /* Habitree.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Habitree.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0C8D96B6FD01E38085EE058D /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		1A17823871F2A9C726D65F18 /* habitree_iOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = habitree_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1F4645D4954532A198996891 /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = assets; sourceTree = SOURCE_ROOT; };
 		29D24A3EFCE81C0D78B4B238 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		3C3C4F83C147157069A9C618 /* bindings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = bindings.h; sourceTree = "<group>"; };
@@ -35,11 +38,12 @@
 		A50A93F3CFFF84FF52E123D9 /* main.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
 		ADF810466B6CE164AC77DFF9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AE9716C66BA22B3673A307B3 /* habitree_iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = habitree_iOS.entitlements; sourceTree = "<group>"; };
-		AFBB6CF43940BF03365F2DAA /* lib.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = lib.rs; sourceTree = "<group>"; };
+		AFBB6CF43940BF03365F2DAA /* lib.rs */ = {isa = PBXFileReference; path = lib.rs; sourceTree = "<group>"; };
 		DA683147B760AF0E00754137 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		F24B65AF5E3C95640465AFF0 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
-		F4388E435A1B4C850C224536 /* main.rs */ = {isa = PBXFileReference; lastKnownFileType = text; path = main.rs; sourceTree = "<group>"; };
+		F4388E435A1B4C850C224536 /* main.rs */ = {isa = PBXFileReference; path = main.rs; sourceTree = "<group>"; };
 		F706367EBCFA8FE424720218 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
+		F72653347C736B0625D89C57 /* libapp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libapp.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +65,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0C662AEFC7C88C78DEA33E3C /* debug */ = {
+			isa = PBXGroup;
+			children = (
+				F72653347C736B0625D89C57 /* libapp.a */,
+			);
+			path = debug;
+			sourceTree = "<group>";
+		};
 		140DBB9A6E814F212E1BF681 /* habitree */ = {
 			isa = PBXGroup;
 			children = (
@@ -81,7 +93,7 @@
 		86BAAA366086851E2C7FC9DD /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				1A17823871F2A9C726D65F18 /* Habitree.app */,
+				1A17823871F2A9C726D65F18 /* habitree_iOS.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -89,6 +101,7 @@
 		8B9D698BD9AF6EE5604B73CC /* Externals */ = {
 			isa = PBXGroup;
 			children = (
+				B80113EADDA1D76050C95DD8 /* arm64 */,
 			);
 			path = Externals;
 			sourceTree = "<group>";
@@ -131,11 +144,20 @@
 			path = Sources;
 			sourceTree = "<group>";
 		};
+		B80113EADDA1D76050C95DD8 /* arm64 */ = {
+			isa = PBXGroup;
+			children = (
+				0C662AEFC7C88C78DEA33E3C /* debug */,
+			);
+			path = arm64;
+			sourceTree = "<group>";
+		};
 		BA7DA564B052017CEE4DFC76 /* habitree_iOS */ = {
 			isa = PBXGroup;
 			children = (
 				AE9716C66BA22B3673A307B3 /* habitree_iOS.entitlements */,
 				850EA75C600725051CE1A870 /* Info.plist */,
+				0C8D96B6FD01E38085EE058D /* PrivacyInfo.xcprivacy */,
 			);
 			path = habitree_iOS;
 			sourceTree = "<group>";
@@ -148,6 +170,13 @@
 			);
 			name = src;
 			path = ../../src;
+			sourceTree = "<group>";
+		};
+		"TEMP_377D90D2-9982-47DD-8AC6-092572936A19" /* x86_64 */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = x86_64;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -170,7 +199,7 @@
 			packageProductDependencies = (
 			);
 			productName = habitree_iOS;
-			productReference = 1A17823871F2A9C726D65F18 /* Habitree.app */;
+			productReference = 1A17823871F2A9C726D65F18 /* habitree_iOS.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -181,6 +210,8 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+				};
 			};
 			buildConfigurationList = 723ED8ECB9A85A07F1D5DBFD /* Build configuration list for PBXProject "habitree" */;
 			developmentRegion = en;
@@ -208,7 +239,9 @@
 			files = (
 				E4E05A53404549635A950652 /* Assets.xcassets in Resources */,
 				E52AD60BA1B2E7D1C29F5216 /* LaunchScreen.storyboard in Resources */,
+				A65A48960051710AEDCCEE21 /* PrivacyInfo.xcprivacy in Resources */,
 				1728B5C2647D5F37B35D3124 /* assets in Resources */,
+				E11D9FAE2CF1330475C1CB6C /* libapp.a in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -373,12 +406,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				ARCHS = arm64;
+				ARCHS = (
+					arm64,
+				);
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = habitree_iOS/habitree_iOS.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 738Z7WRVKR;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				ENABLE_BITCODE = NO;
 				"EXCLUDED_ARCHS[sdk=iphoneos*]" = x86_64;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -390,23 +423,10 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				"LIBRARY_SEARCH_PATHS[arch=arm64]" = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Externals/arm64/$(CONFIGURATION)",
-					"$(SDKROOT)/usr/lib/swift",
-					"$(DEVELOPER_DIR)/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/$(PLATFORM_NAME)",
-					"$(DEVELOPER_DIR)/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift-5.0/$(PLATFORM_NAME)",
-				);
-				"LIBRARY_SEARCH_PATHS[arch=x86_64]" = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Externals/x86_64/$(CONFIGURATION)",
-					"$(SDKROOT)/usr/lib/swift",
-					"$(DEVELOPER_DIR)/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/$(PLATFORM_NAME)",
-					"$(DEVELOPER_DIR)/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift-5.0/$(PLATFORM_NAME)",
-				);
+				"LIBRARY_SEARCH_PATHS[arch=arm64]" = "$(inherited) $(PROJECT_DIR)/Externals/arm64/$(CONFIGURATION) $(SDKROOT)/usr/lib/swift $(DEVELOPER_DIR)/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/$(PLATFORM_NAME) $(DEVELOPER_DIR)/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift-5.0/$(PLATFORM_NAME)";
+				"LIBRARY_SEARCH_PATHS[arch=x86_64]" = "$(inherited) $(PROJECT_DIR)/Externals/x86_64/$(CONFIGURATION) $(SDKROOT)/usr/lib/swift $(DEVELOPER_DIR)/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/$(PLATFORM_NAME) $(DEVELOPER_DIR)/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift-5.0/$(PLATFORM_NAME)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.jollysar.habitree;
 				PRODUCT_NAME = "Habitree";
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = arm64;
@@ -417,12 +437,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				ARCHS = arm64;
+				ARCHS = (
+					arm64,
+				);
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = habitree_iOS/habitree_iOS.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 738Z7WRVKR;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				ENABLE_BITCODE = NO;
 				"EXCLUDED_ARCHS[sdk=iphoneos*]" = x86_64;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -434,23 +454,10 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				"LIBRARY_SEARCH_PATHS[arch=arm64]" = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Externals/arm64/$(CONFIGURATION)",
-					"$(SDKROOT)/usr/lib/swift",
-					"$(DEVELOPER_DIR)/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/$(PLATFORM_NAME)",
-					"$(DEVELOPER_DIR)/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift-5.0/$(PLATFORM_NAME)",
-				);
-				"LIBRARY_SEARCH_PATHS[arch=x86_64]" = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Externals/x86_64/$(CONFIGURATION)",
-					"$(SDKROOT)/usr/lib/swift",
-					"$(DEVELOPER_DIR)/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/$(PLATFORM_NAME)",
-					"$(DEVELOPER_DIR)/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift-5.0/$(PLATFORM_NAME)",
-				);
+				"LIBRARY_SEARCH_PATHS[arch=arm64]" = "$(inherited) $(PROJECT_DIR)/Externals/arm64/$(CONFIGURATION) $(SDKROOT)/usr/lib/swift $(DEVELOPER_DIR)/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/$(PLATFORM_NAME) $(DEVELOPER_DIR)/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift-5.0/$(PLATFORM_NAME)";
+				"LIBRARY_SEARCH_PATHS[arch=x86_64]" = "$(inherited) $(PROJECT_DIR)/Externals/x86_64/$(CONFIGURATION) $(SDKROOT)/usr/lib/swift $(DEVELOPER_DIR)/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/$(PLATFORM_NAME) $(DEVELOPER_DIR)/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift-5.0/$(PLATFORM_NAME)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.jollysar.habitree;
 				PRODUCT_NAME = "Habitree";
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = arm64;

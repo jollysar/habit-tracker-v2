@@ -9,6 +9,23 @@ permissions:
   contents: read
 
 jobs:
+  security:
+    name: Dependency security
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Audit JavaScript dependencies
+        run: npm audit --audit-level=moderate
+
+      - name: Install Rust audit tool
+        run: cargo install cargo-audit --locked
+
+      - name: Audit Rust dependencies
+        run: cargo audit --file src-tauri/Cargo.lock
+
   verify:
     name: ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
