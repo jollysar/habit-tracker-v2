@@ -27,15 +27,26 @@ export function habitRowSwipeAction(
 
 interface HabitRowGestureOptions {
   readonly onLongPress: () => void;
+  readonly onReorderStart?: () => void;
+  readonly onReorderMove?: (point: TouchPoint) => void;
+  readonly onReorderEnd?: () => void;
 }
 
-export function useHabitRowGestures({ onLongPress }: HabitRowGestureOptions) {
+export function useHabitRowGestures({
+  onLongPress,
+  onReorderStart,
+  onReorderMove,
+  onReorderEnd,
+}: HabitRowGestureOptions) {
   const [deleteRevealed, setDeleteRevealed] = useState(false);
   const [longPressActive, setLongPressActive] = useState(false);
+  const [reordering, setReordering] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const startPoint = useRef<TouchPoint | undefined>(undefined);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const longPressTriggered = useRef(false);
+  const longPressArmed = useRef(false);
+  const reorderTriggered = useRef(false);
   const suppressNextClick = useRef(false);
   const suppressionTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const onLongPressRef = useRef(onLongPress);
@@ -81,15 +92,14 @@ export function useHabitRowGestures({ onLongPress }: HabitRowGestureOptions) {
     if (!touch) return;
     startPoint.current = { x: touch.clientX, y: touch.clientY };
     longPressTriggered.current = false;
+    longPressArmed.current = false;
+    reorderTriggered.current = false;
     setLongPressActive(true);
     clearLongPress();
     longPressTimer.current = setTimeout(() => {
-      longPressTriggered.current = true;
-      brieflySuppressClick();
+      longPressArmed.current = true;
       setDeleteRevealed(false);
-      setLongPressActive(false);
       void playHaptic("longPress");
-      onLongPressRef.current();
     }, LONG_PRESS_DELAY);
   };
 
@@ -97,6 +107,19 @@ export function useHabitRowGestures({ onLongPress }: HabitRowGestureOptions) {
     const start = startPoint.current;
     const touch = event.touches[0];
     if (!start || !touch) return;
+    if (longPressArmed.current && onReorderStart && onReorderMove) {
+      if (!reorderTriggered.current) {
+        reorderTriggered.current = true;
+        longPressTriggered.current = true;
+        brieflySuppressClick();
+        setLongPressActive(false);
+        setReordering(true);
+        onReorderStart();
+      }
+      if (event.cancelable) event.preventDefault();
+      onReorderMove({ x: touch.clientX, y: touch.clientY });
+      return;
+    }
     if (
       Math.abs(touch.clientX - start.x) > LONG_PRESS_MOVE_TOLERANCE
       || Math.abs(touch.clientY - start.y) > LONG_PRESS_MOVE_TOLERANCE
@@ -112,6 +135,20 @@ export function useHabitRowGestures({ onLongPress }: HabitRowGestureOptions) {
     const start = startPoint.current;
     startPoint.current = undefined;
     const touch = event.changedTouches[0];
+    if (reorderTriggered.current) {
+      setReordering(false);
+      reorderTriggered.current = false;
+      longPressArmed.current = false;
+      onReorderEnd?.();
+      return;
+    }
+    if (longPressArmed.current) {
+      longPressTriggered.current = true;
+      longPressArmed.current = false;
+      brieflySuppressClick();
+      onLongPressRef.current();
+      return;
+    }
     if (!start || !touch || longPressTriggered.current) return;
     const action = habitRowSwipeAction(start, { x: touch.clientX, y: touch.clientY });
     if (!action) return;
@@ -124,6 +161,10 @@ export function useHabitRowGestures({ onLongPress }: HabitRowGestureOptions) {
     setLongPressActive(false);
     startPoint.current = undefined;
     longPressTriggered.current = false;
+    longPressArmed.current = false;
+    if (reorderTriggered.current) onReorderEnd?.();
+    reorderTriggered.current = false;
+    setReordering(false);
   };
 
   const onClickCapture = (event: MouseEvent<HTMLDivElement>) => {
@@ -144,6 +185,7 @@ export function useHabitRowGestures({ onLongPress }: HabitRowGestureOptions) {
     rootRef,
     deleteRevealed,
     longPressActive,
+    reordering,
     closeDelete: () => setDeleteRevealed(false),
     onTouchStart,
     onTouchMove,

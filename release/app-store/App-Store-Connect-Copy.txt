@@ -1,0 +1,91 @@
+HABITREE — APP STORE CONNECT COPY
+
+App name
+Habitree: Grow Your Habits
+
+Subtitle
+Grow your habits daily
+
+Promotional text
+Build routines that feel alive. Complete daily and weekly habits, grow your plants, and turn consistency into a garden—all with private, local-first tracking.
+
+Description
+Habitree makes consistency visible.
+
+Create daily habits and flexible weekly goals, then watch each streak grow from a seed into a tree. The calm, focused design keeps today’s priorities clear without turning self-improvement into another source of noise.
+
+• Track daily check-offs and weekly goals
+• Grow a plant as each streak develops
+• Review your week, calendar, monthly progress, and long-term patterns
+• Schedule thoughtful on-device reminders
+• Choose your appearance, accent colour, and first day of the week
+• Back up and restore your data when you choose
+• Keep your habit data on your device—no account, advertising, or behavioural tracking
+
+Habitree is a general productivity tool and does not provide medical advice.
+
+Keywords
+habits,routine,goals,streaks,daily,weekly,productivity,self care,tracker,growth
+
+Support URL
+https://jollysar.github.io/habit-tracker-v2/support.html
+
+Marketing URL
+https://jollysar.github.io/habit-tracker-v2/
+
+Privacy Policy URL
+https://jollysar.github.io/habit-tracker-v2/privacy.html
+
+Version
+1.0
+
+Copyright
+2026 Sar Gaur
+
+Only use “2026 Sar Gaur” if Sar Gaur exactly matches the legal seller name on the Apple Developer account. Otherwise replace it with the exact legal name shown there.
+
+Routing App Coverage File
+Leave empty. Habitree is not a routing or navigation app.
+
+iMessage App screenshots
+Leave empty. Habitree does not use the Messages framework. Upload the supplied images in the normal iOS App screenshots section instead.
+
+Build and export compliance
+Upload the signed Release archive from Xcode Organizer, then select that processed build in App Store Connect. Habitree declares that it does not use non-exempt encryption, so no routing file or encryption document should be required for the current build.
+
+SCREENSHOT ORDER
+
+1. Today and growing streaks
+2. Weekly habits
+3. Garden
+4. Calendar and monthly analytics
+5. Patterns
+6. Private, local-first settings
+
+iPhone files are 1206 × 2622 pixels (Dynamic Island medium display).
+iPhone Duo files are 2007 × 2853 pixels (inner display).
+iPad files are 2064 × 2752 pixels.
+
+APP PREVIEWS (OPTIONAL)
+
+iPhone preview
+habitree-iphone-preview-886x1920.mp4
+886 × 1920 pixels, H.264, 30 fps, 18 seconds
+
+iPad preview
+habitree-ipad-preview-1200x1600.mp4
+1200 × 1600 pixels, H.264, 30 fps, 18 seconds
+
+The five-second poster frame highlights the Habitree garden. Upload these in the normal App Previews and Screenshots section, before the screenshots.
+
+SEARCH RESULTS CREATIVE ASSET (OPTIONAL)
+
+Dedicated search asset
+habitree-search-results-3840x2560.png
+3840 × 2560 pixels, 3:2, no transparency
+
+Universal header and search alternative
+habitree-universal-header-search-5244x2950.png
+5244 × 2950 pixels, 16:9, no transparency
+
+Use the dedicated 3:2 image in the Search Results placement. The universal alternative may be used for both Product Page Header and Search Results if App Store Connect offers “Use header asset in search results.”

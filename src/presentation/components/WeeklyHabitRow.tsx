@@ -13,9 +13,22 @@ interface WeeklyHabitRowProps {
   readonly onEdit: () => void;
   readonly onDelete: () => void;
   readonly onViewStreakHistory: () => void;
+  readonly onReorderStart?: () => void;
+  readonly onReorderMove?: (point: { readonly x: number; readonly y: number }) => void;
+  readonly onReorderEnd?: () => void;
 }
 
-export function WeeklyHabitRow({ habit, goal, onSaveValue, onEdit, onDelete, onViewStreakHistory }: WeeklyHabitRowProps) {
+export function WeeklyHabitRow({
+  habit,
+  goal,
+  onSaveValue,
+  onEdit,
+  onDelete,
+  onViewStreakHistory,
+  onReorderStart,
+  onReorderMove,
+  onReorderEnd,
+}: WeeklyHabitRowProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(String(goal.completed));
   const [error, setError] = useState("");
@@ -24,7 +37,12 @@ export function WeeklyHabitRow({ habit, goal, onSaveValue, onEdit, onDelete, onV
   const menuRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const requiresWholeNumber = habit.schedule?.type === "weekly_frequency";
-  const gestures = useHabitRowGestures({ onLongPress: () => setMenuOpen(true) });
+  const gestures = useHabitRowGestures({
+    onLongPress: () => setMenuOpen(true),
+    onReorderStart,
+    onReorderMove,
+    onReorderEnd,
+  });
 
   useEffect(() => {
     if (!editing) setDraft(String(goal.completed));
@@ -86,10 +104,13 @@ export function WeeklyHabitRow({ habit, goal, onSaveValue, onEdit, onDelete, onV
       className={cn(
         "habit-gesture-row group relative rounded-[1.75rem] transition-transform duration-200",
         gestures.longPressActive && "is-long-pressing",
+        gestures.reordering && "is-reordering",
         menuOpen && "z-50",
         menuOpen ? "overflow-visible" : "overflow-hidden lg:overflow-visible",
       )}
       data-habit-row
+      data-habit-id={habit.id}
+      aria-grabbed={gestures.reordering}
       onTouchStart={gestures.onTouchStart}
       onTouchMove={gestures.onTouchMove}
       onTouchEnd={gestures.onTouchEnd}

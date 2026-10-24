@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Plus } from "lucide-react";
 import type { TodayDashboard } from "../../application/today/buildTodayDashboard";
 import type { TodayHabit, Weekday, WeeklyGoal } from "../../domain/habits/models";
@@ -12,6 +12,7 @@ import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { handleRovingTabKey } from "../hooks/rovingTabs";
 import { useHorizontalDateSwipe } from "../hooks/useHorizontalDateSwipe";
+import { moveHabitId } from "../hooks/reorderHabitIds";
 import { addDaysToLocalDateKey } from "../../application/dates/localDate";
 
 type HomeView = "daily" | "weekly";
@@ -37,6 +38,7 @@ interface TodayPageProps {
   readonly onDeleteHabit: (habitId: string) => void;
   readonly onLogProgress: (habitId: string) => void;
   readonly onSaveWeeklyValue: (habitId: string, value: number) => void;
+  readonly onReorderHabits: (orderedHabitIds: readonly string[]) => void;
   readonly onViewWeek: (view: HomeView) => void;
 }
 
@@ -60,17 +62,103 @@ export function TodayPage({
   onDeleteHabit,
   onLogProgress,
   onSaveWeeklyValue,
+  onReorderHabits,
   onViewWeek,
 }: TodayPageProps) {
   const [activeView, setActiveView] = useState<HomeView>("daily");
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const pageRef = useRef<HTMLDivElement>(null);
   const dateTransitionInProgress = useRef(false);
+  const [dailyOrder, setDailyOrder] = useState<readonly string[]>([]);
+  const [weeklyOrder, setWeeklyOrder] = useState<readonly string[]>([]);
+  const draggingHabitId = useRef<string | undefined>(undefined);
+  const draggingLane = useRef<HomeView | undefined>(undefined);
+  const dailyOrderRef = useRef<readonly string[]>([]);
+  const weeklyOrderRef = useRef<readonly string[]>([]);
 
   const isDailyView = activeView === "daily";
   const isToday = selectedDate === localDate;
-  const allHabits = dashboard.sections.flatMap((section) => section.habits);
+  const allHabits = useMemo(
+    () => dashboard.sections.flatMap((section) => section.habits),
+    [dashboard.sections],
+  );
   const remainingWeeklyGoals = Math.max(0, weeklyGoals.length - completedWeeklyGoals);
+
+  useEffect(() => {
+    if (draggingLane.current === "daily") return;
+    setDailyOrder((current) => {
+      const ids = allHabits.map((habit) => habit.id);
+      const retained = current.filter((id) => ids.includes(id));
+      const added = ids.filter((id) => !retained.includes(id));
+      const next = [...retained, ...added];
+      if (next.length === current.length && next.every((id, index) => id === current[index])) {
+        dailyOrderRef.current = current;
+        return current;
+      }
+      dailyOrderRef.current = next;
+      return next;
+    });
+  }, [allHabits]);
+
+  useEffect(() => {
+    if (draggingLane.current === "weekly") return;
+    setWeeklyOrder((current) => {
+      const ids = weeklyHabits.map((habit) => habit.id);
+      const retained = current.filter((id) => ids.includes(id));
+      const added = ids.filter((id) => !retained.includes(id));
+      const next = [...retained, ...added];
+      if (next.length === current.length && next.every((id, index) => id === current[index])) {
+        weeklyOrderRef.current = current;
+        return current;
+      }
+      weeklyOrderRef.current = next;
+      return next;
+    });
+  }, [weeklyHabits]);
+
+  const orderedDailyHabits = useMemo(() => {
+    const positions = new Map(dailyOrder.map((id, index) => [id, index]));
+    return [...allHabits].sort((a, b) => (positions.get(a.id) ?? Number.MAX_SAFE_INTEGER) - (positions.get(b.id) ?? Number.MAX_SAFE_INTEGER));
+  }, [allHabits, dailyOrder]);
+  const orderedWeeklyHabits = useMemo(() => {
+    const positions = new Map(weeklyOrder.map((id, index) => [id, index]));
+    return [...weeklyHabits].sort((a, b) => (positions.get(a.id) ?? Number.MAX_SAFE_INTEGER) - (positions.get(b.id) ?? Number.MAX_SAFE_INTEGER));
+  }, [weeklyHabits, weeklyOrder]);
+
+  const startReordering = (habitId: string, lane: HomeView) => {
+    draggingHabitId.current = habitId;
+    draggingLane.current = lane;
+  };
+
+  const moveReorderingHabit = (point: { readonly x: number; readonly y: number }) => {
+    const movingId = draggingHabitId.current;
+    const lane = draggingLane.current;
+    if (!movingId || !lane) return;
+    const target = document.elementFromPoint(point.x, point.y)?.closest<HTMLElement>("[data-habit-id]");
+    const targetId = target?.dataset.habitId;
+    if (!targetId) return;
+    if (lane === "daily") {
+      setDailyOrder((current) => {
+        const next = moveHabitId(current, movingId, targetId);
+        dailyOrderRef.current = next;
+        return next;
+      });
+    } else {
+      setWeeklyOrder((current) => {
+        const next = moveHabitId(current, movingId, targetId);
+        weeklyOrderRef.current = next;
+        return next;
+      });
+    }
+  };
+
+  const finishReordering = () => {
+    const lane = draggingLane.current;
+    draggingHabitId.current = undefined;
+    draggingLane.current = undefined;
+    if (lane === "daily") onReorderHabits(dailyOrderRef.current);
+    if (lane === "weekly") onReorderHabits(weeklyOrderRef.current);
+  };
 
   const changeDateWithTransition = async (direction: "previous" | "next") => {
     if (dateTransitionInProgress.current) return;
@@ -78,7 +166,11 @@ export function TodayPage({
     const offset = direction === "previous" ? -interval : interval;
     let candidate = addDaysToLocalDateKey(selectedDate, offset);
     if (direction === "next" && candidate > localDate) {
-      if (selectedDate >= localDate) return;
+      if (selectedDate >= localDate) {
+        pageRef.current?.style.removeProperty("transform");
+        pageRef.current?.style.removeProperty("opacity");
+        return;
+      }
       candidate = localDate;
     }
 
@@ -86,6 +178,10 @@ export function TodayPage({
     const page = pageRef.current;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (!page || reducedMotion || typeof page.animate !== "function") {
+      if (page) {
+        page.style.transform = "";
+        page.style.opacity = "";
+      }
       onSelectDate(candidate);
       return;
     }
@@ -93,15 +189,19 @@ export function TodayPage({
     dateTransitionInProgress.current = true;
     const outgoingX = direction === "previous" ? "12%" : "-12%";
     const incomingX = direction === "previous" ? "-12%" : "12%";
+    const startingTransform = page.style.transform || "translate3d(0, 0, 0)";
+    const startingOpacity = page.style.opacity ? Number(page.style.opacity) : 1;
+    page.style.transform = "";
+    page.style.opacity = "";
     let dateChanged = false;
 
     try {
       await page.animate(
         [
-          { transform: "translate3d(0, 0, 0)", opacity: 1 },
-          { transform: `translate3d(${outgoingX}, 0, 0)`, opacity: 0.28 },
+          { transform: startingTransform, opacity: startingOpacity },
+          { transform: `translate3d(${outgoingX}, 0, 0)`, opacity: 0.72 },
         ],
-        { duration: 135, easing: "cubic-bezier(0.4, 0, 1, 1)", fill: "forwards" },
+        { duration: 170, easing: "cubic-bezier(0.32, 0, 0.67, 0)", fill: "forwards" },
       ).finished;
 
       dateChanged = true;
@@ -112,22 +212,49 @@ export function TodayPage({
 
       await page.animate(
         [
-          { transform: `translate3d(${incomingX}, 0, 0)`, opacity: 0.28 },
+          { transform: `translate3d(${incomingX}, 0, 0)`, opacity: 0.72 },
           { transform: "translate3d(0, 0, 0)", opacity: 1 },
         ],
-        { duration: 245, easing: "cubic-bezier(0.16, 1, 0.3, 1)", fill: "forwards" },
+        { duration: 270, easing: "cubic-bezier(0.16, 1, 0.3, 1)", fill: "forwards" },
       ).finished;
     } catch {
       if (!dateChanged) onSelectDate(candidate);
     } finally {
       page.getAnimations().forEach((animation) => animation.cancel());
+      page.style.transform = "";
+      page.style.opacity = "";
       dateTransitionInProgress.current = false;
     }
   };
 
-  const swipeHandlers = useHorizontalDateSwipe((direction) => {
-    void changeDateWithTransition(direction);
-  });
+  const settleSwipePreview = () => {
+    const page = pageRef.current;
+    if (!page || !page.style.transform || dateTransitionInProgress.current) return;
+    const startingTransform = page.style.transform;
+    const startingOpacity = page.style.opacity ? Number(page.style.opacity) : 1;
+    page.style.transform = "";
+    page.style.opacity = "";
+    const animation = page.animate(
+      [
+        { transform: startingTransform, opacity: startingOpacity },
+        { transform: "translate3d(0, 0, 0)", opacity: 1 },
+      ],
+      { duration: 180, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+    );
+    void animation.finished.catch(() => undefined).finally(() => animation.cancel());
+  };
+
+  const swipeHandlers = useHorizontalDateSwipe(
+    (direction) => { void changeDateWithTransition(direction); },
+    (horizontalDistance) => {
+      const page = pageRef.current;
+      if (!page || dateTransitionInProgress.current) return;
+      const travel = Math.max(-76, Math.min(76, horizontalDistance * 0.34));
+      page.style.transform = `translate3d(${travel}px, 0, 0)`;
+      page.style.opacity = String(1 - Math.min(0.12, Math.abs(travel) / 640));
+    },
+    settleSwipePreview,
+  );
 
   const renderHabit = (habit: TodayHabit) => (
     <HabitRow
@@ -140,6 +267,9 @@ export function TodayPage({
       onDelete={() => onDeleteHabit(habit.id)}
       onLogProgress={() => onLogProgress(habit.id)}
       onViewStreakHistory={() => onViewWeek("daily")}
+      onReorderStart={() => startReordering(habit.id, "daily")}
+      onReorderMove={moveReorderingHabit}
+      onReorderEnd={finishReordering}
     />
   );
 
@@ -286,7 +416,7 @@ export function TodayPage({
           {isDailyView ? (
             <section aria-label="Today’s habits" role="tabpanel">
               <div className="space-y-2">
-                {allHabits.map((habit) => (
+                {orderedDailyHabits.map((habit) => (
                   <Card key={habit.id} className="habit-card overflow-visible rounded-[1.75rem] shadow-none">
                     {renderHabit(habit)}
                   </Card>
@@ -304,7 +434,7 @@ export function TodayPage({
                 </Card>
               ) : (
                 <div className="space-y-2">
-                  {weeklyHabits.map((habit) => {
+                  {orderedWeeklyHabits.map((habit) => {
                   const goal = weeklyGoals.find((candidate) => candidate.id === habit.id);
                   return goal ? (
                     <Card key={habit.id} className="habit-card overflow-visible rounded-[1.75rem] shadow-none">
@@ -315,6 +445,9 @@ export function TodayPage({
                         onEdit={() => onEditHabit(habit.id)}
                         onDelete={() => onDeleteHabit(habit.id)}
                         onViewStreakHistory={() => onViewWeek("weekly")}
+                        onReorderStart={() => startReordering(habit.id, "weekly")}
+                        onReorderMove={moveReorderingHabit}
+                        onReorderEnd={finishReordering}
                       />
                     </Card>
                   ) : null;

@@ -43,6 +43,7 @@ interface AppShellProps {
   readonly activeSection: AppSection;
   readonly onNavigate: (section: AppSection) => void;
   readonly onAddHabit: () => void;
+  readonly overlayOpen?: boolean;
   readonly children: ReactNode;
 }
 
@@ -50,6 +51,7 @@ export function AppShell({
   activeSection,
   onNavigate,
   onAddHabit,
+  overlayOpen = false,
   children,
 }: AppShellProps) {
   useGlobalHaptics();
@@ -223,7 +225,7 @@ export function AppShell({
       <nav
         className={cn(
           "mobile-bottom-nav fixed inset-x-3 z-50 mx-auto max-w-md items-center justify-between gap-0.5 rounded-[1.65rem] border border-line bg-surface/95 px-2 py-2 shadow-[0_12px_36px_rgba(20,20,18,0.22)] backdrop-blur-xl lg:hidden",
-          mobileKeyboardOpen ? "hidden" : "flex",
+          mobileKeyboardOpen || overlayOpen ? "hidden" : "flex",
         )}
         aria-label="Primary navigation"
       >

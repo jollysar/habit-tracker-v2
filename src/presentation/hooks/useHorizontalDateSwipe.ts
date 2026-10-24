@@ -23,14 +23,19 @@ export function horizontalSwipeDirection(
 }
 
 export function shouldHandleDateSwipe(
-  direction: SwipeDirection,
+  _direction: SwipeDirection,
   startedOnHabitRow: boolean,
 ): boolean {
-  return !(startedOnHabitRow && direction === "next");
+  return !startedOnHabitRow;
 }
 
-export function useHorizontalDateSwipe(onSwipe: (direction: SwipeDirection) => void): {
+export function useHorizontalDateSwipe(
+  onSwipe: (direction: SwipeDirection) => void,
+  onProgress?: (horizontalDistance: number) => void,
+  onCancel?: () => void,
+): {
   readonly onTouchStart: TouchEventHandler<HTMLDivElement>;
+  readonly onTouchMove: TouchEventHandler<HTMLDivElement>;
   readonly onTouchEnd: TouchEventHandler<HTMLDivElement>;
   readonly onTouchCancel: TouchEventHandler<HTMLDivElement>;
 } {
@@ -49,6 +54,17 @@ export function useHorizontalDateSwipe(onSwipe: (direction: SwipeDirection) => v
     startedOnHabitRow.current = Boolean(target.closest("[data-habit-row]"));
   };
 
+  const onTouchMove: TouchEventHandler<HTMLDivElement> = (event) => {
+    const start = touchStart.current;
+    const touch = event.touches[0];
+    if (!start || !touch || startedOnHabitRow.current) return;
+    const horizontalDistance = touch.clientX - start.x;
+    const verticalDistance = touch.clientY - start.y;
+    if (Math.abs(horizontalDistance) < 8) return;
+    if (Math.abs(horizontalDistance) < Math.abs(verticalDistance) * 1.15) return;
+    onProgress?.(horizontalDistance);
+  };
+
   const onTouchEnd: TouchEventHandler<HTMLDivElement> = (event) => {
     const start = touchStart.current;
     touchStart.current = undefined;
@@ -58,12 +74,14 @@ export function useHorizontalDateSwipe(onSwipe: (direction: SwipeDirection) => v
     if (!start || !touch) return;
     const direction = horizontalSwipeDirection(start, { x: touch.clientX, y: touch.clientY });
     if (direction && shouldHandleDateSwipe(direction, wasHabitRow)) onSwipe(direction);
+    else if (!wasHabitRow) onCancel?.();
   };
 
   const onTouchCancel: TouchEventHandler<HTMLDivElement> = () => {
     touchStart.current = undefined;
     startedOnHabitRow.current = false;
+    onCancel?.();
   };
 
-  return { onTouchStart, onTouchEnd, onTouchCancel };
+  return { onTouchStart, onTouchMove, onTouchEnd, onTouchCancel };
 }

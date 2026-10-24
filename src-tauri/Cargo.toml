@@ -1,6 +1,6 @@
 [package]
 name = "habitree"
-version = "0.1.0"
+version = "1.0.0"
 description = "Habitree: Grow your habits."
 authors = ["jollysar <sargaur03@gmail.com>"]
 homepage = "https://github.com/jollysar/habit-tracker-v2"

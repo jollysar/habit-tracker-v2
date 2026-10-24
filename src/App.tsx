@@ -71,6 +71,7 @@ import {
 } from "./infrastructure/native/notifications";
 import { DeleteHabitDialog } from "./presentation/components/DeleteHabitDialog";
 import { ProgressDialog } from "./presentation/components/ProgressDialog";
+import { NotificationOnboardingDialog } from "./presentation/components/NotificationOnboardingDialog";
 import {
   HabitDialog,
   type HabitDraft,
@@ -83,6 +84,7 @@ import { TodayPage } from "./presentation/pages/TodayPage";
 import { WeekPage, type WeekHabitView } from "./presentation/pages/WeekPage";
 
 type WeekStart = "mon" | "sun";
+const NOTIFICATION_ONBOARDING_KEY = "notification_onboarding_complete";
 
 function getInitialThemePreference(): ThemePreference {
   const savedTheme = localStorage.getItem("habit-tracker-theme");
@@ -228,6 +230,7 @@ function App() {
   const [localDate, setLocalDate] = useState(() => toLocalDateKey(new Date()));
   const [selectedHomeDate, setSelectedHomeDate] = useState(localDate);
   const localDateRef = useRef(localDate);
+  const notificationOnboardingHandled = useRef(false);
   const notificationPlanRef = useRef<readonly PlannedNotification[]>([]);
   const [habits, setHabits] = useState<readonly TodayHabit[]>(
     () => createDemoManagedHabits(localDate),
@@ -258,6 +261,7 @@ function App() {
   const [habitToDeleteId, setHabitToDeleteId] = useState<string | null>(null);
   const [habitToLogId, setHabitToLogId] = useState<string | null>(null);
   const [dataError, setDataError] = useState<string | null>(null);
+  const [notificationOnboardingOpen, setNotificationOnboardingOpen] = useState(false);
 
   const todayHabitLanes = useMemo(
     () => splitTodayHabits(habits),
@@ -379,7 +383,13 @@ function App() {
           setProgressHistory(saved.progress);
           setSavedSettings(saved.settings);
           setReminders(saved.reminders);
-          setNotificationPreferences(notificationPreferencesFromSettings(saved.settings));
+          const savedNotificationPreferences = notificationPreferencesFromSettings(saved.settings);
+          setNotificationPreferences(savedNotificationPreferences);
+          setNotificationOnboardingOpen(
+            !notificationOnboardingHandled.current
+              && saved.settings[NOTIFICATION_ONBOARDING_KEY] !== "true"
+              && !savedNotificationPreferences.enabled,
+          );
           setWeeklyProgress(saved.weeklyProgress);
           if (
             saved.settings.theme === "system" ||
@@ -420,6 +430,13 @@ function App() {
     setHabitDialog({ mode: "add" });
   };
 
+  const navigateToSection = (section: AppSection) => {
+    setHabitDialog(null);
+    setHabitToDeleteId(null);
+    setHabitToLogId(null);
+    setActiveSection(section);
+  };
+
   useEffect(() => {
     const sectionShortcuts: Record<string, AppSection> = {
       "1": "today",
@@ -442,7 +459,7 @@ function App() {
       const section = sectionShortcuts[event.key];
       if (section) {
         event.preventDefault();
-        setActiveSection(section);
+        navigateToSection(section);
       }
     };
 
@@ -718,6 +735,36 @@ function App() {
     persistSetting(settingKey, String(normalizedValue));
   };
 
+  const handleReorderHabits = (orderedVisibleIds: readonly string[]) => {
+    if (orderedVisibleIds.length < 2) return;
+    const visible = new Set(orderedVisibleIds);
+    const active = [...managedHabits]
+      .filter((habit) => !habit.isArchived)
+      .sort((a, b) => a.sortOrder - b.sortOrder);
+    let visibleIndex = 0;
+    const mergedIds = active.map((habit) =>
+      visible.has(habit.id) ? orderedVisibleIds[visibleIndex++] ?? habit.id : habit.id
+    );
+    const positions = new Map(mergedIds.map((id, index) => [id, index]));
+
+    setManagedHabits((current) => current.map((habit) => ({
+      ...habit,
+      sortOrder: positions.get(habit.id) ?? habit.sortOrder,
+    })).sort((a, b) => a.sortOrder - b.sortOrder));
+    setHabits((current) => [...current].sort(
+      (a, b) => (positions.get(a.id) ?? Number.MAX_SAFE_INTEGER) - (positions.get(b.id) ?? Number.MAX_SAFE_INTEGER),
+    ));
+
+    if (habitRepository) {
+      void habitRepository.reorderHabits(mergedIds)
+        .then(refreshPersistentData)
+        .catch((error) => recoverFromPersistenceFailure(
+          "The habit order could not be saved. Your saved order has been restored.",
+          error,
+        ));
+    }
+  };
+
   const archiveHabit = (habitId: string, errorMessage: string) => {
     setHabits((current) => deleteHabit(current, habitId));
     setManagedHabits((current) => current.map((habit) =>
@@ -798,6 +845,20 @@ function App() {
       NOTIFICATION_SETTINGS_KEY,
       serializeNotificationPreferences(preferences),
     );
+    return true;
+  };
+
+  const finishNotificationOnboarding = async (enable: boolean): Promise<boolean> => {
+    if (enable) {
+      const applied = await handleNotificationPreferencesChange({
+        ...notificationPreferences,
+        enabled: true,
+      });
+      if (!applied) return false;
+    }
+    notificationOnboardingHandled.current = true;
+    persistSetting(NOTIFICATION_ONBOARDING_KEY, "true");
+    setNotificationOnboardingOpen(false);
     return true;
   };
 
@@ -952,8 +1013,9 @@ function App() {
   return (
     <AppShell
       activeSection={activeSection}
-      onNavigate={setActiveSection}
+      onNavigate={navigateToSection}
       onAddHabit={openAddHabit}
+      overlayOpen={notificationOnboardingOpen || habitDialog !== null || habitToDeleteId !== null || habitToLogId !== null}
     >
       {dataError && (
         <div
@@ -989,6 +1051,7 @@ function App() {
           onDeleteHabit={requestDeleteHabit}
           onLogProgress={setHabitToLogId}
           onSaveWeeklyValue={handleSaveWeeklyValue}
+          onReorderHabits={handleReorderHabits}
           onViewWeek={(view) => {
             setWeekHabitView(view);
             setActiveSection("week");
@@ -1043,12 +1106,10 @@ function App() {
           completionCount={completionHistory.length}
           scheduleCount={scheduleHistory.length}
           confirmBeforeDelete={confirmBeforeDelete}
-          notificationPreferences={notificationPreferences}
           onThemeChange={handleThemePreferenceChange}
           onAppToneChange={handleAppToneChange}
           onWeekStartsOnChange={handleWeekStartChange}
           onConfirmBeforeDeleteChange={handleConfirmBeforeDeleteChange}
-          onNotificationPreferencesChange={handleNotificationPreferencesChange}
           onExport={handleExport}
           onBackup={handleBackup}
           onRestore={chooseAndStageDatabaseRestore}
@@ -1063,6 +1124,11 @@ function App() {
         reminder={editingHabit ? reminders.find((item) => item.habitId === editingHabit.id) : undefined}
         onClose={() => setHabitDialog(null)}
         onSave={handleSaveHabit}
+      />
+      <NotificationOnboardingDialog
+        open={notificationOnboardingOpen && habitDialog === null}
+        onEnable={() => finishNotificationOnboarding(true)}
+        onNotNow={() => { void finishNotificationOnboarding(false); }}
       />
       <DeleteHabitDialog
         habit={habitToDelete}

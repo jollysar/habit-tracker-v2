@@ -12,9 +12,10 @@ describe("horizontalSwipeDirection", () => {
     expect(horizontalSwipeDirection({ x: 20, y: 100 }, { x: 90, y: 180 })).toBeUndefined();
   });
 
-  it("reserves a habit-row left swipe for delete but allows right swipe date navigation", () => {
+  it("reserves every swipe that begins on a habit row for row interactions", () => {
     expect(shouldHandleDateSwipe("next", true)).toBe(false);
-    expect(shouldHandleDateSwipe("previous", true)).toBe(true);
+    expect(shouldHandleDateSwipe("previous", true)).toBe(false);
     expect(shouldHandleDateSwipe("next", false)).toBe(true);
+    expect(shouldHandleDateSwipe("previous", false)).toBe(true);
   });
 });

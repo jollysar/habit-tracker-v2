@@ -14,9 +14,24 @@ interface HabitRowProps {
   readonly onDelete: () => void;
   readonly onLogProgress: () => void;
   readonly onViewStreakHistory: () => void;
+  readonly onReorderStart?: () => void;
+  readonly onReorderMove?: (point: { readonly x: number; readonly y: number }) => void;
+  readonly onReorderEnd?: () => void;
 }
 
-export function HabitRow({ habit, onToggle, onEdit, onSkip, onReset, onDelete, onLogProgress, onViewStreakHistory }: HabitRowProps) {
+export function HabitRow({
+  habit,
+  onToggle,
+  onEdit,
+  onSkip,
+  onReset,
+  onDelete,
+  onLogProgress,
+  onViewStreakHistory,
+  onReorderStart,
+  onReorderMove,
+  onReorderEnd,
+}: HabitRowProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [completionPulse, setCompletionPulse] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -27,7 +42,12 @@ export function HabitRow({ habit, onToggle, onEdit, onSkip, onReset, onDelete, o
   const progress = hasProgress
     ? Math.min(100, Math.round(((habit.value ?? 0) / habit.targetValue!) * 100))
     : 0;
-  const gestures = useHabitRowGestures({ onLongPress: () => setMenuOpen(true) });
+  const gestures = useHabitRowGestures({
+    onLongPress: () => setMenuOpen(true),
+    onReorderStart,
+    onReorderMove,
+    onReorderEnd,
+  });
   const wasComplete = useRef(isComplete);
 
   useEffect(() => {
@@ -69,10 +89,13 @@ export function HabitRow({ habit, onToggle, onEdit, onSkip, onReset, onDelete, o
       className={cn(
         "habit-gesture-row group relative rounded-[1.75rem] transition-transform duration-200",
         gestures.longPressActive && "is-long-pressing",
+        gestures.reordering && "is-reordering",
         menuOpen && "z-50",
         menuOpen ? "overflow-visible" : "overflow-hidden lg:overflow-visible",
       )}
       data-habit-row
+      data-habit-id={habit.id}
+      aria-grabbed={gestures.reordering}
       onTouchStart={gestures.onTouchStart}
       onTouchMove={gestures.onTouchMove}
       onTouchEnd={gestures.onTouchEnd}

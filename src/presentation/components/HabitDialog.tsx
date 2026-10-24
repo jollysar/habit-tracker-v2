@@ -57,7 +57,7 @@ const colours = ["#73bd8c", "#62a5d8", "#9c7bd8", "#d99a63", "#d86f7f", "#7c8b9b
 const icons = ["check", "heart", "book", "activity", "droplet", "sparkles"];
 
 const inputClass =
-  "mt-1.5 h-10 w-full rounded-full border border-line bg-surface px-3 text-sm text-ink-950 outline-none transition focus:border-leaf-500 focus:ring-2 focus:ring-leaf-100";
+  "mt-1.5 h-11 w-full rounded-full border border-line bg-surface px-3 text-base text-ink-950 outline-none transition focus:border-leaf-500 focus:ring-2 focus:ring-leaf-100 sm:h-10 sm:text-sm";
 
 const scheduleOptions = [
   ["daily", "Every day", "A daily check-in"],
@@ -139,6 +139,7 @@ export function HabitDialog({
 
   useEffect(() => {
     if (!open || (!habit && !creationCadence)) return;
+    if (!window.matchMedia("(min-width: 640px)").matches) return;
     const focusFrame = window.requestAnimationFrame(() => {
       nameInputRef.current?.focus({ preventScroll: true });
     });
@@ -226,13 +227,13 @@ export function HabitDialog({
 
   return (
     <div
-      className="mobile-dialog-layer fixed inset-0 z-50 grid place-items-center bg-ink-950/45 p-4 backdrop-blur-[2px]"
+      className="mobile-dialog-layer fixed inset-0 z-[90] flex h-[100dvh] items-end justify-center bg-ink-950/45 backdrop-blur-[2px] sm:grid sm:place-items-center sm:p-4"
       role="presentation"
       onMouseDown={handleBackdrop}
     >
       <section
         ref={dialogRef}
-        className="max-h-full w-full max-w-2xl overflow-y-auto rounded-3xl border border-line bg-surface p-5 shadow-2xl sm:max-h-[calc(100vh-2rem)] sm:p-6"
+        className="max-h-[calc(100dvh-max(0.5rem,env(safe-area-inset-top)))] w-full max-w-2xl overflow-y-auto overscroll-contain rounded-t-[2rem] border border-line bg-surface px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-5 shadow-2xl sm:max-h-[calc(100vh-2rem)] sm:rounded-3xl sm:p-6"
         role="dialog"
         aria-modal="true"
         aria-labelledby="habit-dialog-title"
@@ -504,7 +505,7 @@ export function HabitDialog({
               <label className="block text-xs font-semibold text-ink-600">
                 Description <span className="font-normal text-ink-400">(optional)</span>
                 <textarea
-                  className="mt-1.5 min-h-20 w-full resize-y rounded-xl border border-line bg-surface px-3 py-2.5 text-sm text-ink-950 outline-none transition focus:border-leaf-500 focus:ring-2 focus:ring-leaf-100"
+                  className="mt-1.5 min-h-20 w-full resize-y rounded-xl border border-line bg-surface px-3 py-2.5 text-base text-ink-950 outline-none transition focus:border-leaf-500 focus:ring-2 focus:ring-leaf-100 sm:text-sm"
                   value={description}
                   maxLength={240}
                   onChange={(event) => setDescription(event.currentTarget.value)}
