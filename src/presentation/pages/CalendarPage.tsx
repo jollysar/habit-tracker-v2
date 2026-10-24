@@ -4,7 +4,6 @@ import {
   ChevronLeft,
   ChevronRight,
   CircleMinus,
-  Filter,
   History,
   X,
 } from "lucide-react";
@@ -42,7 +41,6 @@ export function CalendarPage({
   weekStartsOn,
 }: CalendarPageProps) {
   const [selectedMonth, setSelectedMonth] = useState(localDate);
-  const [selectedHabitId, setSelectedHabitId] = useState("");
   const dashboard = useMemo(
     () => buildCalendarDashboard(
       habits,
@@ -51,10 +49,10 @@ export function CalendarPage({
       progress,
       selectedMonth,
       localDate,
-      selectedHabitId || undefined,
+      undefined,
       weekStartsOn,
     ),
-    [habits, schedules, completions, progress, selectedMonth, localDate, selectedHabitId, weekStartsOn],
+    [habits, schedules, completions, progress, selectedMonth, localDate, weekStartsOn],
   );
   const weekdayLabels = weekStartsOn === "sun"
     ? ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
@@ -65,25 +63,11 @@ export function CalendarPage({
     <div className="app-content-page mobile-page-safe mx-auto max-w-[1440px] px-5 pb-7 sm:px-8 sm:py-9 xl:px-12">
       <header className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
         <h1 className="app-section-title">Calendar</h1>
-        <div className="grid grid-cols-[1fr_auto_auto_auto] gap-2">
-          <label className="relative col-span-4 sm:col-span-1">
-            <Filter className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" size={15} />
-            <select
-              className="h-11 w-full appearance-none rounded-full border border-line bg-surface pl-9 pr-8 text-sm font-semibold text-ink-800 outline-none focus:border-leaf-500 focus:ring-2 focus:ring-leaf-100 sm:h-10 sm:max-w-56"
-              value={selectedHabitId}
-              onChange={(event) => setSelectedHabitId(event.currentTarget.value)}
-              aria-label="Filter calendar by habit"
-            >
-              <option value="">All habits</option>
-              {habits.map((habit) => (
-                <option key={habit.id} value={habit.id}>{habit.name}{habit.isArchived ? " (archived)" : ""}</option>
-              ))}
-            </select>
-          </label>
+        <div className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] gap-2 lg:w-[28rem]">
           <Button variant="secondary" size="icon" onClick={() => setSelectedMonth(addMonthsToLocalDateKey(selectedMonth, -1))} aria-label="Previous month">
             <ChevronLeft size={18} />
           </Button>
-          <Button className="col-span-2 rounded-full sm:col-span-1" variant="secondary" onClick={() => setSelectedMonth(localDate)}>
+          <Button className="w-full justify-center rounded-full" variant="secondary" onClick={() => setSelectedMonth(localDate)}>
             <CalendarCheck size={16} /> This month
           </Button>
           <Button
@@ -127,7 +111,6 @@ export function CalendarPage({
       <Card className="mt-5 overflow-hidden rounded-[1.75rem] p-3 shadow-none sm:mt-6 sm:p-5">
         <div className="mb-4 flex items-center justify-between px-1">
           <h2 className="text-lg font-bold tracking-[-0.025em]">{dashboard.monthLabel}</h2>
-          <span className="text-xs text-ink-400">{selectedHabitId ? "Filtered" : "All habits"}</span>
         </div>
         <div className="grid grid-cols-7 gap-1">
           {weekdayLabels.map((label) => (

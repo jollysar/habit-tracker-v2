@@ -98,8 +98,11 @@ export function useHabitRowGestures({
     clearLongPress();
     longPressTimer.current = setTimeout(() => {
       longPressArmed.current = true;
+      longPressTriggered.current = true;
       setDeleteRevealed(false);
+      brieflySuppressClick();
       void playHaptic("longPress");
+      onLongPressRef.current();
     }, LONG_PRESS_DELAY);
   };
 
@@ -143,10 +146,7 @@ export function useHabitRowGestures({
       return;
     }
     if (longPressArmed.current) {
-      longPressTriggered.current = true;
       longPressArmed.current = false;
-      brieflySuppressClick();
-      onLongPressRef.current();
       return;
     }
     if (!start || !touch || longPressTriggered.current) return;

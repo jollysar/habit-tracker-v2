@@ -14,6 +14,7 @@ import { handleRovingTabKey } from "../hooks/rovingTabs";
 import { useHorizontalDateSwipe } from "../hooks/useHorizontalDateSwipe";
 import { moveHabitId } from "../hooks/reorderHabitIds";
 import { addDaysToLocalDateKey } from "../../application/dates/localDate";
+import { startOfLocalWeek } from "../../application/scheduling/habitScheduling";
 
 type HomeView = "daily" | "weekly";
 const homeViews: readonly HomeView[] = ["daily", "weekly"];
@@ -78,6 +79,8 @@ export function TodayPage({
 
   const isDailyView = activeView === "daily";
   const isToday = selectedDate === localDate;
+  const isCurrentWeek = startOfLocalWeek(selectedDate, weekStartsOn)
+    === startOfLocalWeek(localDate, weekStartsOn);
   const allHabits = useMemo(
     () => dashboard.sections.flatMap((section) => section.habits),
     [dashboard.sections],
@@ -305,7 +308,13 @@ export function TodayPage({
                 aria-controls={datePickerOpen ? "home-date-picker" : undefined}
                 data-home-date-trigger
               >
-                {isDailyView && isToday ? "Today" : isDailyView ? dashboard.dateLabel : weekDateLabel}
+                {isDailyView && isToday
+                  ? "Today"
+                  : isDailyView
+                    ? dashboard.dateLabel
+                    : isCurrentWeek
+                      ? "This week"
+                      : weekDateLabel}
               </button>
               </h1>
               {datePickerOpen && (

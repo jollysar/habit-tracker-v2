@@ -40,7 +40,7 @@ export function ProgressDialog({ habit, onCancel, onSave }: ProgressDialogProps)
 
   return (
     <div
-      className="mobile-dialog-layer fixed inset-0 z-[60] grid place-items-center bg-ink-950/50 p-4 backdrop-blur-[2px]"
+      className="mobile-app-screen mobile-dialog-layer fixed inset-0 z-[90] grid place-items-center bg-ink-950/50 p-4 backdrop-blur-[2px]"
       role="presentation"
       onMouseDown={handleBackdrop}
     >
@@ -68,7 +68,7 @@ export function ProgressDialog({ habit, onCancel, onSave }: ProgressDialogProps)
             This week: {habit.value ?? 0} / {habit.targetValue} {habit.targetUnit}
           </p>
         )}
-        <form className="mt-5" onSubmit={handleSubmit}>
+        <form className="mt-5 flex flex-1 flex-col" onSubmit={handleSubmit}>
           <label className="block text-xs font-semibold text-ink-600">
             {isWeeklyTarget ? "Progress for today" : "Today’s progress"}
             <div className="mt-1.5 flex items-center rounded-full border border-line bg-surface focus-within:border-leaf-500 focus-within:ring-2 focus-within:ring-leaf-100">
@@ -87,7 +87,7 @@ export function ProgressDialog({ habit, onCancel, onSave }: ProgressDialogProps)
             </div>
           </label>
           {error && <p id="progress-dialog-error" className="mt-3 text-sm font-medium text-red-600" role="alert">{error}</p>}
-          <div className="mt-6 flex justify-end gap-3 border-t border-line pt-5">
+          <div className="mt-auto flex justify-end gap-3 border-t border-line pt-5">
             <Button variant="secondary" onClick={onCancel}>Cancel</Button>
             <Button type="submit">Save progress</Button>
           </div>

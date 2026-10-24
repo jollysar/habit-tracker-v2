@@ -71,7 +71,6 @@ import {
 } from "./infrastructure/native/notifications";
 import { DeleteHabitDialog } from "./presentation/components/DeleteHabitDialog";
 import { ProgressDialog } from "./presentation/components/ProgressDialog";
-import { NotificationOnboardingDialog } from "./presentation/components/NotificationOnboardingDialog";
 import {
   HabitDialog,
   type HabitDraft,
@@ -863,6 +862,18 @@ function App() {
   };
 
   useEffect(() => {
+    if (
+      !notificationOnboardingOpen
+      || habitDialog !== null
+      || notificationOnboardingHandled.current
+    ) return;
+    notificationOnboardingHandled.current = true;
+    void finishNotificationOnboarding(true).then((enabled) => {
+      if (!enabled) void finishNotificationOnboarding(false);
+    });
+  }, [habitDialog, notificationOnboardingOpen]);
+
+  useEffect(() => {
     const plan = buildNotificationPlan({
       now: new Date(),
       habits: managedHabits,
@@ -1015,7 +1026,7 @@ function App() {
       activeSection={activeSection}
       onNavigate={navigateToSection}
       onAddHabit={openAddHabit}
-      overlayOpen={notificationOnboardingOpen || habitDialog !== null || habitToDeleteId !== null || habitToLogId !== null}
+      overlayOpen={habitDialog !== null || habitToDeleteId !== null || habitToLogId !== null}
     >
       {dataError && (
         <div
@@ -1105,11 +1116,9 @@ function App() {
           habitCount={managedHabits.length}
           completionCount={completionHistory.length}
           scheduleCount={scheduleHistory.length}
-          confirmBeforeDelete={confirmBeforeDelete}
           onThemeChange={handleThemePreferenceChange}
           onAppToneChange={handleAppToneChange}
           onWeekStartsOnChange={handleWeekStartChange}
-          onConfirmBeforeDeleteChange={handleConfirmBeforeDeleteChange}
           onExport={handleExport}
           onBackup={handleBackup}
           onRestore={chooseAndStageDatabaseRestore}
@@ -1124,11 +1133,6 @@ function App() {
         reminder={editingHabit ? reminders.find((item) => item.habitId === editingHabit.id) : undefined}
         onClose={() => setHabitDialog(null)}
         onSave={handleSaveHabit}
-      />
-      <NotificationOnboardingDialog
-        open={notificationOnboardingOpen && habitDialog === null}
-        onEnable={() => finishNotificationOnboarding(true)}
-        onNotNow={() => { void finishNotificationOnboarding(false); }}
       />
       <DeleteHabitDialog
         habit={habitToDelete}

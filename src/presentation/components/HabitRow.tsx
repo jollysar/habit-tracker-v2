@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { ArrowUpRight, Check, Gauge, Minus, Pencil, RotateCcw, Trash2 } from "lucide-react";
 import type { TodayHabit } from "../../domain/habits/models";
 import { cn } from "../../lib/cn";
@@ -44,7 +45,12 @@ export function HabitRow({
     : 0;
   const gestures = useHabitRowGestures({
     onLongPress: () => setMenuOpen(true),
-    onReorderStart,
+    onReorderStart: onReorderStart
+      ? () => {
+        setMenuOpen(false);
+        onReorderStart();
+      }
+      : undefined,
     onReorderMove,
     onReorderEnd,
   });
@@ -66,7 +72,10 @@ export function HabitRow({
     );
     window.requestAnimationFrame(() => menuItems()[0]?.focus({ preventScroll: true }));
     const handlePointerDown = (event: PointerEvent) => {
-      if (!menuRef.current?.contains(event.target as Node)) setMenuOpen(false);
+      if (
+        !menuRef.current?.contains(event.target as Node)
+        && !menuButtonRef.current?.contains(event.target as Node)
+      ) setMenuOpen(false);
     };
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -176,7 +185,7 @@ export function HabitRow({
           {habit.value} {habit.targetUnit}
         </span>
         )}
-        <div className="relative self-center" ref={menuRef}>
+        <div className="relative self-center">
         <HabitStreakButton
           ref={menuButtonRef}
           habitName={habit.name}
@@ -187,10 +196,18 @@ export function HabitRow({
           menuId={`habit-menu-${habit.id}`}
           onClick={() => setMenuOpen((current) => !current)}
         />
-        {menuOpen && (
+        {menuOpen && createPortal(
+          <>
+          <button
+            className="fixed inset-0 z-[110] cursor-default bg-ink-950/30 backdrop-blur-[1px]"
+            type="button"
+            aria-label="Close habit actions"
+            onClick={() => setMenuOpen(false)}
+          />
           <div
+            ref={menuRef}
             id={`habit-menu-${habit.id}`}
-            className="menu-popover absolute right-0 top-10 z-30 w-48 rounded-2xl border border-line bg-surface p-1.5 shadow-xl"
+            className="habit-action-sheet fixed inset-x-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-[120] max-h-[calc(100dvh-2rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))] overflow-y-auto rounded-[2rem] border border-line bg-surface p-3 shadow-2xl sm:inset-x-auto sm:bottom-6 sm:right-6 sm:w-80 sm:rounded-3xl"
             role="menu"
             aria-label={`Actions for ${habit.name}`}
             onKeyDown={(event) => {
@@ -207,38 +224,37 @@ export function HabitRow({
               }
             }}
           >
-            <div className="mb-1 flex items-center justify-between gap-3 border-b border-line px-2.5 py-2 text-xs text-ink-600">
-              <span>Current streak</span>
-              <strong className="text-sm tabular-nums text-ink-950">{habit.streak} {habit.streak === 1 ? "day" : "days"}</strong>
-            </div>
-            <button className="flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-left text-xs font-medium text-ink-800 hover:bg-leaf-50" role="menuitem" onClick={() => { setMenuOpen(false); onViewStreakHistory(); }}>
-              <ArrowUpRight size={14} aria-hidden="true" />
+            <p className="px-3 pb-2 pt-1 text-sm font-bold tracking-[-0.01em] text-ink-950">{habit.name}</p>
+            <button className="flex w-full items-center gap-3 rounded-2xl px-3 py-3.5 text-left text-sm font-medium text-ink-800 hover:bg-leaf-50" role="menuitem" onClick={() => { setMenuOpen(false); onViewStreakHistory(); }}>
+              <ArrowUpRight size={18} aria-hidden="true" />
               View streak history
             </button>
-            <button className="flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-left text-xs font-medium text-ink-800 hover:bg-leaf-50" role="menuitem" onClick={() => { setMenuOpen(false); onEdit(); }}>
-              <Pencil size={14} aria-hidden="true" />
+            <button className="flex w-full items-center gap-3 rounded-2xl px-3 py-3.5 text-left text-sm font-medium text-ink-800 hover:bg-leaf-50" role="menuitem" onClick={() => { setMenuOpen(false); onEdit(); }}>
+              <Pencil size={18} aria-hidden="true" />
               Edit details
             </button>
             {habit.type !== "binary" && (
-              <button className="flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-left text-xs font-medium text-ink-800 hover:bg-leaf-50" role="menuitem" onClick={() => { setMenuOpen(false); onLogProgress(); }}>
-                <Gauge size={14} aria-hidden="true" />
+              <button className="flex w-full items-center gap-3 rounded-2xl px-3 py-3.5 text-left text-sm font-medium text-ink-800 hover:bg-leaf-50" role="menuitem" onClick={() => { setMenuOpen(false); onLogProgress(); }}>
+                <Gauge size={18} aria-hidden="true" />
                 Log progress
               </button>
             )}
-            <button className="flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-left text-xs font-medium text-ink-800 hover:bg-leaf-50" role="menuitem" onClick={() => { setMenuOpen(false); onSkip(); }}>
-              <Minus size={14} aria-hidden="true" />
+            <button className="flex w-full items-center gap-3 rounded-2xl px-3 py-3.5 text-left text-sm font-medium text-ink-800 hover:bg-leaf-50" role="menuitem" onClick={() => { setMenuOpen(false); onSkip(); }}>
+              <Minus size={18} aria-hidden="true" />
               Mark skipped
             </button>
-            <button className="flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-left text-xs font-medium text-ink-800 hover:bg-leaf-50" role="menuitem" onClick={() => { setMenuOpen(false); onReset(); }}>
-              <RotateCcw size={14} aria-hidden="true" />
+            <button className="flex w-full items-center gap-3 rounded-2xl px-3 py-3.5 text-left text-sm font-medium text-ink-800 hover:bg-leaf-50" role="menuitem" onClick={() => { setMenuOpen(false); onReset(); }}>
+              <RotateCcw size={18} aria-hidden="true" />
               Reset check-in
             </button>
-            <div className="my-1 border-t border-line" />
-            <button className="flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-left text-xs font-semibold text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30" role="menuitem" data-haptic="warning" onClick={() => { setMenuOpen(false); onDelete(); }}>
-              <Trash2 size={14} aria-hidden="true" />
+            <div className="my-1.5 border-t border-line" />
+            <button className="flex w-full items-center gap-3 rounded-2xl px-3 py-3.5 text-left text-sm font-semibold text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30" role="menuitem" data-haptic="warning" onClick={() => { setMenuOpen(false); onDelete(); }}>
+              <Trash2 size={18} aria-hidden="true" />
               Delete habit
             </button>
           </div>
+          </>,
+          document.body,
         )}
         </div>
       </div>

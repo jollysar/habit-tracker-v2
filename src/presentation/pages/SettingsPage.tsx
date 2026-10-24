@@ -10,15 +10,11 @@ import {
   HardDriveDownload,
   Keyboard,
   Laptop,
-  LockKeyhole,
   MessageSquareText,
   Moon,
-  MoveHorizontal,
   Palette,
   RotateCcw,
-  ShieldCheck,
   Send,
-  Smartphone,
   Sun,
   X,
 } from "lucide-react";
@@ -37,11 +33,9 @@ interface SettingsPageProps {
   readonly habitCount: number;
   readonly completionCount: number;
   readonly scheduleCount: number;
-  readonly confirmBeforeDelete: boolean;
   readonly onThemeChange: (theme: ThemePreference) => void;
   readonly onAppToneChange: (tone: AppTone) => void;
   readonly onWeekStartsOnChange: (weekday: WeekStart) => void;
-  readonly onConfirmBeforeDeleteChange: (enabled: boolean) => void;
   readonly onExport: (format: "json" | "csv") => Promise<string | null>;
   readonly onBackup: () => Promise<string | null>;
   readonly onRestore: () => Promise<string | null>;
@@ -63,11 +57,9 @@ export function SettingsPage({
   habitCount,
   completionCount,
   scheduleCount,
-  confirmBeforeDelete,
   onThemeChange,
   onAppToneChange,
   onWeekStartsOnChange,
-  onConfirmBeforeDeleteChange,
   onExport,
   onBackup,
   onRestore,
@@ -166,18 +158,8 @@ export function SettingsPage({
 
       <div className="mt-5 grid gap-4 sm:mt-8 sm:gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="space-y-4 sm:space-y-6">
-          <Card className="p-5 lg:hidden">
-            <div className="flex items-center gap-2 text-leaf-700"><ShieldCheck size={17} /><h2 className="text-xs font-bold uppercase tracking-[0.14em]">Local by design</h2></div>
-            <p className="mt-4 text-sm font-semibold leading-6">Your habit data stays on this device.</p>
-            <ul className="mt-3 space-y-2 text-xs leading-5 text-ink-400">
-              <li className="flex gap-2"><LockKeyhole className="mt-0.5 shrink-0" size={13} />No account or cloud database</li>
-              <li className="flex gap-2"><LockKeyhole className="mt-0.5 shrink-0" size={13} />No internet required for tracking</li>
-              <li className="flex gap-2"><LockKeyhole className="mt-0.5 shrink-0" size={13} />Exports happen only when you request them</li>
-            </ul>
-          </Card>
-
           <Card className="p-4 sm:p-6">
-            <div className="flex items-start gap-3">
+            <div className="flex items-center gap-3">
               <span className="grid size-9 shrink-0 place-items-center rounded-full bg-leaf-50 text-leaf-700"><Sun size={17} /></span>
               <div>
                 <h2 className="font-bold tracking-[-0.02em]">Appearance</h2>
@@ -241,46 +223,7 @@ export function SettingsPage({
           </Card>
 
           <Card className="p-4 sm:p-6">
-            <div className="flex items-start gap-3">
-              <span className="grid size-9 shrink-0 place-items-center rounded-full bg-leaf-50 text-leaf-700"><ShieldCheck size={17} /></span>
-              <div>
-                <h2 className="font-bold tracking-[-0.02em]">Safety</h2>
-                <p className="mt-1 hidden text-xs leading-5 text-ink-400 sm:block">Control safeguards around destructive actions.</p>
-              </div>
-            </div>
-            <button
-              className="mt-5 flex w-full items-center justify-between gap-4 rounded-3xl border border-line p-4 text-left transition hover:bg-leaf-50/50"
-              type="button"
-              role="switch"
-              aria-checked={confirmBeforeDelete}
-              onClick={() => onConfirmBeforeDeleteChange(!confirmBeforeDelete)}
-            >
-              <span>
-                <span className="block text-sm font-semibold">Confirm before deleting</span>
-                <span className="mt-1 hidden text-xs leading-5 text-ink-400 sm:block">Show a warning before a habit is removed from active lists.</span>
-              </span>
-              <span className={cn(
-                "inline-flex h-6 w-11 shrink-0 items-center rounded-full p-0.5 transition-colors",
-                confirmBeforeDelete ? "justify-end bg-leaf-500" : "justify-start bg-line",
-              )} aria-hidden="true">
-                <span className="size-5 rounded-full bg-white shadow-sm" />
-              </span>
-            </button>
-            <div className="mt-5 border-t border-line pt-5 lg:hidden">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-leaf-700">
-                <Smartphone size={15} aria-hidden="true" />
-                Touch controls
-              </div>
-              <ul className="mt-3 space-y-2.5 text-xs leading-5 text-ink-600">
-                <li className="flex items-start gap-2.5"><MoveHorizontal className="mt-0.5 shrink-0 text-ink-400" size={14} aria-hidden="true" /><span>Swipe an open area on Home to move between days or weeks.</span></li>
-                <li className="flex items-start gap-2.5"><MoveHorizontal className="mt-0.5 shrink-0 text-ink-400" size={14} aria-hidden="true" /><span>Swipe a habit left to reveal Delete.</span></li>
-                <li className="flex items-start gap-2.5"><Smartphone className="mt-0.5 shrink-0 text-ink-400" size={14} aria-hidden="true" /><span>Press and hold a habit for actions, or tap its plant.</span></li>
-              </ul>
-            </div>
-          </Card>
-
-          <Card className="p-4 sm:p-6">
-            <div className="flex items-start gap-3">
+            <div className="flex items-center gap-3">
               <span className="grid size-9 shrink-0 place-items-center rounded-full bg-leaf-50 text-leaf-700"><MessageSquareText size={17} /></span>
               <div>
                 <h2 className="font-bold tracking-[-0.02em]">Send feedback</h2>
@@ -319,7 +262,7 @@ export function SettingsPage({
           </Card>
 
           <Card className="p-4 sm:p-6">
-            <div className="flex items-start gap-3">
+            <div className="flex items-center gap-3">
               <span className="grid size-9 shrink-0 place-items-center rounded-full bg-blue-50 text-blue-600 dark:bg-blue-950/30 dark:text-blue-400"><CalendarRange size={17} /></span>
               <div>
                 <h2 className="font-bold tracking-[-0.02em]">Calendar</h2>
@@ -352,7 +295,7 @@ export function SettingsPage({
 
           <Card className="overflow-hidden">
             <div className="border-b border-line px-5 py-5 sm:px-6">
-              <div className="flex items-start gap-3">
+              <div className="flex items-center gap-3">
                 <span className="grid size-9 shrink-0 place-items-center rounded-full bg-leaf-50 text-leaf-700"><Download size={17} /></span>
                 <div>
                   <h2 className="font-bold tracking-[-0.02em]">Export your data</h2>
@@ -384,7 +327,7 @@ export function SettingsPage({
 
           <Card className="overflow-hidden">
             <div className="border-b border-line px-5 py-5 sm:px-6">
-              <div className="flex items-start gap-3">
+              <div className="flex items-center gap-3">
                 <span className="grid size-9 shrink-0 place-items-center rounded-full bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400"><Database size={17} /></span>
                 <div>
                   <h2 className="font-bold tracking-[-0.02em]">Backup and restore</h2>
@@ -424,16 +367,6 @@ export function SettingsPage({
               <div className="flex items-center justify-between gap-4"><dt className="text-ink-600">Change section</dt><dd><kbd className="rounded border border-line bg-canvas px-1.5 py-1 font-sans">Alt 1–6</kbd></dd></div>
               <div className="flex items-center justify-between gap-4"><dt className="text-ink-600">Close a dialog</dt><dd><kbd className="rounded border border-line bg-canvas px-1.5 py-1 font-sans">Esc</kbd></dd></div>
             </dl>
-          </Card>
-
-          <Card className="p-5">
-            <div className="flex items-center gap-2 text-leaf-700"><ShieldCheck size={17} /><p className="text-xs font-bold uppercase tracking-[0.14em]">Local by design</p></div>
-            <p className="mt-4 text-sm font-semibold leading-6">Your habit data stays on this device.</p>
-            <ul className="mt-3 space-y-2 text-xs leading-5 text-ink-400">
-              <li className="flex gap-2"><LockKeyhole className="mt-0.5 shrink-0" size={13} />No account or cloud database</li>
-              <li className="flex gap-2"><LockKeyhole className="mt-0.5 shrink-0" size={13} />No internet required for tracking</li>
-              <li className="flex gap-2"><LockKeyhole className="mt-0.5 shrink-0" size={13} />Exports happen only when you request them</li>
-            </ul>
           </Card>
 
           <Card className="p-5">

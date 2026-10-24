@@ -223,11 +223,14 @@ export function HabitDialog({
     ? scheduleOptions
     : scheduleOptions.filter(([id]) => creationCadence === "daily"
       ? id === "daily" || id === "specific_days"
-      : id === "weekly_frequency" || id === "weekly_target");
+      : id === "weekly_frequency");
 
   return (
     <div
-      className="mobile-dialog-layer fixed inset-0 z-[90] flex h-[100dvh] items-end justify-center bg-ink-950/45 backdrop-blur-[2px] sm:grid sm:place-items-center sm:p-4"
+      className={cn(
+        "mobile-dialog-layer fixed inset-0 z-[90] flex h-[100dvh] items-end justify-center bg-ink-950/45 backdrop-blur-[2px] sm:grid sm:place-items-center sm:p-4",
+        !habit && "mobile-app-screen",
+      )}
       role="presentation"
       onMouseDown={handleBackdrop}
     >
@@ -242,10 +245,7 @@ export function HabitDialog({
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-ink-400">
-              {habit ? "Habit details" : creationCadence ? "Step 2 of 2" : "Step 1 of 2"}
-            </p>
-            <h2 id="habit-dialog-title" className="mt-1 text-xl font-bold tracking-[-0.03em]">
+            <h2 id="habit-dialog-title" className="text-xl font-bold tracking-[-0.03em]">
               {habit
                 ? "Edit habit"
                 : creationCadence
@@ -310,7 +310,6 @@ export function HabitDialog({
 
           <fieldset>
             <legend className="text-xs font-semibold text-ink-600">Choose your streak tree</legend>
-            <p className="mt-1 text-xs leading-5 text-ink-400">It starts as soil and grows through five stages as your streak builds.</p>
             <div className="mt-2 grid gap-2 sm:grid-cols-3">
               {plantChoices.map((plant) => (
                 <button
@@ -336,7 +335,7 @@ export function HabitDialog({
             </div>
           </fieldset>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          {habit && (
             <label className="block text-xs font-semibold text-ink-600">
               Type
               <select className={inputClass} value={type} onChange={(event) => setType(event.currentTarget.value as HabitType)}>
@@ -345,20 +344,11 @@ export function HabitDialog({
                 <option value="duration">Duration</option>
               </select>
             </label>
-            <label className="block text-xs font-semibold text-ink-600">
-              Time of day
-              <select className={inputClass} value={timeOfDay} onChange={(event) => setTimeOfDay(event.currentTarget.value as TimeOfDay)}>
-                <option value="morning">Morning</option>
-                <option value="afternoon">Afternoon</option>
-                <option value="evening">Evening</option>
-                <option value="anytime">Anytime</option>
-              </select>
-            </label>
-          </div>
+          )}
 
-          <div className="rounded-3xl border border-line p-4">
+          <div className="w-fit max-w-full">
             <button
-              className="flex w-full items-center justify-between gap-4 text-left"
+              className="flex max-w-full items-center justify-between gap-4 rounded-full border border-line px-4 py-3 text-left transition hover:bg-leaf-50/50"
               type="button"
               role="switch"
               aria-checked={reminderEnabled}
@@ -368,10 +358,7 @@ export function HabitDialog({
                 <span className="grid size-9 place-items-center rounded-full bg-leaf-50 text-leaf-700">
                   <Bell size={17} aria-hidden="true" />
                 </span>
-                <span>
-                  <span className="block text-sm font-semibold">Habit reminder</span>
-                  <span className="mt-0.5 block text-xs text-ink-400">Only sent while this habit is incomplete.</span>
-                </span>
+                <span className="text-sm font-semibold">Habit reminder</span>
               </span>
               <span className={cn(
                 "inline-flex h-6 w-11 shrink-0 items-center rounded-full p-0.5 transition-colors",
@@ -467,10 +454,10 @@ export function HabitDialog({
           )}
 
           {(scheduleType === "weekly_frequency" || scheduleType === "weekly_target") && (
-            <label className="block max-w-xs text-xs font-semibold text-ink-600">
-              {scheduleType === "weekly_frequency" ? "Times per week" : `Weekly ${targetUnit.trim() || "target"}`}
+            <label className="flex max-w-sm items-center justify-between gap-8 text-xs font-semibold text-ink-600">
+              <span>{scheduleType === "weekly_frequency" ? "Times per week" : `Weekly ${targetUnit.trim() || "target"}`}</span>
               <input
-                className={inputClass}
+                className="h-11 w-28 rounded-full border border-line bg-surface px-3 text-center text-base text-ink-950 outline-none transition focus:border-leaf-500 focus:ring-2 focus:ring-leaf-100 sm:h-10 sm:text-sm"
                 type="number"
                 min="1"
                 max={scheduleType === "weekly_frequency" ? 7 : undefined}

@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { CircleMinus, Filter, History, Lightbulb, Sparkles, X } from "lucide-react";
+import { useMemo } from "react";
+import { CircleMinus, History, Lightbulb, Sparkles, X } from "lucide-react";
 import { buildAnalyticsDashboard } from "../../application/analytics/buildAnalyticsDashboard";
 import type { WeeklyProgressOverrides } from "../../application/week/weeklyProgress";
 import type {
@@ -31,7 +31,6 @@ export function AnalyticsPage({
   weekStartsOn,
   weeklyProgress,
 }: AnalyticsPageProps) {
-  const [selectedHabitId, setSelectedHabitId] = useState("");
   const dashboard = useMemo(
     () => buildAnalyticsDashboard(
       habits,
@@ -39,31 +38,17 @@ export function AnalyticsPage({
       completions,
       progress,
       localDate,
-      selectedHabitId || undefined,
+      undefined,
       weekStartsOn,
       weeklyProgress,
     ),
-    [habits, schedules, completions, progress, localDate, selectedHabitId, weekStartsOn, weeklyProgress],
+    [habits, schedules, completions, progress, localDate, weekStartsOn, weeklyProgress],
   );
 
   return (
     <div className="app-content-page mobile-page-safe mx-auto max-w-[1440px] px-5 pb-7 sm:px-8 sm:py-9 xl:px-12">
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <header>
         <h1 className="app-section-title">Analytics</h1>
-        <label className="relative w-full self-start sm:w-auto sm:self-auto">
-          <Filter className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" size={15} />
-          <select
-            className="h-11 w-full appearance-none rounded-full border border-line bg-surface pl-9 pr-8 text-sm font-semibold text-ink-800 outline-none focus:border-leaf-500 focus:ring-2 focus:ring-leaf-100 sm:h-10 sm:max-w-64"
-            value={selectedHabitId}
-            onChange={(event) => setSelectedHabitId(event.currentTarget.value)}
-            aria-label="Filter analytics by habit"
-          >
-            <option value="">All habits</option>
-            {habits.map((habit) => (
-              <option key={habit.id} value={habit.id}>{habit.name}{habit.isArchived ? " (archived)" : ""}</option>
-            ))}
-          </select>
-        </label>
       </header>
 
       <HabitGarden rows={dashboard.habitPerformance} />
