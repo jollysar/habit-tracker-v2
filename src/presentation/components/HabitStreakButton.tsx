@@ -8,46 +8,36 @@ interface HabitStreakButtonProps {
   readonly plantType?: PlantType;
   readonly streak: number;
   readonly cadence: "day" | "week";
-  readonly menuOpen: boolean;
-  readonly menuId?: string;
   readonly className?: string;
-  readonly onClick: () => void;
 }
 
-export const HabitStreakButton = forwardRef<HTMLButtonElement, HabitStreakButtonProps>(
+export const HabitStreakButton = forwardRef<HTMLDivElement, HabitStreakButtonProps>(
   function HabitStreakButton({
     habitName,
     plantType = "oak",
     streak,
     cadence,
-    menuOpen,
-    menuId,
     className,
-    onClick,
   }, ref) {
     const unit = streak === 1 ? cadence : `${cadence}s`;
     const growthLabel = plantStageLabel(plantStageForStreak(streak));
 
     return (
-      <button
+      <div
         ref={ref}
         className={cn(
-          "grid h-10 shrink-0 place-items-center rounded-full px-1 text-ink-600 transition hover:bg-leaf-50 hover:text-ink-950 focus:outline-none focus:ring-2 focus:ring-leaf-500",
+          "grid h-10 shrink-0 place-items-center rounded-full px-1 text-ink-600",
           className,
         )}
-        type="button"
-        aria-label={`${habitName}: ${streak} ${unit} streak, ${growthLabel.toLowerCase()} ${plantType} tree. Open habit actions`}
-        aria-expanded={menuOpen}
-        aria-haspopup="menu"
-        aria-controls={menuOpen ? menuId : undefined}
+        role="img"
+        aria-label={`${habitName}: ${streak} ${unit} streak, ${growthLabel.toLowerCase()} ${plantType} tree`}
         title={`${streak} ${unit} streak`}
-        onClick={onClick}
       >
         <span className="flex h-[37px] items-end gap-0.5" aria-hidden="true">
           <AnimatedPlant plantType={plantType} streak={streak} size={37} />
           <span className="mb-[3px] min-w-3 text-center text-xs font-bold leading-none tabular-nums">{streak}</span>
         </span>
-      </button>
+      </div>
     );
   },
 );

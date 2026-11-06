@@ -83,7 +83,7 @@ import { TodayPage } from "./presentation/pages/TodayPage";
 import { WeekPage, type WeekHabitView } from "./presentation/pages/WeekPage";
 
 type WeekStart = "mon" | "sun";
-const NOTIFICATION_ONBOARDING_KEY = "notification_onboarding_complete";
+const NOTIFICATION_ONBOARDING_KEY = "native_notification_prompt_complete_v2";
 
 function getInitialThemePreference(): ThemePreference {
   const savedTheme = localStorage.getItem("habit-tracker-theme");

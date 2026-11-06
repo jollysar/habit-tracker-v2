@@ -60,7 +60,7 @@ export function HistoryCorrectionDialog({
     >
       <section
         ref={dialogRef}
-        className="max-h-full w-full max-w-md overflow-y-auto rounded-3xl border border-line bg-surface p-5 shadow-2xl sm:p-6"
+        className="solid-panel max-h-full w-full max-w-md overflow-y-auto rounded-3xl p-5 shadow-2xl sm:p-6"
         role="dialog"
         aria-modal="true"
         aria-labelledby="history-correction-title"
@@ -83,7 +83,7 @@ export function HistoryCorrectionDialog({
         {needsValue && (
           <label className="mt-5 block text-xs font-semibold text-ink-600">
             Completed value
-            <div className="mt-1.5 flex items-center rounded-full border border-line focus-within:border-leaf-500 focus-within:ring-2 focus-within:ring-leaf-100">
+            <div className="soft-panel mt-1.5 flex items-center rounded-full focus-within:ring-2 focus-within:ring-leaf-500">
               <input
                 className="h-11 min-w-0 flex-1 bg-transparent px-3 text-sm outline-none"
                 type="number"
@@ -92,7 +92,7 @@ export function HistoryCorrectionDialog({
                 value={value}
                 onChange={(event) => setValue(event.currentTarget.value)}
               />
-              <span className="border-l border-line px-3 text-xs text-ink-400">{habit.targetUnit ?? "units"}</span>
+              <span className="bg-surface-raised mr-1 rounded-full px-3 py-1.5 text-xs text-ink-400">{habit.targetUnit ?? "units"}</span>
             </div>
           </label>
         )}

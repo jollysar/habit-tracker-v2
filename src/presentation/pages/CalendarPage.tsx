@@ -120,10 +120,10 @@ export function CalendarPage({
             <div
               key={day.date}
               className={cn(
-                "relative min-h-14 rounded-2xl border p-1.5 transition sm:min-h-[72px] sm:p-2",
-                !day.isInMonth && "border-transparent opacity-25",
-                day.isInMonth && "border-line bg-surface",
-                day.isToday && "border-leaf-500 ring-2 ring-leaf-100",
+                "relative min-h-14 rounded-2xl p-1.5 transition-[background-color,transform,opacity] duration-200 sm:min-h-[72px] sm:p-2",
+                !day.isInMonth && "opacity-25",
+                day.isInMonth && "bg-surface-muted hover:-translate-y-0.5 hover:bg-leaf-100",
+                day.isToday && "bg-leaf-100 ring-2 ring-leaf-500",
                 day.isFuture && "opacity-45",
               )}
               title={`${day.date}: ${day.completedCount} of ${day.expectedCount} completed`}
@@ -152,7 +152,7 @@ export function CalendarPage({
             </div>
           ))}
         </div>
-        <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 border-t border-line px-1 pt-4 text-[10px] font-medium text-ink-400">
+        <div className="soft-panel mt-4 flex flex-wrap gap-x-4 gap-y-2 rounded-2xl px-3 py-3 text-[10px] font-medium text-ink-400">
           <span className="flex items-center gap-1.5"><span className="size-2 rounded-full bg-leaf-500" />Complete</span>
           <span className="flex items-center gap-1.5"><span className="size-2 rounded-full bg-amber-500" />Partial day</span>
           <span className="flex items-center gap-1.5"><span className="size-2 rounded-full bg-red-400" />Missed</span>

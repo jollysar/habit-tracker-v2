@@ -12,13 +12,15 @@
   --color-ink-400: #7f7e77;
   --color-canvas: #f0efea;
   --color-surface: #fbfaf6;
+  --color-surface-raised: #ffffff;
+  --color-surface-muted: #e7e6df;
   --color-line: #d6d5ce;
   --color-leaf-50: #ebeae4;
   --color-leaf-100: #d8d7d0;
   --color-leaf-500: #74756f;
   --color-leaf-600: #555650;
   --color-leaf-700: #3e3f3b;
-  --shadow-soft: 0 1px 2px rgba(25, 25, 23, 0.035), 0 12px 35px rgba(25, 25, 23, 0.035);
+  --shadow-soft: 0 1px 2px rgba(25, 25, 23, 0.025), 0 10px 30px rgba(25, 25, 23, 0.045);
 }
 
 :root {
@@ -31,6 +33,7 @@
   -moz-osx-font-smoothing: grayscale;
   --motion-snappy: 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
   --motion-settle: 320ms cubic-bezier(0.16, 1, 0.3, 1);
+  --motion-fluid: 420ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 * {
@@ -54,7 +57,7 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  transition: color 160ms ease, background-color 160ms ease;
+  transition: color var(--motion-snappy), background-color var(--motion-snappy);
 }
 
 .app-content-page {
@@ -148,8 +151,8 @@ button {
 }
 
 button:not(:disabled) {
-  transition-duration: 180ms;
-  transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 button:not(:disabled):active {
@@ -257,17 +260,19 @@ textarea:focus-visible,
 .dark {
   --color-canvas: #171716;
   --color-surface: #20201f;
-  --color-line: #42423f;
+  --color-surface-raised: #292927;
+  --color-surface-muted: #31312f;
+  --color-line: #3b3b38;
   --color-ink-950: #f0efe9;
-  --color-ink-800: #d5d4cd;
-  --color-ink-600: #b8b7b0;
-  --color-ink-400: #92918a;
+  --color-ink-800: #f0efe9;
+  --color-ink-600: #f0efe9;
+  --color-ink-400: #f0efe9;
   --color-leaf-50: #2a2a28;
   --color-leaf-100: #3b3b38;
   --color-leaf-500: #6e6f69;
   --color-leaf-600: #969790;
   --color-leaf-700: #d1d2cb;
-  --shadow-soft: 0 1px 1px rgba(0, 0, 0, 0.18), 0 16px 40px rgba(0, 0, 0, 0.12);
+  --shadow-soft: 0 1px 1px rgba(0, 0, 0, 0.12), 0 14px 38px rgba(0, 0, 0, 0.16);
   color: #f0efe9;
   background: #171716;
 }
@@ -366,6 +371,26 @@ textarea:focus-visible,
   --color-leaf-500: #f47f76;
   --color-leaf-600: #f7aaa4;
   --color-leaf-700: #fbd0cc;
+}
+
+.dark .text-leaf-600,
+.dark .text-leaf-700 {
+  color: var(--color-ink-950);
+}
+
+@keyframes cadence-options-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.cadence-options-reveal {
+  animation: cadence-options-reveal 200ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 @keyframes page-reveal {
@@ -543,7 +568,7 @@ textarea:focus-visible,
 }
 
 .app-page-enter {
-  animation: page-reveal 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: page-reveal var(--motion-settle) both;
 }
 
 .menu-popover {
@@ -567,7 +592,7 @@ textarea:focus-visible,
 .habit-card {
   position: relative;
   animation: habit-card-arrive 280ms cubic-bezier(0.16, 1, 0.3, 1) both;
-  transition: border-color var(--motion-snappy), box-shadow var(--motion-snappy), transform var(--motion-snappy);
+  transition: background-color var(--motion-snappy), box-shadow var(--motion-fluid), transform var(--motion-fluid);
 }
 
 .habit-card:has([aria-expanded="true"]) {
@@ -582,9 +607,9 @@ textarea:focus-visible,
 
 @media (hover: hover) {
   .habit-card:hover {
-    border-color: color-mix(in srgb, var(--color-leaf-500) 42%, var(--color-line));
-    box-shadow: 0 10px 28px rgba(25, 25, 23, 0.07);
-    transform: translateY(-1px);
+    background: color-mix(in srgb, var(--color-surface-raised) 88%, var(--color-leaf-100));
+    box-shadow: 0 14px 34px rgba(25, 25, 23, 0.08);
+    transform: translateY(-2px);
   }
 }
 
@@ -600,9 +625,32 @@ textarea:focus-visible,
 
 .habit-card:has(.habit-gesture-row.is-reordering) {
   z-index: 60;
-  border-color: var(--color-leaf-500);
   box-shadow: 0 18px 42px rgba(25, 25, 23, 0.2);
   transform: scale(1.015);
+}
+
+.section-switcher {
+  background: var(--color-surface-muted);
+  box-shadow: inset 0 1px 1px color-mix(in srgb, var(--color-ink-950) 5%, transparent);
+}
+
+.section-switcher [aria-selected="true"] {
+  background: var(--color-surface-raised);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--color-ink-950) 8%, transparent);
+}
+
+.solid-panel {
+  background: var(--color-surface-raised);
+}
+
+.soft-panel {
+  background: var(--color-surface-muted);
+}
+
+.fluid-scroll {
+  scroll-behavior: smooth;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .habit-completion-bloom {

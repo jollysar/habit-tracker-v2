@@ -81,6 +81,7 @@ export function TodayPage({
   const isToday = selectedDate === localDate;
   const isCurrentWeek = startOfLocalWeek(selectedDate, weekStartsOn)
     === startOfLocalWeek(localDate, weekStartsOn);
+  const isCurrentPeriod = isDailyView ? isToday : isCurrentWeek;
   const allHabits = useMemo(
     () => dashboard.sections.flatMap((section) => section.habits),
     [dashboard.sections],
@@ -285,18 +286,18 @@ export function TodayPage({
       <header className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0 flex-1">
           <div className="relative flex min-h-11 items-center">
-            {isDailyView && isToday && (
+            {isCurrentPeriod && (
               <AnimatedPlant plantType="oak" stage={4} size={44} className="shrink-0 lg:hidden" />
             )}
             <div className={cn(
               "min-w-0",
-              isDailyView && isToday
+              isCurrentPeriod
                 ? "pointer-events-none absolute inset-x-0 flex justify-center lg:pointer-events-auto lg:static lg:mr-auto lg:block"
                 : "mr-auto max-w-[calc(100%-3.5rem)]",
             )}>
               <h1 className={cn(
                 "pointer-events-auto font-bold tracking-[-0.035em] sm:text-3xl",
-                isDailyView && isToday ? "text-[1.9rem]" : "text-[1.05rem]",
+                isCurrentPeriod ? "text-[1.9rem]" : "text-[1.05rem]",
               )}>
               <button
                 className="whitespace-nowrap rounded-full px-2.5 py-1 text-left text-ink-950 transition hover:bg-leaf-50 focus:outline-none focus:ring-2 focus:ring-leaf-500"
@@ -368,15 +369,15 @@ export function TodayPage({
         </div>
       </header>
 
-      <div className="mt-4 inline-flex w-full rounded-full border border-line bg-canvas p-1 sm:mt-7 sm:w-auto" role="tablist" aria-label="Home habit view">
+      <div className="section-switcher mt-4 inline-flex w-full rounded-full p-1 sm:mt-7 sm:w-auto" role="tablist" aria-label="Home habit view">
         {([['daily', 'Today’s habits'], ['weekly', 'Weekly habits']] as const).map(([view, label]) => (
           <button
             key={view}
             className={cn(
               "flex-1 rounded-full px-5 py-2 text-sm font-semibold transition sm:flex-none",
               activeView === view
-                ? "bg-surface text-ink-950 shadow-sm"
-                : "text-ink-600 hover:text-ink-950",
+                ? "text-ink-950"
+                : "text-ink-600 hover:bg-surface/60 hover:text-ink-950",
             )}
             type="button"
             role="tab"
@@ -426,7 +427,7 @@ export function TodayPage({
             <section aria-label="Today’s habits" role="tabpanel">
               <div className="space-y-2">
                 {orderedDailyHabits.map((habit) => (
-                  <Card key={habit.id} className="habit-card overflow-visible rounded-[1.75rem] shadow-none">
+                  <Card key={habit.id} className="habit-card overflow-visible rounded-[1.75rem]">
                     {renderHabit(habit)}
                   </Card>
                 ))}
@@ -446,7 +447,7 @@ export function TodayPage({
                   {orderedWeeklyHabits.map((habit) => {
                   const goal = weeklyGoals.find((candidate) => candidate.id === habit.id);
                   return goal ? (
-                    <Card key={habit.id} className="habit-card overflow-visible rounded-[1.75rem] shadow-none">
+                    <Card key={habit.id} className="habit-card overflow-visible rounded-[1.75rem]">
                       <WeeklyHabitRow
                         habit={habit}
                         goal={goal}

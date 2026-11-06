@@ -77,7 +77,7 @@ export function AnalyticsPage({
           <h2 className="text-xs font-bold uppercase tracking-[0.14em]">Patterns in your data</h2>
         </div>
         {dashboard.insights.length === 0 ? (
-          <div className="mt-5 rounded-[1.5rem] border border-dashed border-line px-4 py-6 text-center">
+          <div className="soft-panel mt-5 rounded-[1.5rem] px-4 py-6 text-center">
             <Lightbulb className="mx-auto text-ink-400" size={22} />
             <p className="mt-3 text-sm font-semibold">No reliable pattern yet</p>
             <p className="mt-1 text-xs leading-5 text-ink-400">Patterns will appear once there is enough habit history.</p>
@@ -85,7 +85,7 @@ export function AnalyticsPage({
         ) : (
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             {dashboard.insights.map((insight) => (
-              <article key={insight.id} className="rounded-[1.5rem] bg-canvas px-4 py-4">
+              <article key={insight.id} className="soft-panel rounded-[1.5rem] px-4 py-4 transition-transform duration-300 hover:-translate-y-0.5">
                 <p className="text-sm font-semibold leading-5">{insight.title}</p>
                 <p className="mt-1 text-xs leading-5 text-ink-400">{insight.detail}</p>
               </article>

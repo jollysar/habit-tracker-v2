@@ -36,7 +36,6 @@ export function HabitRow({
   const [menuOpen, setMenuOpen] = useState(false);
   const [completionPulse, setCompletionPulse] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const isComplete = habit.status === "completed";
   const isSkipped = habit.status === "skipped";
   const hasProgress = habit.targetValue !== undefined;
@@ -72,16 +71,12 @@ export function HabitRow({
     );
     window.requestAnimationFrame(() => menuItems()[0]?.focus({ preventScroll: true }));
     const handlePointerDown = (event: PointerEvent) => {
-      if (
-        !menuRef.current?.contains(event.target as Node)
-        && !menuButtonRef.current?.contains(event.target as Node)
-      ) setMenuOpen(false);
+      if (!menuRef.current?.contains(event.target as Node)) setMenuOpen(false);
     };
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
         setMenuOpen(false);
-        menuButtonRef.current?.focus({ preventScroll: true });
       }
     };
     window.addEventListener("pointerdown", handlePointerDown);
@@ -111,26 +106,10 @@ export function HabitRow({
       onTouchCancel={gestures.onTouchCancel}
       onClickCapture={gestures.onClickCapture}
     >
-      <button
-        className="absolute inset-y-0 right-0 flex w-24 items-center justify-center gap-1.5 rounded-r-[1.75rem] bg-red-600 text-sm font-semibold text-white lg:hidden"
-        type="button"
-        data-delete-action
-        data-habit-gesture="ignore"
-        aria-label={`Delete ${habit.name}`}
-        aria-hidden={!gestures.deleteRevealed}
-        inert={!gestures.deleteRevealed}
-        tabIndex={gestures.deleteRevealed ? 0 : -1}
-        data-haptic="warning"
-        onClick={() => { gestures.closeDelete(); onDelete(); }}
-      >
-        <Trash2 size={17} aria-hidden="true" />
-        Delete
-      </button>
       <div className={cn(
-        "habit-row-surface relative flex min-h-14 items-center gap-2.5 bg-surface px-3.5 py-2.5 transition-[transform,background-color] duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] sm:gap-3 sm:px-5 sm:py-3 lg:translate-x-0",
+        "habit-row-surface relative flex min-h-14 items-center gap-2.5 bg-transparent px-3.5 py-2.5 transition-colors duration-300 sm:gap-3 sm:px-5 sm:py-3",
         isComplete && "bg-leaf-50",
         completionPulse && "habit-completion-bloom",
-        gestures.deleteRevealed && "-translate-x-24",
       )}>
         <button
         className="flex min-w-0 flex-1 items-center gap-2.5 text-left sm:gap-3"
@@ -187,14 +166,10 @@ export function HabitRow({
         )}
         <div className="relative self-center">
         <HabitStreakButton
-          ref={menuButtonRef}
           habitName={habit.name}
           plantType={habit.plantType}
           streak={habit.streak}
           cadence="day"
-          menuOpen={menuOpen}
-          menuId={`habit-menu-${habit.id}`}
-          onClick={() => setMenuOpen((current) => !current)}
         />
         {menuOpen && createPortal(
           <>
@@ -207,7 +182,7 @@ export function HabitRow({
           <div
             ref={menuRef}
             id={`habit-menu-${habit.id}`}
-            className="habit-action-sheet fixed inset-x-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-[120] max-h-[calc(100dvh-2rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))] overflow-y-auto rounded-[2rem] border border-line bg-surface p-3 shadow-2xl sm:inset-x-auto sm:bottom-6 sm:right-6 sm:w-80 sm:rounded-3xl"
+            className="habit-action-sheet solid-panel fixed inset-x-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-[120] max-h-[calc(100dvh-2rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))] overflow-y-auto rounded-[2rem] p-3 shadow-2xl sm:inset-x-auto sm:bottom-6 sm:right-6 sm:w-80 sm:rounded-3xl"
             role="menu"
             aria-label={`Actions for ${habit.name}`}
             onKeyDown={(event) => {
@@ -247,7 +222,7 @@ export function HabitRow({
               <RotateCcw size={18} aria-hidden="true" />
               Reset check-in
             </button>
-            <div className="my-1.5 border-t border-line" />
+            <div className="soft-panel my-1.5 h-px" />
             <button className="flex w-full items-center gap-3 rounded-2xl px-3 py-3.5 text-left text-sm font-semibold text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30" role="menuitem" data-haptic="warning" onClick={() => { setMenuOpen(false); onDelete(); }}>
               <Trash2 size={18} aria-hidden="true" />
               Delete habit

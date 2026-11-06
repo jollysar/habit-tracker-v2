@@ -141,7 +141,7 @@ export function AppShell({
       >
         Skip to main content
       </a>
-      <aside className="app-sidebar hidden bg-canvas transition-[width] duration-200 ease-out lg:fixed lg:inset-y-0 lg:block lg:border-r lg:border-line lg:bg-surface">
+      <aside className="app-sidebar hidden bg-surface transition-[width] duration-300 ease-out lg:fixed lg:inset-y-0 lg:block">
         <div className={cn(
           "flex items-center justify-between px-5 lg:h-20",
           sidebarCollapsed && "lg:justify-center lg:px-2",
@@ -176,7 +176,7 @@ export function AppShell({
                   sidebarCollapsed && "lg:justify-center lg:px-0",
                   isActive
                     ? "bg-ink-950 text-surface"
-                    : "text-ink-600 hover:bg-leaf-50 hover:text-ink-950",
+                    : "text-ink-600 hover:bg-surface-muted hover:text-ink-950",
                 )}
                 onClick={() => navigate(item.id)}
                 aria-label={item.label}
@@ -192,7 +192,7 @@ export function AppShell({
         </nav>
 
         {!sidebarCollapsed && (
-          <p className="absolute bottom-0 hidden w-full border-t border-line px-6 py-4 text-[11px] text-ink-400 lg:block">
+          <p className="absolute bottom-0 hidden w-full bg-surface-muted px-6 py-4 text-[11px] text-ink-400 lg:block">
             Private · Local · Offline
           </p>
         )}
@@ -224,7 +224,7 @@ export function AppShell({
 
       <nav
         className={cn(
-          "mobile-bottom-nav fixed inset-x-3 z-50 mx-auto max-w-md items-center justify-between gap-0.5 rounded-[1.65rem] border border-line bg-surface/95 px-2 py-2 shadow-[0_12px_36px_rgba(20,20,18,0.22)] backdrop-blur-xl lg:hidden",
+          "mobile-bottom-nav solid-panel fixed inset-x-3 z-50 mx-auto max-w-md items-center justify-between gap-0.5 rounded-[1.65rem] px-2 py-2 shadow-[0_14px_40px_rgba(20,20,18,0.24)] lg:hidden",
           mobileKeyboardOpen || overlayOpen ? "hidden" : "flex",
         )}
         aria-label="Primary navigation"

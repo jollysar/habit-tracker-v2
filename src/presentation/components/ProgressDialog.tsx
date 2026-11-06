@@ -46,7 +46,7 @@ export function ProgressDialog({ habit, onCancel, onSave }: ProgressDialogProps)
     >
       <section
         ref={dialogRef}
-        className="max-h-full w-full max-w-md overflow-y-auto rounded-3xl border border-line bg-surface p-5 shadow-2xl sm:p-6"
+        className="solid-panel max-h-full w-full max-w-md overflow-y-auto rounded-3xl p-5 shadow-2xl sm:p-6"
         role="dialog"
         aria-modal="true"
         aria-labelledby="progress-dialog-title"
@@ -71,7 +71,7 @@ export function ProgressDialog({ habit, onCancel, onSave }: ProgressDialogProps)
         <form className="mt-5 flex flex-1 flex-col" onSubmit={handleSubmit}>
           <label className="block text-xs font-semibold text-ink-600">
             {isWeeklyTarget ? "Progress for today" : "Today’s progress"}
-            <div className="mt-1.5 flex items-center rounded-full border border-line bg-surface focus-within:border-leaf-500 focus-within:ring-2 focus-within:ring-leaf-100">
+            <div className="soft-panel mt-1.5 flex items-center rounded-full focus-within:ring-2 focus-within:ring-leaf-500">
               <input
                 className="h-11 min-w-0 flex-1 bg-transparent px-3 text-sm outline-none"
                 type="number"
@@ -83,11 +83,11 @@ export function ProgressDialog({ habit, onCancel, onSave }: ProgressDialogProps)
                 aria-invalid={Boolean(error) || undefined}
                 aria-describedby={error ? "progress-dialog-error" : undefined}
               />
-              <span className="border-l border-line px-3 text-xs font-medium text-ink-400">{habit.targetUnit}</span>
+              <span className="bg-surface-raised mr-1 rounded-full px-3 py-1.5 text-xs font-medium text-ink-400">{habit.targetUnit}</span>
             </div>
           </label>
           {error && <p id="progress-dialog-error" className="mt-3 text-sm font-medium text-red-600" role="alert">{error}</p>}
-          <div className="mt-auto flex justify-end gap-3 border-t border-line pt-5">
+          <div className="soft-panel mt-auto flex justify-end gap-3 rounded-3xl p-3">
             <Button variant="secondary" onClick={onCancel}>Cancel</Button>
             <Button type="submit">Save progress</Button>
           </div>

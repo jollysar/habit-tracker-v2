@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
 import {
   AlertTriangle,
   CalendarRange,
@@ -10,11 +10,9 @@ import {
   HardDriveDownload,
   Keyboard,
   Laptop,
-  MessageSquareText,
   Moon,
   Palette,
   RotateCcw,
-  Send,
   Sun,
   X,
 } from "lucide-react";
@@ -67,8 +65,6 @@ export function SettingsPage({
   const [busyAction, setBusyAction] = useState<string>();
   const [status, setStatus] = useState<OperationStatus>();
   const [confirmRestore, setConfirmRestore] = useState(false);
-  const [feedbackType, setFeedbackType] = useState("Suggestion");
-  const [feedbackMessage, setFeedbackMessage] = useState("");
   const restoreDialogRef = useDialogFocus<HTMLElement>(
     confirmRestore,
     () => setConfirmRestore(false),
@@ -112,14 +108,6 @@ export function SettingsPage({
     { id: "dark", label: "Dark", description: "Always dark", icon: Moon },
   ];
 
-  const submitFeedback = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const message = feedbackMessage.trim();
-    if (!message) return;
-    const subject = encodeURIComponent(`Habitree feedback: ${feedbackType}`);
-    const body = encodeURIComponent(`${message}\n\n— Sent from Habitree`);
-    window.location.assign(`mailto:sargaur03@gmail.com?subject=${subject}&body=${body}`);
-  };
   const toneOptions: ReadonlyArray<{
     id: AppTone;
     label: string;
@@ -143,10 +131,10 @@ export function SettingsPage({
       {status && (
         <div
           className={cn(
-            "mt-5 flex items-start gap-3 rounded-3xl border px-4 py-3 text-sm sm:mt-6",
+            "mt-5 flex items-start gap-3 rounded-3xl px-4 py-3 text-sm sm:mt-6",
             status.tone === "success"
-              ? "border-leaf-100 bg-leaf-50 text-leaf-700"
-              : "border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300",
+              ? "bg-leaf-50 text-leaf-700"
+              : "bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-300",
           )}
           role="status"
         >
@@ -174,8 +162,8 @@ export function SettingsPage({
                   <button
                     key={option.id}
                     className={cn(
-                      "flex items-center gap-3 rounded-3xl border p-3.5 text-left transition sm:p-4",
-                      selected ? "border-leaf-500 bg-leaf-50 ring-2 ring-leaf-100" : "border-line hover:bg-leaf-50/50",
+                      "flex items-center gap-3 rounded-3xl p-3.5 text-left transition sm:p-4",
+                      selected ? "bg-leaf-100 ring-2 ring-leaf-500" : "bg-surface-muted hover:bg-leaf-50",
                     )}
                     type="button"
                     aria-pressed={selected}
@@ -190,7 +178,7 @@ export function SettingsPage({
                 );
               })}
             </div>
-            <div className="my-5 border-t border-line" />
+            <div className="soft-panel my-5 h-px" />
             <fieldset>
               <legend className="flex items-center gap-2 text-xs font-semibold text-ink-600">
                 <Palette size={14} aria-hidden="true" />
@@ -204,10 +192,10 @@ export function SettingsPage({
                     <button
                       key={option.id}
                       className={cn(
-                        "flex items-center gap-2 rounded-full border px-3 py-2.5 text-left text-xs font-semibold transition",
+                        "flex items-center gap-2 rounded-full px-3 py-2.5 text-left text-xs font-semibold transition",
                         selected
-                          ? "border-leaf-500 bg-leaf-50 ring-2 ring-leaf-100"
-                          : "border-line hover:bg-leaf-50/50",
+                          ? "bg-leaf-100 ring-2 ring-leaf-500"
+                          : "bg-surface-muted hover:bg-leaf-50",
                       )}
                       type="button"
                       aria-pressed={selected}
@@ -220,45 +208,6 @@ export function SettingsPage({
                 })}
               </div>
             </fieldset>
-          </Card>
-
-          <Card className="p-4 sm:p-6">
-            <div className="flex items-center gap-3">
-              <span className="grid size-9 shrink-0 place-items-center rounded-full bg-leaf-50 text-leaf-700"><MessageSquareText size={17} /></span>
-              <div>
-                <h2 className="font-bold tracking-[-0.02em]">Send feedback</h2>
-                <p className="mt-1 hidden text-xs leading-5 text-ink-400 sm:block">Share an idea or report a problem.</p>
-              </div>
-            </div>
-            <form className="mt-5 space-y-4" onSubmit={submitFeedback}>
-              <label className="block text-xs font-semibold text-ink-600" htmlFor="feedback-type">Feedback type</label>
-              <select
-                id="feedback-type"
-                className="h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm outline-none focus:border-leaf-500 focus:ring-2 focus:ring-leaf-100"
-                value={feedbackType}
-                onChange={(event) => setFeedbackType(event.currentTarget.value)}
-              >
-                <option>Suggestion</option>
-                <option>Problem</option>
-                <option>Something I like</option>
-              </select>
-              <label className="block text-xs font-semibold text-ink-600" htmlFor="feedback-message">Message</label>
-              <textarea
-                id="feedback-message"
-                className="min-h-28 w-full resize-y rounded-xl border border-line bg-surface p-3 text-sm leading-6 outline-none focus:border-leaf-500 focus:ring-2 focus:ring-leaf-100"
-                value={feedbackMessage}
-                onChange={(event) => setFeedbackMessage(event.currentTarget.value)}
-                placeholder="What would make Habitree better for you?"
-                required
-              />
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <p className="hidden text-[11px] leading-5 text-ink-400 sm:block">This opens your email app. Nothing is sent until you choose Send.</p>
-                <Button type="submit" disabled={!feedbackMessage.trim()}>
-                  <Send size={15} aria-hidden="true" />
-                  Prepare feedback
-                </Button>
-              </div>
-            </form>
           </Card>
 
           <Card className="p-4 sm:p-6">
@@ -278,8 +227,8 @@ export function SettingsPage({
                     <button
                       key={day}
                       className={cn(
-                        "rounded-full border px-4 py-3 text-sm font-semibold transition",
-                        selected ? "border-leaf-500 bg-leaf-50 text-leaf-700 ring-2 ring-leaf-100" : "border-line text-ink-600 hover:bg-leaf-50/50",
+                        "rounded-full px-4 py-3 text-sm font-semibold transition",
+                        selected ? "bg-leaf-100 text-leaf-700 ring-2 ring-leaf-500" : "bg-surface-muted text-ink-600 hover:bg-leaf-50",
                       )}
                       type="button"
                       aria-pressed={selected}
@@ -294,7 +243,7 @@ export function SettingsPage({
           </Card>
 
           <Card className="overflow-hidden">
-            <div className="border-b border-line px-5 py-5 sm:px-6">
+            <div className="soft-panel px-5 py-5 sm:px-6">
               <div className="flex items-center gap-3">
                 <span className="grid size-9 shrink-0 place-items-center rounded-full bg-leaf-50 text-leaf-700"><Download size={17} /></span>
                 <div>
@@ -303,8 +252,8 @@ export function SettingsPage({
                 </div>
               </div>
             </div>
-            <div className="divide-y divide-line">
-              <div className="flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+            <div className="space-y-2 p-2">
+              <div className="flex flex-col gap-4 rounded-3xl px-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-4">
                 <div className="flex items-center gap-3">
                   <FileJson className="text-ink-400" size={19} />
                   <div><p className="text-sm font-semibold">JSON archive</p><p className="mt-0.5 hidden text-[11px] text-ink-400 sm:block">Complete, structured and portable</p></div>
@@ -313,7 +262,7 @@ export function SettingsPage({
                   {busyAction === "JSON export" ? "Saving…" : "Export JSON"}
                 </Button>
               </div>
-              <div className="flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+              <div className="flex flex-col gap-4 rounded-3xl px-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-4">
                 <div className="flex items-center gap-3">
                   <FileSpreadsheet className="text-ink-400" size={19} />
                   <div><p className="text-sm font-semibold">CSV history</p><p className="mt-0.5 hidden text-[11px] text-ink-400 sm:block">Completion rows for spreadsheets</p></div>
@@ -326,7 +275,7 @@ export function SettingsPage({
           </Card>
 
           <Card className="overflow-hidden">
-            <div className="border-b border-line px-5 py-5 sm:px-6">
+            <div className="soft-panel px-5 py-5 sm:px-6">
               <div className="flex items-center gap-3">
                 <span className="grid size-9 shrink-0 place-items-center rounded-full bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400"><Database size={17} /></span>
                 <div>
@@ -336,7 +285,7 @@ export function SettingsPage({
               </div>
             </div>
             <div className="grid gap-4 p-5 sm:grid-cols-2 sm:p-6">
-              <div className="rounded-3xl border border-line p-4">
+              <div className="soft-panel rounded-3xl p-4">
                 <HardDriveDownload className="text-leaf-700" size={20} />
                 <p className="mt-3 text-sm font-semibold">Database backup</p>
                 <p className="mt-1 hidden min-h-10 text-xs leading-5 text-ink-400 sm:block">Save a restorable copy of every habit, schedule and check-in.</p>
@@ -344,7 +293,7 @@ export function SettingsPage({
                   {busyAction === "Backup" ? "Backing up…" : "Create backup"}
                 </Button>
               </div>
-              <div className="rounded-3xl border border-line p-4">
+              <div className="soft-panel rounded-3xl p-4">
                 <RotateCcw className="text-ink-600" size={20} />
                 <p className="mt-3 text-sm font-semibold">Restore backup</p>
                 <p className="mt-1 hidden min-h-10 text-xs leading-5 text-ink-400 sm:block">Validate a database and apply it safely on the next restart.</p>
@@ -387,11 +336,11 @@ export function SettingsPage({
 
       {confirmRestore && (
         <div className="mobile-dialog-layer fixed inset-0 z-[70] grid place-items-center bg-ink-950/50 p-4 backdrop-blur-[2px]" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && setConfirmRestore(false)}>
-          <section ref={restoreDialogRef} className="max-h-full w-full max-w-md overflow-y-auto rounded-3xl border border-line bg-surface p-5 shadow-2xl sm:p-6" role="alertdialog" aria-modal="true" aria-labelledby="restore-title" aria-describedby="restore-description" tabIndex={-1}>
+          <section ref={restoreDialogRef} className="solid-panel max-h-full w-full max-w-md overflow-y-auto rounded-3xl p-5 shadow-2xl sm:p-6" role="alertdialog" aria-modal="true" aria-labelledby="restore-title" aria-describedby="restore-description" tabIndex={-1}>
             <span className="grid size-10 place-items-center rounded-full bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400"><AlertTriangle size={19} /></span>
             <h2 id="restore-title" className="mt-4 text-xl font-bold tracking-[-0.03em]">Restore from a backup?</h2>
             <p id="restore-description" className="mt-2 text-sm leading-6 text-ink-600">The selected database will be validated and staged. Nothing changes until you restart Habitree.</p>
-            <p className="mt-3 rounded-2xl border border-line bg-canvas px-3 py-2.5 text-xs leading-5 text-ink-600">Your current database is preserved automatically before the staged backup is applied.</p>
+            <p className="soft-panel mt-3 rounded-2xl px-3 py-2.5 text-xs leading-5 text-ink-600">Your current database is preserved automatically before the staged backup is applied.</p>
             <div className="mt-6 flex justify-end gap-3">
               <Button variant="secondary" onClick={() => setConfirmRestore(false)} data-dialog-autofocus>Cancel</Button>
               <Button data-haptic="warning" onClick={() => {

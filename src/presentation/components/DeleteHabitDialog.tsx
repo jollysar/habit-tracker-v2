@@ -32,7 +32,7 @@ export function DeleteHabitDialog({ habit, onCancel, onConfirm }: DeleteHabitDia
     >
       <section
         ref={dialogRef}
-        className="max-h-full w-full max-w-md overflow-y-auto rounded-3xl border border-line bg-surface p-5 shadow-2xl sm:p-6"
+        className="solid-panel max-h-full w-full max-w-md overflow-y-auto rounded-3xl p-5 shadow-2xl sm:p-6"
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="delete-habit-title"
@@ -57,7 +57,7 @@ export function DeleteHabitDialog({ habit, onCancel, onConfirm }: DeleteHabitDia
           Existing completion history is retained locally for accurate analytics,
           but the habit will be removed from your active lists.
         </p>
-        <label className="mt-4 flex cursor-pointer items-center gap-3 rounded-2xl border border-line px-3 py-3 text-sm text-ink-600">
+        <label className="soft-panel mt-4 flex cursor-pointer items-center gap-3 rounded-2xl px-3 py-3 text-sm text-ink-600">
           <input
             className="size-4 rounded border-line accent-red-600"
             type="checkbox"
