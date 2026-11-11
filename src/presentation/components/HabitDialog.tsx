@@ -226,7 +226,7 @@ export function HabitDialog({
     <div
       className={cn(
         "mobile-dialog-layer fixed inset-0 z-[90] flex h-[100dvh] items-end justify-center bg-ink-950/45 backdrop-blur-[2px] sm:grid sm:place-items-center sm:p-4",
-        !habit && "mobile-app-screen",
+        "mobile-app-screen",
       )}
       role="presentation"
       onMouseDown={handleBackdrop}

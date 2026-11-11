@@ -11,6 +11,7 @@ import {
   resetHabitCheckIn,
   toggleHabitCompletion,
 } from "./application/habits/updateTodayHabit";
+import { versionHabitSchedule } from "./application/habits/versionHabitSchedule";
 import { buildTodayDashboard } from "./application/today/buildTodayDashboard";
 import {
   buildTodayHighlights,
@@ -546,6 +547,12 @@ function App() {
             : habit,
         ),
       );
+      setScheduleHistory((current) => versionHabitSchedule(
+        current,
+        updatedHabit.id,
+        habitDraft.schedule,
+        localDate,
+      ));
       if (habitRepository) {
         void Promise.all([
           habitRepository.updateHabit(updatedHabit, localDate),
@@ -570,6 +577,12 @@ function App() {
         sortOrder: activeCount,
       };
       setManagedHabits((current) => [...current, newHabit]);
+      setScheduleHistory((current) => versionHabitSchedule(
+        current,
+        newHabit.id,
+        newHabit.schedule,
+        newHabit.startDate,
+      ));
       if (draft.startDate <= localDate) {
         setHabits((current) => [...current, newHabit]);
       }

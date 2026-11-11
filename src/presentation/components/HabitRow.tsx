@@ -174,7 +174,7 @@ export function HabitRow({
         {menuOpen && createPortal(
           <>
           <button
-            className="fixed inset-0 z-[110] cursor-default bg-ink-950/30 backdrop-blur-[1px]"
+            className="fixed inset-0 z-[110] cursor-default bg-black/60 backdrop-blur-[1px]"
             type="button"
             aria-label="Close habit actions"
             onClick={() => setMenuOpen(false)}
@@ -182,7 +182,7 @@ export function HabitRow({
           <div
             ref={menuRef}
             id={`habit-menu-${habit.id}`}
-            className="habit-action-sheet solid-panel fixed inset-x-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-[120] max-h-[calc(100dvh-2rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))] overflow-y-auto rounded-[2rem] p-3 shadow-2xl sm:inset-x-auto sm:bottom-6 sm:right-6 sm:w-80 sm:rounded-3xl"
+            className="habit-action-sheet solid-panel fixed inset-x-4 bottom-[calc(max(0.75rem,env(safe-area-inset-bottom))+4.5rem)] z-[120] max-h-[calc(100dvh-7rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))] overflow-y-auto rounded-[2rem] p-3 shadow-2xl sm:inset-x-auto sm:bottom-6 sm:right-6 sm:w-80 sm:rounded-3xl"
             role="menu"
             aria-label={`Actions for ${habit.name}`}
             onKeyDown={(event) => {
