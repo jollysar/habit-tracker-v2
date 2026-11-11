@@ -78,10 +78,8 @@ import {
 } from "./presentation/components/HabitDialog";
 import { AppShell, type AppSection } from "./presentation/layout/AppShell";
 import { CalendarPage } from "./presentation/pages/CalendarPage";
-import { AnalyticsPage } from "./presentation/pages/AnalyticsPage";
 import { SettingsPage } from "./presentation/pages/SettingsPage";
 import { TodayPage } from "./presentation/pages/TodayPage";
-import { WeekPage, type WeekHabitView } from "./presentation/pages/WeekPage";
 
 type WeekStart = "mon" | "sun";
 const NOTIFICATION_ONBOARDING_KEY = "native_notification_prompt_complete_v2";
@@ -207,7 +205,6 @@ async function readPersistentHabitData(
 
 function App() {
   const [activeSection, setActiveSection] = useState<AppSection>("today");
-  const [weekHabitView, setWeekHabitView] = useState<WeekHabitView>("daily");
   const [themePreference, setThemePreference] = useState<ThemePreference>(
     getInitialThemePreference,
   );
@@ -440,10 +437,8 @@ function App() {
   useEffect(() => {
     const sectionShortcuts: Record<string, AppSection> = {
       "1": "today",
-      "2": "week",
-      "3": "calendar",
-      "4": "analytics",
-      "5": "settings",
+      "2": "calendar",
+      "3": "settings",
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -791,45 +786,6 @@ function App() {
     }
   };
 
-  const handleCorrectHistory = (
-    habit: ManagedHabit,
-    date: string,
-    status: CompletionStatus,
-    value?: number,
-  ) => {
-    setCompletionHistory((current) => {
-      const remaining = current.filter(
-        (record) => record.habitId !== habit.id || record.date !== date,
-      );
-      return status === "incomplete"
-        ? remaining
-        : [...remaining, { habitId: habit.id, date, status, value }];
-    });
-    setProgressHistory((current) => {
-      const remaining = current.filter(
-        (record) => record.habitId !== habit.id || record.date !== date,
-      );
-      return status === "completed" && habit.type !== "binary" && value !== undefined
-        ? [...remaining, { habitId: habit.id, date, value }]
-        : remaining;
-    });
-
-    if (!habitRepository) return;
-    const operation = status === "incomplete"
-      ? habitRepository.clearCheckIn(habit.id, date)
-      : habitRepository.setCheckIn(
-          { ...habit, status, value: status === "completed" ? value : undefined },
-          date,
-          status,
-        );
-    void operation.then(refreshPersistentData).catch((error) =>
-      recoverFromPersistenceFailure(
-        "That history correction could not be saved. Your saved data has been restored.",
-        error,
-      ),
-    );
-  };
-
   const persistSetting = (key: string, value: string) => {
     setSavedSettings((current) => ({ ...current, [key]: value }));
     if (habitRepository) {
@@ -1076,25 +1032,6 @@ function App() {
           onLogProgress={setHabitToLogId}
           onSaveWeeklyValue={handleSaveWeeklyValue}
           onReorderHabits={handleReorderHabits}
-          onViewWeek={(view) => {
-            setWeekHabitView(view);
-            setActiveSection("week");
-          }}
-        />
-      )}
-
-      {activeSection === "week" && (
-        <WeekPage
-          habits={managedHabits}
-          schedules={scheduleHistory}
-          completions={completionHistory}
-          progress={progressHistory}
-          localDate={localDate}
-          weekStartsOn={weekStartsOn}
-          weeklyProgress={weeklyProgress}
-          habitView={weekHabitView}
-          onHabitViewChange={setWeekHabitView}
-          onCorrectHistory={handleCorrectHistory}
         />
       )}
 
@@ -1106,18 +1043,6 @@ function App() {
           progress={progressHistory}
           localDate={localDate}
           weekStartsOn={weekStartsOn}
-        />
-      )}
-
-      {activeSection === "analytics" && (
-        <AnalyticsPage
-          habits={managedHabits}
-          schedules={scheduleHistory}
-          completions={completionHistory}
-          progress={progressHistory}
-          localDate={localDate}
-          weekStartsOn={weekStartsOn}
-          weeklyProgress={weeklyProgress}
         />
       )}
 

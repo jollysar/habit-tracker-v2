@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { createPortal } from "react-dom";
-import { ArrowUpRight, Gauge, Pencil, Trash2 } from "lucide-react";
+import { Gauge, Pencil, Trash2 } from "lucide-react";
 import type { TodayHabit, WeeklyGoal } from "../../domain/habits/models";
 import { cn } from "../../lib/cn";
 import { playHaptic } from "../../infrastructure/native/haptics";
@@ -13,7 +13,6 @@ interface WeeklyHabitRowProps {
   readonly onSaveValue: (value: number) => void;
   readonly onEdit: () => void;
   readonly onDelete: () => void;
-  readonly onViewStreakHistory: () => void;
   readonly onReorderStart?: () => void;
   readonly onReorderMove?: (point: { readonly x: number; readonly y: number }) => void;
   readonly onReorderEnd?: () => void;
@@ -25,7 +24,6 @@ export function WeeklyHabitRow({
   onSaveValue,
   onEdit,
   onDelete,
-  onViewStreakHistory,
   onReorderStart,
   onReorderMove,
   onReorderEnd,
@@ -201,10 +199,6 @@ export function WeeklyHabitRow({
             }}
           >
             <p className="px-3 pb-2 pt-1 text-sm font-bold tracking-[-0.01em] text-ink-950">{habit.name}</p>
-            <button className="flex w-full items-center gap-3 rounded-2xl px-3 py-3.5 text-left text-sm font-medium text-ink-800 hover:bg-leaf-50" role="menuitem" onClick={() => { setMenuOpen(false); onViewStreakHistory(); }}>
-              <ArrowUpRight size={18} aria-hidden="true" />
-              View streak history
-            </button>
             <button className="flex w-full items-center gap-3 rounded-2xl px-3 py-3.5 text-left text-sm font-medium text-ink-800 hover:bg-leaf-50" role="menuitem" onClick={() => { setMenuOpen(false); setEditing(true); }}>
               <Gauge size={18} aria-hidden="true" />
               Update progress

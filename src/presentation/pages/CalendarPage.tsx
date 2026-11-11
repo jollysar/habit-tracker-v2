@@ -58,6 +58,7 @@ export function CalendarPage({
     ? ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
     : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const canMoveForward = dashboard.monthEnd < localDate.slice(0, 7) + "-01";
+  const isCurrentMonth = dashboard.monthStart === `${localDate.slice(0, 7)}-01`;
 
   return (
     <div className="app-content-page mobile-page-safe mx-auto max-w-[1440px] px-5 pb-7 sm:px-8 sm:py-9 xl:px-12">
@@ -68,7 +69,7 @@ export function CalendarPage({
             <ChevronLeft size={18} />
           </Button>
           <Button className="w-full justify-center rounded-full" variant="secondary" onClick={() => setSelectedMonth(localDate)}>
-            <CalendarCheck size={16} /> This month
+            <CalendarCheck size={16} /> {isCurrentMonth ? "This month" : dashboard.monthLabel}
           </Button>
           <Button
             variant="secondary"
@@ -82,33 +83,7 @@ export function CalendarPage({
         </div>
       </header>
 
-      <section className="mt-6 grid grid-cols-2 gap-3 sm:mt-8 sm:gap-4 xl:grid-cols-[1.35fr_repeat(3,1fr)]" aria-label="Monthly analytics">
-        <Card className="col-span-2 flex items-center gap-5 rounded-[1.75rem] p-5 xl:col-span-1">
-          <ProgressRing percentage={dashboard.completionPercentage} />
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-ink-400">Monthly analytics</p>
-            <p className="mt-1 text-2xl font-bold tracking-[-0.04em]">{dashboard.completedCount} of {dashboard.expectedCount}</p>
-            <p className="mt-1 text-xs text-ink-600">{dashboard.monthLabel}</p>
-          </div>
-        </Card>
-        <Card className="rounded-[1.75rem] p-4 sm:p-5">
-          <span className="grid size-9 place-items-center rounded-full bg-leaf-50 text-leaf-700"><History size={18} /></span>
-          <p className="mt-3 text-2xl font-bold tracking-[-0.04em] sm:mt-4">{dashboard.totalCheckIns}</p>
-          <p className="mt-1 text-xs text-ink-600">Total completions</p>
-        </Card>
-        <Card className="rounded-[1.75rem] p-4 sm:p-5">
-          <span className="grid size-9 place-items-center rounded-full bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-400"><X size={18} /></span>
-          <p className="mt-3 text-2xl font-bold tracking-[-0.04em] sm:mt-4">{dashboard.missedCount}</p>
-          <p className="mt-1 text-xs text-ink-600">Missed check-ins</p>
-        </Card>
-        <Card className="col-span-2 rounded-[1.75rem] p-4 sm:col-span-1 sm:p-5">
-          <span className="grid size-9 place-items-center rounded-full bg-canvas text-ink-600"><CircleMinus size={18} /></span>
-          <p className="mt-3 text-2xl font-bold tracking-[-0.04em] sm:mt-4">{dashboard.skippedCount}</p>
-          <p className="mt-1 text-xs text-ink-600">Skipped check-ins</p>
-        </Card>
-      </section>
-
-      <Card className="mt-5 overflow-hidden rounded-[1.75rem] p-3 shadow-none sm:mt-6 sm:p-5">
+      <Card className="mt-6 overflow-hidden rounded-[1.75rem] p-3 shadow-none sm:mt-8 sm:p-5">
         <div className="mb-4 flex items-center justify-between px-1">
           <h2 className="text-lg font-bold tracking-[-0.025em]">{dashboard.monthLabel}</h2>
         </div>
@@ -159,6 +134,34 @@ export function CalendarPage({
           <span className="hidden items-center gap-1.5 sm:flex"><span className="size-2 rounded-full bg-blue-500" />Flexible</span>
         </div>
       </Card>
+
+      <section className="mt-5 space-y-3 sm:mt-6" aria-label="Monthly completion">
+        <Card className="flex items-center gap-5 rounded-[1.75rem] p-5">
+          <ProgressRing percentage={dashboard.completionPercentage} showCaption={false} />
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-ink-400">Monthly completion</p>
+            <p className="mt-1 text-2xl font-bold tracking-[-0.04em]">{dashboard.completedCount} of {dashboard.expectedCount}</p>
+            <p className="mt-1 text-xs text-ink-600">{dashboard.monthLabel}</p>
+          </div>
+        </Card>
+        <div className="grid gap-3 lg:grid-cols-3">
+          <Card className="flex items-center gap-3 rounded-[1.75rem] p-4 sm:p-5">
+            <span className="grid size-9 shrink-0 place-items-center rounded-full bg-leaf-50 text-leaf-700"><History size={18} /></span>
+            <p className="text-sm font-semibold">Total completions</p>
+            <strong className="ml-auto text-xl tracking-[-0.04em]">{dashboard.totalCheckIns}</strong>
+          </Card>
+          <Card className="flex items-center gap-3 rounded-[1.75rem] p-4 sm:p-5">
+            <span className="grid size-9 shrink-0 place-items-center rounded-full bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-400"><X size={18} /></span>
+            <p className="text-sm font-semibold">Missed check-ins</p>
+            <strong className="ml-auto text-xl tracking-[-0.04em]">{dashboard.missedCount}</strong>
+          </Card>
+          <Card className="flex items-center gap-3 rounded-[1.75rem] p-4 sm:p-5">
+            <span className="grid size-9 shrink-0 place-items-center rounded-full bg-canvas text-ink-600"><CircleMinus size={18} /></span>
+            <p className="text-sm font-semibold">Skipped check-ins</p>
+            <strong className="ml-auto text-xl tracking-[-0.04em]">{dashboard.skippedCount}</strong>
+          </Card>
+        </div>
+      </section>
     </div>
   );
 }

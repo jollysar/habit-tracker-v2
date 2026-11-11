@@ -54,7 +54,7 @@ export function DeleteHabitDialog({ habit, onCancel, onConfirm }: DeleteHabitDia
           This removes the habit. If you want to track it again later, you’ll have to set the habit up again from the start.
         </p>
         <p className="mt-3 rounded-2xl border border-red-100 bg-red-50 px-3 py-2.5 text-xs leading-5 text-red-700 dark:border-red-900/50 dark:bg-red-950/25 dark:text-red-300">
-          Existing completion history is retained locally for accurate analytics,
+          Existing completion history is retained locally for an accurate history,
           but the habit will be removed from your active lists.
         </p>
         <label className="soft-panel mt-4 flex cursor-pointer items-center gap-3 rounded-2xl px-3 py-3 text-sm text-ink-600">

@@ -118,7 +118,10 @@ export function calculateHabitStatistics(
         outcomes.push({ key: cursor, date: cursor, outcome });
       } else if (schedule.type === "weekly_frequency" || schedule.type === "weekly_target") {
         const weekStart = startOfLocalWeek(cursor, weekStartsOn);
-        if (!weeklySchedules.has(weekStart)) weeklySchedules.set(weekStart, schedule);
+        // A weekly goal edited midweek governs that whole week. Keeping the
+        // latest applicable version here makes the saved target visible as
+        // soon as the edit closes without rewriting earlier weeks.
+        weeklySchedules.set(weekStart, schedule);
       }
     }
     cursor = addDaysToLocalDateKey(cursor, 1);
@@ -224,7 +227,7 @@ function weekRow(
   const schedulesInWeek = dates
     .map((date) => scheduleForHabitDate(habit, schedules, date))
     .filter((schedule): schedule is HabitSchedule => Boolean(schedule));
-  const flexible = schedulesInWeek.find(
+  const flexible = [...schedulesInWeek].reverse().find(
     (schedule) => schedule.type === "weekly_frequency" || schedule.type === "weekly_target",
   );
   let completed: number;

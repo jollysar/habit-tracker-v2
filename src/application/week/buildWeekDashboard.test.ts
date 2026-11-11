@@ -101,6 +101,33 @@ describe("week dashboard", () => {
     expect(dashboard.habits[0].statistics.currentStreak).toBe(1);
   });
 
+  it("uses a weekly target saved midway through the current week", () => {
+    const weeklyHabit: ManagedHabit = {
+      ...habit,
+      id: "gym",
+      schedule: { type: "weekly_frequency", targetCount: 5, effectiveFrom: "2026-09-03" },
+    };
+    const weeklySchedules: HabitScheduleRecord[] = [
+      {
+        habitId: "gym",
+        type: "weekly_frequency",
+        targetCount: 3,
+        effectiveFrom: "2026-08-31",
+        effectiveTo: "2026-09-02",
+      },
+      {
+        habitId: "gym",
+        type: "weekly_frequency",
+        targetCount: 5,
+        effectiveFrom: "2026-09-03",
+      },
+    ];
+    const dashboard = buildWeekDashboard(
+      [weeklyHabit], weeklySchedules, [], [], "2026-09-04", "2026-09-04",
+    );
+    expect(dashboard.habits[0].target).toBe(5);
+  });
+
   it("supports Sunday-first week boundaries", () => {
     const dashboard = buildWeekDashboard(
       [habit], schedules, [], [], "2026-09-03", "2026-09-03", "sun",

@@ -40,7 +40,6 @@ interface TodayPageProps {
   readonly onLogProgress: (habitId: string) => void;
   readonly onSaveWeeklyValue: (habitId: string, value: number) => void;
   readonly onReorderHabits: (orderedHabitIds: readonly string[]) => void;
-  readonly onViewWeek: (view: HomeView) => void;
 }
 
 export function TodayPage({
@@ -64,7 +63,6 @@ export function TodayPage({
   onLogProgress,
   onSaveWeeklyValue,
   onReorderHabits,
-  onViewWeek,
 }: TodayPageProps) {
   const [activeView, setActiveView] = useState<HomeView>("daily");
   const [datePickerOpen, setDatePickerOpen] = useState(false);
@@ -270,7 +268,6 @@ export function TodayPage({
       onReset={() => onResetHabit(habit.id)}
       onDelete={() => onDeleteHabit(habit.id)}
       onLogProgress={() => onLogProgress(habit.id)}
-      onViewStreakHistory={() => onViewWeek("daily")}
       onReorderStart={() => startReordering(habit.id, "daily")}
       onReorderMove={moveReorderingHabit}
       onReorderEnd={finishReordering}
@@ -454,7 +451,6 @@ export function TodayPage({
                         onSaveValue={(value) => onSaveWeeklyValue(habit.id, value)}
                         onEdit={() => onEditHabit(habit.id)}
                         onDelete={() => onDeleteHabit(habit.id)}
-                        onViewStreakHistory={() => onViewWeek("weekly")}
                         onReorderStart={() => startReordering(habit.id, "weekly")}
                         onReorderMove={moveReorderingHabit}
                         onReorderEnd={finishReordering}

@@ -4,9 +4,10 @@ interface ProgressRingProps {
   readonly percentage: number;
   readonly compact?: boolean;
   readonly minimal?: boolean;
+  readonly showCaption?: boolean;
 }
 
-export function ProgressRing({ percentage, compact = false, minimal = false }: ProgressRingProps) {
+export function ProgressRing({ percentage, compact = false, minimal = false, showCaption = true }: ProgressRingProps) {
   const radius = 42;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (percentage / 100) * circumference;
@@ -55,7 +56,7 @@ export function ProgressRing({ percentage, compact = false, minimal = false }: P
       {!minimal && (
         <div className="text-center">
           <strong className={`block font-bold tracking-[-0.04em] ${compact ? "text-xl" : "text-2xl"}`}>{percentage}%</strong>
-          <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-400">Done</span>
+          {showCaption && <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-400">Done</span>}
         </div>
       )}
     </div>

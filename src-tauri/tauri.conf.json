@@ -39,7 +39,7 @@
     "copyright": "Copyright © 2026 jollysar",
     "iOS": {
       "minimumSystemVersion": "15.0",
-      "bundleVersion": "2.5"
+      "bundleVersion": "2.6"
     },
     "icon": [
       "icons/32x32.png",

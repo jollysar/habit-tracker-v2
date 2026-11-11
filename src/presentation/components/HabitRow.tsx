@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { ArrowUpRight, Check, Gauge, Minus, Pencil, RotateCcw, Trash2 } from "lucide-react";
+import { Check, Gauge, Minus, Pencil, RotateCcw, Trash2 } from "lucide-react";
 import type { TodayHabit } from "../../domain/habits/models";
 import { cn } from "../../lib/cn";
 import { HabitStreakButton } from "./HabitStreakButton";
@@ -14,7 +14,6 @@ interface HabitRowProps {
   readonly onReset: () => void;
   readonly onDelete: () => void;
   readonly onLogProgress: () => void;
-  readonly onViewStreakHistory: () => void;
   readonly onReorderStart?: () => void;
   readonly onReorderMove?: (point: { readonly x: number; readonly y: number }) => void;
   readonly onReorderEnd?: () => void;
@@ -28,7 +27,6 @@ export function HabitRow({
   onReset,
   onDelete,
   onLogProgress,
-  onViewStreakHistory,
   onReorderStart,
   onReorderMove,
   onReorderEnd,
@@ -200,10 +198,6 @@ export function HabitRow({
             }}
           >
             <p className="px-3 pb-2 pt-1 text-sm font-bold tracking-[-0.01em] text-ink-950">{habit.name}</p>
-            <button className="flex w-full items-center gap-3 rounded-2xl px-3 py-3.5 text-left text-sm font-medium text-ink-800 hover:bg-leaf-50" role="menuitem" onClick={() => { setMenuOpen(false); onViewStreakHistory(); }}>
-              <ArrowUpRight size={18} aria-hidden="true" />
-              View streak history
-            </button>
             <button className="flex w-full items-center gap-3 rounded-2xl px-3 py-3.5 text-left text-sm font-medium text-ink-800 hover:bg-leaf-50" role="menuitem" onClick={() => { setMenuOpen(false); onEdit(); }}>
               <Pencil size={18} aria-hidden="true" />
               Edit details

@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from "react";
 import {
-  BarChart3,
   CalendarDays,
-  Clock3,
   House,
   Plus,
   Settings,
@@ -11,7 +9,7 @@ import { cn } from "../../lib/cn";
 import { AnimatedPlant } from "../components/AnimatedPlant";
 import { useGlobalHaptics } from "../hooks/useGlobalHaptics";
 
-export type AppSection = "today" | "week" | "calendar" | "analytics" | "settings";
+export type AppSection = "today" | "calendar" | "settings";
 
 const navigation: ReadonlyArray<{
   id: AppSection;
@@ -19,9 +17,7 @@ const navigation: ReadonlyArray<{
   icon: typeof CalendarDays;
 }> = [
   { id: "today", label: "Today", icon: House },
-  { id: "week", label: "Week", icon: Clock3 },
   { id: "calendar", label: "Calendar", icon: CalendarDays },
-  { id: "analytics", label: "Analytics", icon: BarChart3 },
   { id: "settings", label: "Settings", icon: Settings },
 ];
 
