@@ -55,7 +55,7 @@ targets:
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
         CFBundleShortVersionString: 1.0.0
-        CFBundleVersion: "2.4"
+        CFBundleVersion: "2.5"
     entitlements:
       path: habitree_iOS/habitree_iOS.entitlements
     scheme:
