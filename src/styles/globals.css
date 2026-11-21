@@ -78,7 +78,29 @@ body {
 }
 
 .mobile-bottom-nav {
+  left: 50%;
   bottom: max(0.75rem, env(safe-area-inset-bottom));
+  width: min(200px, calc(100vw - 2rem));
+  height: 62px;
+  transform: translateX(-50%);
+  border: 1px solid color-mix(in srgb, var(--color-ink-950) 20%, transparent);
+  border-radius: 40px;
+  background: color-mix(in srgb, var(--color-surface-raised) 84%, transparent);
+  box-shadow:
+    0 14px 34px color-mix(in srgb, var(--color-ink-950) 21%, transparent),
+    inset 0 1px rgb(255 255 255 / 0.28);
+  backdrop-filter: blur(18px) saturate(1.25);
+  -webkit-backdrop-filter: blur(18px) saturate(1.25);
+}
+
+.mobile-nav-item {
+  width: 48px;
+}
+
+.mobile-nav-primary {
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--color-leaf-500) 16%, transparent),
+    0 6px 16px color-mix(in srgb, var(--color-ink-950) 18%, transparent);
 }
 
 .habit-row-surface {

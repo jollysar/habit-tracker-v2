@@ -220,30 +220,34 @@ export function AppShell({
 
       <nav
         className={cn(
-          "mobile-bottom-nav solid-panel fixed inset-x-3 z-50 mx-auto max-w-md items-center justify-between gap-0.5 rounded-[1.65rem] px-2 py-2 shadow-[0_14px_40px_rgba(20,20,18,0.24)] lg:hidden",
+          "mobile-bottom-nav fixed z-50 items-center justify-center gap-3.5 px-3 lg:hidden",
           mobileKeyboardOpen || overlayOpen ? "hidden" : "flex",
         )}
         aria-label="Primary navigation"
       >
         {activeSection === "today" ? (
           <button
-            className="grid size-12 shrink-0 place-items-center rounded-full bg-leaf-600 text-white shadow-md transition-transform duration-150 active:scale-90"
+            className="mobile-nav-item grid size-12 shrink-0 place-items-center rounded-full transition-transform duration-150 active:scale-90"
             type="button"
             onClick={onAddHabit}
             aria-label="Add habit"
             title="Add habit"
           >
-            <Plus size={23} strokeWidth={2.5} aria-hidden="true" />
+            <span className="mobile-nav-primary grid size-10 place-items-center rounded-full bg-leaf-600 text-white">
+              <Plus size={27} strokeWidth={2.2} aria-hidden="true" />
+            </span>
           </button>
         ) : (
           <button
-            className="grid size-12 shrink-0 place-items-center rounded-full transition-transform duration-150 active:scale-90"
+            className="mobile-nav-item grid size-12 shrink-0 place-items-center rounded-full transition-transform duration-150 active:scale-90"
             type="button"
             onClick={() => navigate("today")}
             aria-label="Go to Today"
             title="Today"
           >
-            <AnimatedPlant plantType="oak" stage={4} size={39} />
+            <span className="grid size-10 place-items-center rounded-full">
+              <AnimatedPlant plantType="oak" stage={4} size={39} />
+            </span>
           </button>
         )}
         {navigation.filter((item) => item.id !== "today").map((item, index) => {
@@ -252,10 +256,7 @@ export function AppShell({
           const navigationButton = (
             <button
               key={item.id}
-              className={cn(
-                "grid size-11 shrink-0 place-items-center rounded-full text-ink-800 transition-[color,background-color,transform] duration-150 active:scale-90",
-                isActive && "nav-active bg-ink-950 text-surface",
-              )}
+              className="mobile-nav-item grid size-12 shrink-0 place-items-center rounded-full text-ink-800 transition-[color,transform] duration-150 active:scale-90"
               type="button"
               onClick={() => navigate(item.id)}
               aria-label={item.label}
@@ -263,7 +264,14 @@ export function AppShell({
               aria-keyshortcuts={`Alt+${index + 1}`}
               title={item.label}
             >
-              <Icon size={21} strokeWidth={isActive ? 2.5 : 2.2} aria-hidden="true" />
+              <span
+                className={cn(
+                  "grid size-10 place-items-center rounded-full transition-[color,background-color,transform] duration-150",
+                  isActive && "nav-active bg-ink-950 text-surface",
+                )}
+              >
+                <Icon size={27} strokeWidth={2.2} aria-hidden="true" />
+              </span>
             </button>
           );
 
