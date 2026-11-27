@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import { createPortal } from "react-dom";
 import { Gauge, Pencil, Trash2 } from "lucide-react";
 import type { TodayHabit, WeeklyGoal } from "../../domain/habits/models";
@@ -30,11 +30,26 @@ export function WeeklyHabitRow({
 }: WeeklyHabitRowProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(String(goal.completed));
-  const [error, setError] = useState("");
+  const [completionPulse, setCompletionPulse] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const committedValueRef = useRef(goal.completed);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const requiresWholeNumber = habit.schedule?.type === "weekly_frequency";
+  const isComplete = goal.target > 0 && goal.completed >= goal.target;
+  const sliderMaximum = Math.max(1, goal.target);
+  const draftValue = Number.isFinite(Number(draft))
+    ? Math.min(sliderMaximum, Math.max(0, Number(draft)))
+    : goal.completed;
+  const progressPercentage = Math.min(100, (draftValue / sliderMaximum) * 100);
+  const markerPositions = useMemo(() => {
+    const exactMarkerCount = Number.isInteger(goal.target) && goal.target <= 12
+      ? Math.max(0, goal.target - 1)
+      : 4;
+    return Array.from({ length: exactMarkerCount }, (_, index) => (
+      ((index + 1) / (exactMarkerCount + 1)) * 100
+    ));
+  }, [goal.target]);
   const gestures = useHabitRowGestures({
     onLongPress: () => setMenuOpen(true),
     onReorderStart: onReorderStart
@@ -48,12 +63,24 @@ export function WeeklyHabitRow({
   });
 
   useEffect(() => {
+    committedValueRef.current = goal.completed;
     if (!editing) setDraft(String(goal.completed));
   }, [editing, goal.completed]);
 
   useEffect(() => {
-    if (editing) inputRef.current?.select();
+    if (editing) inputRef.current?.focus({ preventScroll: true });
   }, [editing]);
+
+  const wasComplete = useRef(isComplete);
+
+  useEffect(() => {
+    const newlyCompleted = !wasComplete.current && isComplete;
+    wasComplete.current = isComplete;
+    if (!newlyCompleted) return;
+    setCompletionPulse(true);
+    const timer = window.setTimeout(() => setCompletionPulse(false), 520);
+    return () => window.clearTimeout(timer);
+  }, [isComplete]);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -76,28 +103,27 @@ export function WeeklyHabitRow({
     };
   }, [menuOpen]);
 
-  const commit = () => {
-    const parsed = Number(draft);
-    if (!Number.isFinite(parsed) || parsed < 0 || (requiresWholeNumber && !Number.isInteger(parsed))) {
-      setError(requiresWholeNumber
-        ? "Enter a whole number of zero or more."
-        : "Enter a number of zero or more.");
-      inputRef.current?.focus();
-      return;
+  const commit = (nextDraft = draft) => {
+    const parsed = Number(nextDraft);
+    if (!Number.isFinite(parsed)) return;
+    const normalized = requiresWholeNumber
+      ? Math.round(Math.min(sliderMaximum, Math.max(0, parsed)))
+      : Math.min(sliderMaximum, Math.max(0, parsed));
+    setDraft(String(normalized));
+    if (normalized !== committedValueRef.current) {
+      committedValueRef.current = normalized;
+      void playHaptic(normalized >= goal.target ? "success" : "complete");
+      onSaveValue(normalized);
     }
-    setError("");
-    if (parsed !== goal.completed) {
-      void playHaptic(parsed >= goal.target ? "success" : "complete");
-      onSaveValue(parsed);
-    }
-    setEditing(false);
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter") commit();
+    if (event.key === "Enter") {
+      commit(event.currentTarget.value);
+      setEditing(false);
+    }
     if (event.key === "Escape") {
       setDraft(String(goal.completed));
-      setError("");
       setEditing(false);
     }
   };
@@ -121,55 +147,43 @@ export function WeeklyHabitRow({
       onTouchCancel={gestures.onTouchCancel}
       onClickCapture={gestures.onClickCapture}
     >
-      <div className="habit-row-surface relative flex min-h-14 items-center gap-3 bg-transparent px-3.5 py-2.5 sm:px-5 sm:py-3">
-      <div className="flex shrink-0 items-baseline gap-0.5" aria-label={`${goal.completed} of ${goal.target} ${goal.unit}`}>
-        {editing ? (
-          <input
-            ref={inputRef}
-            className="h-9 w-14 rounded-full border border-leaf-500 bg-surface px-2 text-left text-lg font-bold tabular-nums outline-none ring-2 ring-leaf-100"
-            type="number"
-            min="0"
-            step={requiresWholeNumber ? "1" : "any"}
-            value={draft}
-            onChange={(event) => setDraft(event.currentTarget.value)}
-            onBlur={commit}
-            onKeyDown={handleKeyDown}
-            aria-label={`Current weekly value for ${habit.name}`}
-            aria-invalid={Boolean(error) || undefined}
-            aria-describedby={error ? `weekly-value-error-${habit.id}` : undefined}
-          />
-        ) : (
+      <div className={cn(
+        "habit-row-surface relative flex min-h-14 flex-col bg-transparent px-3.5 py-2 transition-colors duration-300 sm:px-5 sm:py-2.5",
+        isComplete && "bg-leaf-50",
+        completionPulse && "habit-completion-bloom",
+      )}>
+        <div className="flex min-h-10 w-full items-center gap-2">
           <button
-            className="rounded-full py-1 text-left text-lg font-bold tabular-nums text-leaf-700 underline decoration-leaf-300 underline-offset-4 transition hover:bg-leaf-50"
+            className="flex min-w-0 flex-1 items-center gap-2 rounded-full py-1 text-left"
             type="button"
-            onClick={() => setEditing(true)}
-            aria-label={`Edit current weekly value for ${habit.name}`}
+            onClick={() => setEditing((current) => !current)}
+            aria-expanded={editing}
+            aria-controls={`weekly-progress-${habit.id}`}
+            aria-label={`${editing ? "Close" : "Adjust"} weekly progress for ${habit.name}`}
           >
-            <span key={goal.completed} className="number-pop inline-block">{goal.completed}</span>
+            <span className="flex shrink-0 items-baseline gap-0" aria-label={`${goal.completed} of ${goal.target} ${goal.unit}`}>
+              <span key={goal.completed} className="number-pop inline-block text-lg font-bold tabular-nums text-leaf-700">{goal.completed}</span>
+              <span className="text-sm font-semibold tabular-nums text-ink-600">/{goal.target}</span>
+            </span>
+            <span className="min-w-0 flex-1 truncate text-base font-semibold">{habit.name}</span>
           </button>
-        )}
-        <span className="text-sm font-semibold tabular-nums text-ink-600">/{goal.target}</span>
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-base font-semibold">{habit.name}</p>
-        {habit.description && <p className="mt-0.5 hidden truncate text-xs text-ink-400 sm:block">{habit.description}</p>}
-        {error && <p id={`weekly-value-error-${habit.id}`} className="mt-1 text-xs font-medium text-red-600" role="alert">{error}</p>}
-      </div>
-      <div className="hidden shrink-0 items-center opacity-55 transition group-hover:opacity-100 group-focus-within:opacity-100 lg:flex">
-        <button className="grid size-8 place-items-center rounded-full text-ink-400 hover:bg-leaf-50 hover:text-ink-800" type="button" onClick={onEdit} aria-label={`Edit ${habit.name}`}>
-          <Pencil size={14} aria-hidden="true" />
-        </button>
-        <button className="grid size-8 place-items-center rounded-full text-ink-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30" type="button" data-haptic="warning" onClick={onDelete} aria-label={`Delete ${habit.name}`}>
-          <Trash2 size={14} aria-hidden="true" />
-        </button>
-      </div>
-      <div className="relative self-center">
-        <HabitStreakButton
-          habitName={habit.name}
-          plantType={habit.plantType}
-          streak={habit.streak}
-          cadence="week"
-        />
+
+          <div className="hidden shrink-0 items-center opacity-55 transition group-hover:opacity-100 group-focus-within:opacity-100 lg:flex">
+            <button className="grid size-8 place-items-center rounded-full text-ink-400 hover:bg-leaf-50 hover:text-ink-800" type="button" onClick={onEdit} aria-label={`Edit ${habit.name}`}>
+              <Pencil size={14} aria-hidden="true" />
+            </button>
+            <button className="grid size-8 place-items-center rounded-full text-ink-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30" type="button" data-haptic="warning" onClick={onDelete} aria-label={`Delete ${habit.name}`}>
+              <Trash2 size={14} aria-hidden="true" />
+            </button>
+          </div>
+
+          <div className="relative self-center">
+            <HabitStreakButton
+              habitName={habit.name}
+              plantType={habit.plantType}
+              streak={habit.streak}
+              cadence="week"
+            />
         {menuOpen && createPortal(
           <>
           <button
@@ -216,7 +230,47 @@ export function WeeklyHabitRow({
           </>,
           document.body,
         )}
-      </div>
+          </div>
+        </div>
+
+        {editing && (
+          <div id={`weekly-progress-${habit.id}`} className="cadence-options-reveal px-1 pb-1 pt-2">
+            <div
+              className="weekly-progress-control relative flex h-9 items-center"
+              style={{ "--weekly-progress": `${progressPercentage}%` } as CSSProperties}
+            >
+              <div className="pointer-events-none absolute inset-x-[10px] top-1/2 z-20 h-4 -translate-y-1/2" aria-hidden="true">
+                {markerPositions.map((position) => (
+                  <span
+                    key={position}
+                    className="absolute top-1/2 h-2.5 w-px -translate-x-1/2 -translate-y-1/2 rounded-full bg-ink-400/70"
+                    style={{ left: `${position}%` }}
+                  />
+                ))}
+              </div>
+              <input
+                ref={inputRef}
+                className="weekly-progress-range relative z-10 w-full"
+                type="range"
+                min="0"
+                max={sliderMaximum}
+                step={requiresWholeNumber ? "1" : "0.1"}
+                value={draftValue}
+                onChange={(event) => setDraft(event.currentTarget.value)}
+                onPointerUp={(event) => commit(event.currentTarget.value)}
+                onKeyUp={(event) => {
+                  if (["ArrowLeft", "ArrowRight", "Home", "End", "PageUp", "PageDown"].includes(event.key)) {
+                    commit(event.currentTarget.value);
+                  }
+                }}
+                onBlur={(event) => commit(event.currentTarget.value)}
+                onKeyDown={handleKeyDown}
+                aria-label={`Weekly progress for ${habit.name}`}
+                aria-valuetext={`${draftValue} of ${goal.target} ${goal.unit}`}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

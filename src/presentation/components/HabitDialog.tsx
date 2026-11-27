@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent, type MouseEvent } from "react";
-import { Bell, ChevronDown, ChevronUp, X } from "lucide-react";
+import { Archive, Bell, ChevronDown, ChevronUp, X } from "lucide-react";
 import { validateHabitConfiguration } from "../../application/habits/validateHabitConfiguration";
 import type {
   HabitCategory,
@@ -41,6 +41,7 @@ interface HabitDialogProps {
   readonly reminder?: HabitReminder;
   readonly onClose: () => void;
   readonly onSave: (habit: HabitDraft) => void;
+  readonly onArchive?: () => void;
 }
 
 const weekdays: ReadonlyArray<{ id: Weekday; label: string }> = [
@@ -74,6 +75,7 @@ export function HabitDialog({
   reminder,
   onClose,
   onSave,
+  onArchive,
 }: HabitDialogProps) {
   const nameInputRef = useRef<HTMLInputElement>(null);
   const dialogRef = useDialogFocus<HTMLElement>(open, onClose);
@@ -96,6 +98,7 @@ export function HabitDialog({
   const [icon, setIcon] = useState("check");
   const [colour, setColour] = useState(colours[0]);
   const [plantType, setPlantType] = useState<PlantType>("oak");
+  const [treeMenuOpen, setTreeMenuOpen] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [reminderEnabled, setReminderEnabled] = useState(false);
   const [reminderTime, setReminderTime] = useState("09:00");
@@ -128,6 +131,7 @@ export function HabitDialog({
     setIcon(habit?.icon ?? "check");
     setColour(habit?.colour ?? colours[0]);
     setPlantType(habit?.plantType ?? "oak");
+    setTreeMenuOpen(false);
     setAdvancedOpen(Boolean(habit?.description || habit?.icon || habit?.colour));
     setReminderEnabled(reminder?.enabled ?? false);
     setReminderTime(reminder?.time ?? "09:00");
@@ -221,6 +225,7 @@ export function HabitDialog({
     : scheduleOptions.filter(([id]) => creationCadence === "daily"
       ? id === "daily" || id === "specific_days"
       : id === "weekly_frequency");
+  const selectedPlant = plantChoices.find((plant) => plant.id === plantType) ?? plantChoices[0];
 
   return (
     <div
@@ -233,7 +238,7 @@ export function HabitDialog({
     >
       <section
         ref={dialogRef}
-        className="fluid-scroll max-h-[calc(100dvh-max(0.5rem,env(safe-area-inset-top)))] w-full max-w-2xl overflow-y-auto overscroll-contain rounded-t-[2rem] bg-surface px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-5 shadow-2xl sm:max-h-[calc(100vh-2rem)] sm:rounded-3xl sm:p-6"
+        className="habit-editor-screen fluid-scroll max-h-[calc(100dvh-max(0.5rem,env(safe-area-inset-top)))] w-full max-w-2xl overflow-y-auto overscroll-contain rounded-t-[2rem] bg-surface px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-5 shadow-2xl sm:max-h-[calc(100vh-2rem)] sm:rounded-3xl sm:p-6"
         role="dialog"
         aria-modal="true"
         aria-labelledby="habit-dialog-title"
@@ -253,7 +258,7 @@ export function HabitDialog({
           </Button>
         </div>
 
-        <form className="mt-5 space-y-5" onSubmit={handleSubmit}>
+        <form className="habit-editor-form mt-5 flex min-h-[calc(100dvh-7.5rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))] flex-col gap-5 sm:min-h-0" onSubmit={handleSubmit}>
           {!habit && (
             <fieldset>
               <legend className="sr-only">Habit cadence</legend>
@@ -287,8 +292,8 @@ export function HabitDialog({
             </fieldset>
           )}
 
-          <label className="block text-xs font-semibold text-ink-600">
-            Name
+          <label className="block">
+            <span className="sr-only">Habit name</span>
             <input
               ref={nameInputRef}
               required
@@ -298,35 +303,52 @@ export function HabitDialog({
               value={name}
               maxLength={80}
               onChange={(event) => setName(event.currentTarget.value)}
-              placeholder="e.g. Read for 20 minutes"
+              placeholder="Name your habit"
             />
           </label>
 
           <fieldset>
-            <legend className="text-xs font-semibold text-ink-600">Choose your streak tree</legend>
-            <div className="mt-2 grid gap-2 sm:grid-cols-3">
-              {plantChoices.map((plant) => (
-                <button
-                  key={plant.id}
-                  className={cn(
-                    "flex items-center gap-3 rounded-3xl p-3 text-left transition sm:block sm:text-center",
-                    plantType === plant.id
-                      ? "bg-leaf-100 ring-2 ring-leaf-500"
-                      : "bg-surface-muted hover:bg-leaf-50",
-                  )}
-                  type="button"
-                  onClick={() => setPlantType(plant.id)}
-                  aria-pressed={plantType === plant.id}
-                  aria-label={`Choose ${plant.label}`}
-                >
-                  <AnimatedPlant plantType={plant.id} stage={4} size={54} className="shrink-0 sm:mx-auto" />
-                  <span className="min-w-0">
-                    <span className="block text-sm font-semibold">{plant.label}</span>
-                    {habit && <span className="mt-0.5 block text-[11px] leading-4 text-ink-400">{plant.description}</span>}
-                  </span>
-                </button>
-              ))}
-            </div>
+            <legend className="sr-only">Choose your streak tree</legend>
+            <button
+              className="flex w-full items-center gap-3 rounded-[1.5rem] bg-surface-muted px-4 py-3 text-left transition hover:bg-leaf-50 focus-visible:ring-2 focus-visible:ring-leaf-500"
+              type="button"
+              aria-expanded={treeMenuOpen}
+              aria-controls="habit-tree-options"
+              onClick={() => setTreeMenuOpen((current) => !current)}
+            >
+              <AnimatedPlant plantType={selectedPlant.id} stage={4} size={50} className="shrink-0" />
+              <span className="min-w-0 flex-1 text-sm font-semibold">{selectedPlant.label}</span>
+              <ChevronDown
+                className={cn("shrink-0 transition-transform", treeMenuOpen && "rotate-180")}
+                size={18}
+                aria-hidden="true"
+              />
+            </button>
+            {treeMenuOpen && (
+              <div id="habit-tree-options" className="cadence-options-reveal mt-2 grid gap-2 sm:grid-cols-3">
+                {plantChoices.map((plant) => (
+                  <button
+                    key={plant.id}
+                    className={cn(
+                      "flex items-center gap-3 rounded-[1.35rem] px-3 py-2.5 text-left transition sm:flex-col sm:text-center",
+                      plantType === plant.id
+                        ? "bg-leaf-100 ring-2 ring-leaf-500"
+                        : "bg-surface-muted hover:bg-leaf-50",
+                    )}
+                    type="button"
+                    onClick={() => {
+                      setPlantType(plant.id);
+                      setTreeMenuOpen(false);
+                    }}
+                    aria-pressed={plantType === plant.id}
+                    aria-label={`Choose ${plant.label}`}
+                  >
+                    <AnimatedPlant plantType={plant.id} stage={4} size={46} className="shrink-0" />
+                    <span className="min-w-0 text-sm font-semibold">{plant.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </fieldset>
 
           {habit && (
@@ -540,11 +562,24 @@ export function HabitDialog({
 
           {error && <p id="habit-dialog-error" className="text-sm font-medium text-red-600" role="alert">{error}</p>}
 
-          <div className="soft-panel flex items-center justify-between gap-3 rounded-3xl p-3">
-            <div className="ml-auto flex gap-3">
-            <Button variant="secondary" onClick={onClose}>Cancel</Button>
-            <Button type="submit">{habit ? "Save changes" : "Add habit"}</Button>
-            </div>
+          <div className={cn(
+            "habit-dialog-actions sticky bottom-0 z-20 -mx-1 mt-auto grid gap-3 bg-surface/95 pb-1 pt-4 backdrop-blur-xl",
+            habit && onArchive ? "grid-cols-2" : "grid-cols-1",
+          )}>
+            {habit && onArchive && (
+              <Button
+                className="h-12 min-w-0 border border-red-200 bg-red-50 px-3 text-red-700 shadow-none hover:bg-red-100 dark:border-red-900/60 dark:bg-red-950/35 dark:text-red-300 dark:hover:bg-red-950/55"
+                variant="secondary"
+                onClick={onArchive}
+                data-haptic="warning"
+              >
+                <Archive size={16} aria-hidden="true" />
+                Archive habit
+              </Button>
+            )}
+            <Button className="h-12 min-w-0 px-3" type="submit">
+              {habit ? "Save changes" : "Create habit"}
+            </Button>
           </div>
         </form>
       </section>

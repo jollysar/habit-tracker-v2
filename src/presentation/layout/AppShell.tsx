@@ -218,6 +218,9 @@ export function AppShell({
         )}
       </aside>
 
+      <div className="mobile-edge-fade mobile-edge-fade-top lg:hidden" aria-hidden="true" />
+      <div className="mobile-edge-fade mobile-edge-fade-bottom lg:hidden" aria-hidden="true" />
+
       <nav
         className={cn(
           "mobile-bottom-nav fixed z-50 items-center justify-center gap-3.5 px-3 lg:hidden",

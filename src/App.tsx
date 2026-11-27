@@ -284,6 +284,15 @@ function App() {
     ),
     [managedHabits, scheduleHistory, completionHistory, progressHistory, selectedHomeDate, localDate, weekStartsOn, weeklyProgress],
   );
+  const weeklyHabitsWithStatistics = useMemo(() => {
+    const streaks = new Map(
+      selectedWeek.habits.map((row) => [row.habit.id, row.statistics.currentStreak]),
+    );
+    return todayHabitLanes.weekly.map((habit) => ({
+      ...habit,
+      streak: streaks.get(habit.id) ?? habit.streak,
+    }));
+  }, [selectedWeek.habits, todayHabitLanes.weekly]);
   const todayHighlights = useMemo(
     () => buildTodayHighlights(selectedWeek, scheduleHistory, selectedHomeDate),
     [selectedWeek, scheduleHistory, selectedHomeDate],
@@ -1014,7 +1023,7 @@ function App() {
         <TodayPage
           dashboard={dashboard}
           weekDateLabel={selectedWeek.dateLabel}
-          weeklyHabits={todayHabitLanes.weekly}
+          weeklyHabits={weeklyHabitsWithStatistics}
           weeklyGoals={todayHighlights.weeklyGoals}
           weeklyCompletionPercentage={todayHighlights.weeklyCompletionPercentage}
           completedWeeklyGoals={todayHighlights.completedWeeklyGoals}
@@ -1071,6 +1080,13 @@ function App() {
         reminder={editingHabit ? reminders.find((item) => item.habitId === editingHabit.id) : undefined}
         onClose={() => setHabitDialog(null)}
         onSave={handleSaveHabit}
+        onArchive={editingHabit ? () => {
+          archiveHabit(
+            editingHabit.id,
+            "The habit could not be archived. Your saved data has been restored.",
+          );
+          setHabitDialog(null);
+        } : undefined}
       />
       <DeleteHabitDialog
         habit={habitToDelete}
