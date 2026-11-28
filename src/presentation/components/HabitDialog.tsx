@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent, type MouseEvent } from "react";
-import { Archive, Bell, ChevronDown, ChevronUp, X } from "lucide-react";
+import { Archive, ChevronDown, ChevronUp, SlidersHorizontal, X } from "lucide-react";
 import { validateHabitConfiguration } from "../../application/habits/validateHabitConfiguration";
 import type {
   HabitCategory,
@@ -78,6 +78,7 @@ export function HabitDialog({
   onArchive,
 }: HabitDialogProps) {
   const nameInputRef = useRef<HTMLInputElement>(null);
+  const advancedSectionRef = useRef<HTMLElement>(null);
   const dialogRef = useDialogFocus<HTMLElement>(open, onClose);
   const [creationCadence, setCreationCadence] = useState<"daily" | "weekly">("daily");
   const [name, setName] = useState("");
@@ -98,7 +99,6 @@ export function HabitDialog({
   const [icon, setIcon] = useState("check");
   const [colour, setColour] = useState(colours[0]);
   const [plantType, setPlantType] = useState<PlantType>("oak");
-  const [treeMenuOpen, setTreeMenuOpen] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [reminderEnabled, setReminderEnabled] = useState(false);
   const [reminderTime, setReminderTime] = useState("09:00");
@@ -131,7 +131,6 @@ export function HabitDialog({
     setIcon(habit?.icon ?? "check");
     setColour(habit?.colour ?? colours[0]);
     setPlantType(habit?.plantType ?? "oak");
-    setTreeMenuOpen(false);
     setAdvancedOpen(Boolean(habit?.description || habit?.icon || habit?.colour));
     setReminderEnabled(reminder?.enabled ?? false);
     setReminderTime(reminder?.time ?? "09:00");
@@ -225,8 +224,6 @@ export function HabitDialog({
     : scheduleOptions.filter(([id]) => creationCadence === "daily"
       ? id === "daily" || id === "specific_days"
       : id === "weekly_frequency");
-  const selectedPlant = plantChoices.find((plant) => plant.id === plantType) ?? plantChoices[0];
-
   return (
     <div
       className={cn(
@@ -238,7 +235,7 @@ export function HabitDialog({
     >
       <section
         ref={dialogRef}
-        className="habit-editor-screen fluid-scroll max-h-[calc(100dvh-max(0.5rem,env(safe-area-inset-top)))] w-full max-w-2xl overflow-y-auto overscroll-contain rounded-t-[2rem] bg-surface px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-5 shadow-2xl sm:max-h-[calc(100vh-2rem)] sm:rounded-3xl sm:p-6"
+        className="habit-editor-screen fluid-scroll max-h-[calc(100dvh-max(0.5rem,env(safe-area-inset-top)))] w-full max-w-2xl overflow-hidden overscroll-contain rounded-t-[2rem] bg-surface px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-5 shadow-2xl sm:max-h-[calc(100vh-2rem)] sm:overflow-y-auto sm:rounded-3xl sm:p-6"
         role="dialog"
         aria-modal="true"
         aria-labelledby="habit-dialog-title"
@@ -258,7 +255,7 @@ export function HabitDialog({
           </Button>
         </div>
 
-        <form className="habit-editor-form mt-5 flex min-h-[calc(100dvh-7.5rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))] flex-col gap-5 sm:min-h-0" onSubmit={handleSubmit}>
+        <form className="habit-editor-form fluid-scroll mt-5 flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto overscroll-contain pr-0.5 sm:overflow-visible sm:pr-0" onSubmit={handleSubmit}>
           {!habit && (
             <fieldset>
               <legend className="sr-only">Habit cadence</legend>
@@ -309,46 +306,26 @@ export function HabitDialog({
 
           <fieldset>
             <legend className="sr-only">Choose your streak tree</legend>
-            <button
-              className="flex w-full items-center gap-3 rounded-[1.5rem] bg-surface-muted px-4 py-3 text-left transition hover:bg-leaf-50 focus-visible:ring-2 focus-visible:ring-leaf-500"
-              type="button"
-              aria-expanded={treeMenuOpen}
-              aria-controls="habit-tree-options"
-              onClick={() => setTreeMenuOpen((current) => !current)}
-            >
-              <AnimatedPlant plantType={selectedPlant.id} stage={4} size={50} className="shrink-0" />
-              <span className="min-w-0 flex-1 text-sm font-semibold">{selectedPlant.label}</span>
-              <ChevronDown
-                className={cn("shrink-0 transition-transform", treeMenuOpen && "rotate-180")}
-                size={18}
-                aria-hidden="true"
-              />
-            </button>
-            {treeMenuOpen && (
-              <div id="habit-tree-options" className="cadence-options-reveal mt-2 grid gap-2 sm:grid-cols-3">
-                {plantChoices.map((plant) => (
-                  <button
-                    key={plant.id}
-                    className={cn(
-                      "flex items-center gap-3 rounded-[1.35rem] px-3 py-2.5 text-left transition sm:flex-col sm:text-center",
-                      plantType === plant.id
-                        ? "bg-leaf-100 ring-2 ring-leaf-500"
-                        : "bg-surface-muted hover:bg-leaf-50",
-                    )}
-                    type="button"
-                    onClick={() => {
-                      setPlantType(plant.id);
-                      setTreeMenuOpen(false);
-                    }}
-                    aria-pressed={plantType === plant.id}
-                    aria-label={`Choose ${plant.label}`}
-                  >
-                    <AnimatedPlant plantType={plant.id} stage={4} size={46} className="shrink-0" />
-                    <span className="min-w-0 text-sm font-semibold">{plant.label}</span>
-                  </button>
-                ))}
-              </div>
-            )}
+            <div id="habit-tree-options" className="grid grid-cols-3 gap-1.5 rounded-[1.75rem] bg-surface-muted p-1.5">
+              {plantChoices.map((plant) => (
+                <button
+                  key={plant.id}
+                  className={cn(
+                    "flex min-w-0 flex-col items-center justify-center gap-1 rounded-[1.35rem] px-2 py-2.5 text-center transition",
+                    plantType === plant.id
+                      ? "bg-leaf-100 text-ink-950 shadow-sm"
+                      : "text-ink-600 hover:bg-leaf-50 hover:text-ink-950",
+                  )}
+                  type="button"
+                  onClick={() => setPlantType(plant.id)}
+                  aria-pressed={plantType === plant.id}
+                  aria-label={`Choose ${plant.label}`}
+                >
+                  <AnimatedPlant plantType={plant.id} stage={4} size={44} className="shrink-0" />
+                  <span className="max-w-full truncate text-xs font-semibold">{plant.label}</span>
+                </button>
+              ))}
+            </div>
           </fieldset>
 
           {habit && (
@@ -362,38 +339,34 @@ export function HabitDialog({
             </label>
           )}
 
-          <div className="w-full">
-            <button
-              className="flex w-full items-center justify-between gap-4 rounded-full bg-surface-muted px-4 py-3 text-left transition hover:bg-leaf-50"
-              type="button"
-              role="switch"
-              aria-checked={reminderEnabled}
-              onClick={() => setReminderEnabled((current) => !current)}
-            >
-              <span className="flex items-center gap-3">
-                <span className="grid size-9 place-items-center rounded-full bg-leaf-50 text-leaf-700">
-                  <Bell size={17} aria-hidden="true" />
-                </span>
-                <span className="text-sm font-semibold">Habit reminder</span>
-              </span>
-              <span className={cn(
-                "inline-flex h-6 w-11 shrink-0 items-center rounded-full p-0.5 transition-colors",
-                reminderEnabled ? "justify-end bg-leaf-500" : "justify-start bg-line",
-              )} aria-hidden="true">
-                <span className="size-5 rounded-full bg-white shadow-sm" />
-              </span>
-            </button>
-            {reminderEnabled && (
-              <label className="mt-4 block max-w-44 text-xs font-semibold text-ink-600">
-                Reminder time
-                <input
-                  className={inputClass}
-                  type="time"
-                  value={reminderTime}
-                  onChange={(event) => setReminderTime(event.currentTarget.value)}
-                />
-              </label>
-            )}
+          <div className="grid min-h-14 w-full grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3 rounded-[1.5rem] bg-surface-muted py-2.5 pl-4 pr-3">
+            <label className="min-w-0 text-left text-sm font-semibold" htmlFor="habit-reminder-enabled">
+              Reminder
+            </label>
+            <input
+              className={cn(
+                "h-10 w-[7.2rem] rounded-full bg-surface-raised px-3 text-center text-sm font-semibold text-ink-950 outline-none transition duration-200 focus:ring-2 focus:ring-leaf-500",
+                !reminderEnabled && "pointer-events-none select-none opacity-45 blur-[3px]",
+              )}
+              type="time"
+              value={reminderTime}
+              disabled={!reminderEnabled}
+              aria-label="Reminder time"
+              onChange={(event) => setReminderTime(event.currentTarget.value)}
+            />
+            <label className="relative inline-flex h-7 w-12 shrink-0 items-center" htmlFor="habit-reminder-enabled">
+              <input
+                id="habit-reminder-enabled"
+                className="peer sr-only"
+                type="checkbox"
+                checked={reminderEnabled}
+                aria-label="Enable reminder"
+                onChange={(event) => setReminderEnabled(event.currentTarget.checked)}
+              />
+              <span className="absolute inset-0 rounded-full bg-line transition-colors peer-checked:bg-leaf-500 peer-focus-visible:ring-2 peer-focus-visible:ring-leaf-500 peer-focus-visible:ring-offset-2" aria-hidden="true" />
+              <span className="relative ml-1 size-5 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-5" aria-hidden="true" />
+              <span className="sr-only">Enable reminder</span>
+            </label>
           </div>
 
           {type !== "binary" && (
@@ -484,18 +457,30 @@ export function HabitDialog({
             </label>
           )}
 
-          <button
-            className="soft-panel flex w-full items-center justify-between rounded-full px-4 py-3 text-sm font-semibold text-ink-600"
-            type="button"
-            onClick={() => setAdvancedOpen((current) => !current)}
-            aria-expanded={advancedOpen}
-          >
-            Advanced details
-            {advancedOpen ? <ChevronUp size={17} /> : <ChevronDown size={17} />}
-          </button>
+          <section ref={advancedSectionRef} className="soft-panel shrink-0 overflow-hidden rounded-[1.75rem]">
+            <button
+              className="flex min-h-14 w-full items-center justify-between px-4 py-3 text-sm font-semibold text-ink-600"
+              type="button"
+              onClick={() => {
+                setAdvancedOpen((current) => {
+                  const next = !current;
+                  if (next) {
+                    window.requestAnimationFrame(() => {
+                      advancedSectionRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+                    });
+                  }
+                  return next;
+                });
+              }}
+              aria-expanded={advancedOpen}
+              aria-controls="habit-advanced-details"
+            >
+              <span className="flex items-center gap-2.5"><SlidersHorizontal size={17} aria-hidden="true" />Advanced details</span>
+              {advancedOpen ? <ChevronUp size={17} aria-hidden="true" /> : <ChevronDown size={17} aria-hidden="true" />}
+            </button>
 
-          {advancedOpen && (
-            <div className="soft-panel space-y-4 rounded-3xl p-4">
+            {advancedOpen && (
+            <div id="habit-advanced-details" className="cadence-options-reveal space-y-4 border-t border-line px-4 pb-4 pt-4">
               <label className="block text-xs font-semibold text-ink-600">
                 Category <span className="font-normal text-ink-400">(optional)</span>
                 <select className={inputClass} value={categoryId} onChange={(event) => setCategoryId(event.currentTarget.value)}>
@@ -558,7 +543,8 @@ export function HabitDialog({
                 </div>
               </fieldset>
             </div>
-          )}
+            )}
+          </section>
 
           {error && <p id="habit-dialog-error" className="text-sm font-medium text-red-600" role="alert">{error}</p>}
 

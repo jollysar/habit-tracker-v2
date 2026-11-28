@@ -105,9 +105,16 @@ body {
   left: 0;
   z-index: 40;
   pointer-events: none;
+  opacity: 0;
   background: transparent;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  transition: opacity var(--motion-snappy);
+  will-change: opacity;
+}
+
+.mobile-edge-fade-visible {
+  opacity: 1;
 }
 
 .mobile-edge-fade-top {
@@ -295,6 +302,15 @@ textarea {
     padding-top: calc(max(1.25rem, env(safe-area-inset-top)) + 0.5rem);
     padding-bottom: calc(1.25rem + env(safe-area-inset-bottom));
     box-shadow: none;
+  }
+
+  .habit-editor-screen {
+    min-height: 0;
+  }
+
+  .habit-editor-form {
+    scroll-padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+    -webkit-overflow-scrolling: touch;
   }
 
   .habit-gesture-row {
@@ -590,6 +606,21 @@ textarea:focus-visible,
   50% { opacity: 1; transform: scale(1.15); }
 }
 
+@keyframes empty-squirrel-peek {
+  0%, 18%, 100% { opacity: 0; transform: translateY(23px) rotate(4deg); }
+  27%, 64% { opacity: 1; transform: translateY(4px) rotate(1deg); }
+  38% { opacity: 1; transform: translateY(1px) rotate(-4deg); }
+  47% { opacity: 1; transform: translateY(5px) rotate(5deg); }
+  76% { opacity: 0; transform: translateY(17px) rotate(2deg); }
+}
+
+@keyframes empty-acorn-drop {
+  0%, 46%, 100% { opacity: 0; transform: translateY(-7px) rotate(18deg); }
+  54% { opacity: 1; }
+  70% { opacity: 1; transform: translateY(26px) rotate(108deg); }
+  82% { opacity: 0; transform: translateY(43px) rotate(154deg); }
+}
+
 @keyframes garden-plot-reveal {
   from {
     opacity: 0;
@@ -661,6 +692,140 @@ textarea:focus-visible,
   animation: plant-soil-breathe 3s ease-in-out infinite;
 }
 
+.habit-empty-state {
+  display: flex;
+  min-height: clamp(22rem, calc(100dvh - 18rem), 35rem);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0.5rem 1rem 5.5rem;
+}
+
+.habit-empty-scene {
+  position: relative;
+  display: block;
+  width: 14rem;
+  height: 14rem;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.habit-empty-scene:focus-visible {
+  outline: 2px solid var(--color-leaf-500);
+  outline-offset: 4px;
+}
+
+.habit-empty-tree {
+  position: absolute;
+  inset: 0;
+}
+
+.habit-empty-squirrel {
+  position: absolute;
+  z-index: 3;
+  left: 66%;
+  top: 24%;
+  width: 2rem;
+  height: 2.25rem;
+  color: #bc7447;
+  opacity: 0;
+  animation: empty-squirrel-peek 4.8s ease-in-out infinite;
+}
+
+.habit-empty-squirrel-head {
+  position: absolute;
+  left: 0.3rem;
+  top: 0.5rem;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.habit-empty-squirrel-ear {
+  position: absolute;
+  top: 0.15rem;
+  width: 0.52rem;
+  height: 0.58rem;
+  border-radius: 0.5rem 0.12rem 0.5rem 0.12rem;
+  background: currentColor;
+}
+
+.habit-empty-squirrel-ear-left {
+  left: 0.48rem;
+  transform: rotate(-18deg);
+}
+
+.habit-empty-squirrel-ear-right {
+  left: 1.2rem;
+  transform: rotate(22deg) scaleX(-1);
+}
+
+.habit-empty-squirrel-eye,
+.habit-empty-squirrel-nose {
+  position: absolute;
+  z-index: 1;
+  width: 0.2rem;
+  height: 0.2rem;
+  border-radius: 50%;
+  background: #1e1712;
+}
+
+.habit-empty-squirrel-eye {
+  left: 1.22rem;
+  top: 0.95rem;
+}
+
+.habit-empty-squirrel-nose {
+  left: 1.58rem;
+  top: 1.12rem;
+}
+
+.habit-empty-foreground-leaf {
+  position: absolute;
+  z-index: 4;
+  left: 64.5%;
+  top: 35.5%;
+  width: 2.7rem;
+  height: 2rem;
+  border-radius: 55% 45% 52% 48%;
+  background: #4ca45a;
+  transform: rotate(7deg);
+}
+
+.habit-empty-acorn {
+  position: absolute;
+  z-index: 5;
+  left: 79%;
+  top: 45%;
+  width: 0.55rem;
+  height: 0.72rem;
+  border-radius: 50% 50% 60% 60%;
+  background: #a6683d;
+  opacity: 0;
+  animation: empty-acorn-drop 4.8s ease-in-out infinite;
+}
+
+.habit-empty-acorn::before {
+  content: "";
+  position: absolute;
+  left: -0.07rem;
+  top: -0.2rem;
+  width: 0.72rem;
+  height: 0.3rem;
+  border-radius: 50%;
+  background: #714125;
+}
+
+@media (min-width: 640px) {
+  .habit-empty-state {
+    padding-bottom: 2rem;
+  }
+}
+
 .app-page-enter {
   animation: page-reveal var(--motion-settle) both;
 }
@@ -673,6 +838,7 @@ textarea:focus-visible,
 .habit-action-sheet {
   transform-origin: bottom center;
   animation: dialog-reveal 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  box-shadow: 0 -8px 28px color-mix(in srgb, var(--color-ink-950) 16%, transparent);
 }
 
 .mobile-dialog-layer {
@@ -793,5 +959,14 @@ textarea:focus-visible,
 
   .progress-ring-power {
     animation: none;
+  }
+
+  .habit-empty-squirrel {
+    opacity: 1;
+    transform: translateY(4px) rotate(1deg);
+  }
+
+  .habit-empty-acorn {
+    opacity: 0;
   }
 }

@@ -4,6 +4,7 @@ import type { TodayDashboard } from "../../application/today/buildTodayDashboard
 import type { TodayHabit, Weekday, WeeklyGoal } from "../../domain/habits/models";
 import { cn } from "../../lib/cn";
 import { AnimatedPlant } from "../components/AnimatedPlant";
+import { HabitEmptyState } from "../components/HabitEmptyState";
 import { HabitRow } from "../components/HabitRow";
 import { HomeDatePicker } from "../components/HomeDatePicker";
 import { ProgressRing } from "../components/ProgressRing";
@@ -422,23 +423,22 @@ export function TodayPage({
 
           {isDailyView ? (
             <section aria-label="Today’s habits" role="tabpanel">
-              <div className="space-y-2">
-                {orderedDailyHabits.map((habit) => (
-                  <Card key={habit.id} className="habit-card overflow-visible rounded-[1.75rem]">
-                    {renderHabit(habit)}
-                  </Card>
-                ))}
-              </div>
+              {orderedDailyHabits.length === 0 ? (
+                <HabitEmptyState onAddHabit={onAddHabit} />
+              ) : (
+                <div className="space-y-2">
+                  {orderedDailyHabits.map((habit) => (
+                    <Card key={habit.id} className="habit-card overflow-visible rounded-[1.75rem]">
+                      {renderHabit(habit)}
+                    </Card>
+                  ))}
+                </div>
+              )}
             </section>
           ) : (
             <section aria-label="Weekly habits" role="tabpanel">
               {weeklyHabits.length === 0 ? (
-                <Card className="rounded-[1.75rem] shadow-none">
-                  <div className="px-5 py-7 text-center">
-                    <p className="text-sm font-semibold">No weekly habits yet</p>
-                    <p className="mt-1 text-xs text-ink-400">Add a weekly habit to start tracking one.</p>
-                  </div>
-                </Card>
+                <HabitEmptyState onAddHabit={onAddHabit} />
               ) : (
                 <div className="space-y-2">
                   {orderedWeeklyHabits.map((habit) => {

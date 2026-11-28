@@ -195,7 +195,7 @@ export function WeeklyHabitRow({
           <div
             ref={menuRef}
             id={`weekly-habit-menu-${habit.id}`}
-            className="habit-action-sheet solid-panel fixed inset-x-4 bottom-[calc(max(0.75rem,env(safe-area-inset-bottom))+4.5rem)] z-[120] max-h-[calc(100dvh-7rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))] overflow-y-auto rounded-[2rem] p-3 shadow-2xl sm:inset-x-auto sm:bottom-6 sm:right-6 sm:w-80 sm:rounded-3xl"
+            className="habit-action-sheet solid-panel fixed inset-x-0 bottom-0 z-[120] max-h-[calc(100dvh-3rem-env(safe-area-inset-top))] overflow-y-auto rounded-t-[2rem] px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-2 shadow-2xl sm:inset-x-auto sm:bottom-6 sm:right-6 sm:w-80 sm:rounded-3xl sm:p-3"
             role="menu"
             aria-label={`Actions for ${habit.name}`}
             onKeyDown={(event) => {
@@ -212,7 +212,11 @@ export function WeeklyHabitRow({
               }
             }}
           >
-            <p className="px-3 pb-2 pt-1 text-sm font-bold tracking-[-0.01em] text-ink-950">{habit.name}</p>
+            <div className="mx-auto mb-2 h-1 w-10 rounded-full bg-line sm:hidden" aria-hidden="true" />
+            <div className="px-3 pb-2 pt-1">
+              <p className="text-base font-bold tracking-[-0.01em] text-ink-950">{habit.name}</p>
+              <p className="mt-0.5 text-xs font-medium text-ink-400">Weekly habit actions</p>
+            </div>
             <button className="flex w-full items-center gap-3 rounded-2xl px-3 py-3.5 text-left text-sm font-medium text-ink-800 hover:bg-leaf-50" role="menuitem" onClick={() => { setMenuOpen(false); setEditing(true); }}>
               <Gauge size={18} aria-hidden="true" />
               Update progress

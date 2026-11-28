@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from "react";
 import {
   CalendarDays,
   House,
@@ -58,6 +58,7 @@ export function AppShell({
   const resizing = useRef(false);
   const mainRef = useRef<HTMLElement>(null);
   const [mobileKeyboardOpen, setMobileKeyboardOpen] = useState(false);
+  const [edgeFades, setEdgeFades] = useState({ top: false, bottom: false });
   const effectiveSidebarWidth = sidebarCollapsed ? COLLAPSED_SIDEBAR_WIDTH : sidebarWidth;
 
   useEffect(() => {
@@ -70,6 +71,48 @@ export function AppShell({
     viewport.addEventListener("resize", updateKeyboardState);
     return () => viewport.removeEventListener("resize", updateKeyboardState);
   }, []);
+
+  useLayoutEffect(() => {
+    let animationFrame = 0;
+    const updateEdgeFades = () => {
+      animationFrame = 0;
+      const scrollTop = Math.max(0, window.scrollY || document.documentElement.scrollTop || 0);
+      const scrollHeight = Math.max(
+        document.documentElement.scrollHeight,
+        document.body.scrollHeight,
+      );
+      const remainingScroll = Math.max(0, scrollHeight - window.innerHeight - scrollTop);
+      const nextFades = {
+        top: scrollTop > 2,
+        bottom: remainingScroll > 2,
+      };
+      setEdgeFades((current) => (
+        current.top === nextFades.top && current.bottom === nextFades.bottom
+          ? current
+          : nextFades
+      ));
+    };
+    const scheduleUpdate = () => {
+      if (animationFrame !== 0) return;
+      animationFrame = window.requestAnimationFrame(updateEdgeFades);
+    };
+
+    updateEdgeFades();
+    window.addEventListener("scroll", scheduleUpdate, { passive: true });
+    window.addEventListener("resize", scheduleUpdate);
+    window.visualViewport?.addEventListener("resize", scheduleUpdate);
+    const resizeObserver = new ResizeObserver(scheduleUpdate);
+    resizeObserver.observe(document.documentElement);
+    if (mainRef.current) resizeObserver.observe(mainRef.current);
+
+    return () => {
+      if (animationFrame !== 0) window.cancelAnimationFrame(animationFrame);
+      window.removeEventListener("scroll", scheduleUpdate);
+      window.removeEventListener("resize", scheduleUpdate);
+      window.visualViewport?.removeEventListener("resize", scheduleUpdate);
+      resizeObserver.disconnect();
+    };
+  }, [activeSection]);
 
   useEffect(() => {
     const handlePointerMove = (event: PointerEvent) => {
@@ -218,8 +261,20 @@ export function AppShell({
         )}
       </aside>
 
-      <div className="mobile-edge-fade mobile-edge-fade-top lg:hidden" aria-hidden="true" />
-      <div className="mobile-edge-fade mobile-edge-fade-bottom lg:hidden" aria-hidden="true" />
+      <div
+        className={cn(
+          "mobile-edge-fade mobile-edge-fade-top lg:hidden",
+          edgeFades.top && "mobile-edge-fade-visible",
+        )}
+        aria-hidden="true"
+      />
+      <div
+        className={cn(
+          "mobile-edge-fade mobile-edge-fade-bottom lg:hidden",
+          edgeFades.bottom && "mobile-edge-fade-visible",
+        )}
+        aria-hidden="true"
+      />
 
       <nav
         className={cn(
